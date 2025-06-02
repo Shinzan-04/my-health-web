@@ -13,6 +13,7 @@ export default function userPanel() {
     { label: "Bác Sĩ", href: "/doctor" },
     { label: "Đặt Lịch", href: "/booking" },
     { label: "Liên Hệ", href: "/contact" },
+    { label: "Blog", href: "/blog" },
   ];
 
   const profileMenuItems = [

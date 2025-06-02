@@ -10,32 +10,64 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
+
     if (!email || !password) {
-      setError("Vui lòng nhập đầy đủ thông tin");
+      setError("Vui lòng nhập đầy đủ thông tin.");
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/login", {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }), // bỏ role khỏi payload
+        body: JSON.stringify({ email, password }),
       });
 
       if (!res.ok) {
-        const errData = await res.text();
-        setError(errData || "Đăng nhập thất bại");
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errData = await res.json();
+          setError(errData.message || "Đăng nhập thất bại.");
+        } else {
+          const errText = await res.text();
+          setError(errText || "Đăng nhập thất bại: Lỗi không xác định từ máy chủ.");
+        }
         return;
       }
 
       const result = await res.json();
       console.log("Đăng nhập thành công:", result);
-      // localStorage.setItem("token", result.token);
 
-      window.location.href = "/userPanel";
+      // Lưu token vào localStorage (hoặc cookies, tùy chiến lược)
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("userEmail", result.email); // Lưu email để dùng sau
+      localStorage.setItem("userRole", result.role); // Lưu vai trò
+
+      // Chuyển hướng dựa trên vai trò
+      switch (result.role) {
+        case "CUSTOMER":
+          window.location.href = "/customer/dashboard"; // Hoặc giao diện bệnh nhân
+          break;
+        case "DOCTOR":
+          window.location.href = "/doctor/dashboard"; // Giao diện bác sĩ
+          break;
+        case "ADMIN":
+          window.location.href = "/admin/dashboard"; // Giao diện quản trị viên
+          break;
+        case "STAFF":
+          window.location.href = "/staff/dashboard"; // Giao diện lễ tân
+          break;
+        case "USER": // Nếu USER là một vai trò độc lập không phải Customer
+          window.location.href = "/userPanel";
+          break;
+        default:
+          window.location.href = "/"; // Trang mặc định nếu không khớp
+          break;
+      }
     } catch (err) {
-      setError("Lỗi kết nối máy chủ");
-      console.error(err);
+      setError("Lỗi kết nối máy chủ. Vui lòng thử lại sau.");
+      console.error("Lỗi khi đăng nhập:", err);
     }
   };
 
@@ -57,8 +89,8 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            placeholder="Email hoặc số điện thoại"
-            value={email}
+            placeholder="Email hoặc số điện thoại" // Để người dùng có thể nhập cả email hoặc sđt
+            value={email} // Sẽ là trường hợp email trong DTO LoginRequest
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />

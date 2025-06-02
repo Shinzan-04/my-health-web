@@ -12,8 +12,8 @@ export default function Header() {
     { label: "Bác Sĩ", href: "/doctor" },
     { label: "Đặt Lịch", href: "/booking" },
     { label: "Liên Hệ", href: "/contact" },
-    { label: "Đăng nhập", href: "/login" },
-  ];
+    { label: "Blog", href: "/blog" },
+];
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm fixed w-full top-0 z-50">
