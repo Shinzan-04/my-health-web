@@ -11,6 +11,7 @@ export default function userPannel() {
   const navLinks = [
     { label: "Trang Chủ", href: "/home" },
     { label: "Liên Hệ", href: "/contact" },
+    { label: "BlogBlog", href: "/blog" },
   ];
 
   const profileMenuItems = [
