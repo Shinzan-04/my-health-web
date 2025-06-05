@@ -1,43 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+// import Link from "next/link"; // Removed: next/link cannot be resolved in this environment
 
 export default function RegisterPage() {
   const [fullname, setFullname] = useState("");
   const [gender, setGender] = useState(""); // Thêm state cho Gender
-  const [dateOfBirth, setDateOfBirth] = useState(""); // Thêm state cho DateOfBirth
-  const [phone, setPhone] = useState(""); // Thay đổi contact thành phone và email riêng
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // State mới cho thông báo thành công
+  const [isLoading, setIsLoading] = useState(false); // State cho trạng thái loading
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError(""); // Xóa các lỗi trước đó
+    setSuccessMessage(""); // Xóa thông báo thành công trước đó
+    setIsLoading(true); // Bắt đầu loading
 
-    if (!fullname || !gender || !dateOfBirth || !phone || !email || !password || !confirmPassword) {
+    // Cập nhật điều kiện kiểm tra rỗng
+    if (!fullname || !gender || !phone || !email || !password || !confirmPassword) {
       setError("Vui lòng nhập đầy đủ thông tin.");
+      setIsLoading(false); // Dừng loading
       return;
     }
     if (password !== confirmPassword) {
       setError("Mật khẩu xác nhận không khớp.");
+      setIsLoading(false); // Dừng loading
       return;
     }
 
     const payload = {
       fullName: fullname,
       gender: gender, // Gửi giá trị string của enum Gender (MALE, FEMALE, OTHER)
-      dateOfBirth: dateOfBirth, // Gửi dạng YYYY-MM-DD
       phone: phone,
       email: email,
       password: password,
-      // Role sẽ được gán cứng là CUSTOMER ở backend
+      role: "USER", // Gán cứng role là "USER" cho tài khoản đăng ký
     };
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/register", {
+      const res = await fetch("http://localhost:8080/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,12 +63,17 @@ export default function RegisterPage() {
       }
 
       const result = await res.json();
-      alert("Đăng ký thành công!");
+      setSuccessMessage("Đăng ký thành công! Bạn sẽ được chuyển hướng đến trang đăng nhập."); // Hiển thị thông báo thành công
       console.log("Đăng ký thành công:", result);
-      window.location.href = "/login"; // Chuyển hướng sang trang login
+      // Chuyển hướng sau một khoảng thời gian ngắn để người dùng kịp đọc thông báo
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 2000); // Chuyển hướng sau 2 giây
     } catch (err) {
       setError("Lỗi kết nối máy chủ. Vui lòng thử lại sau.");
       console.error("Lỗi khi đăng ký:", err);
+    } finally {
+      setIsLoading(false); // Dừng loading dù thành công hay thất bại
     }
   };
 
@@ -107,18 +117,7 @@ export default function RegisterPage() {
           </div>
           <div>
             <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              required
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-          <div>
-            <input
-              type="tel" // Use type="tel" for phone numbers
+              type="tel" // Sử dụng type="tel" cho số điện thoại
               id="phone"
               name="phone"
               required
@@ -130,7 +129,7 @@ export default function RegisterPage() {
           </div>
           <div>
             <input
-              type="email" // Use type="email" for email
+              type="email" // Sử dụng type="email" cho email
               id="email"
               name="email"
               required
@@ -167,19 +166,23 @@ export default function RegisterPage() {
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition"
+            disabled={isLoading} // Vô hiệu hóa nút khi đang gửi
           >
-            Đăng ký
+            {isLoading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
           {error && (
             <div className="text-red-600 text-center text-sm">{error}</div>
+          )}
+          {successMessage && (
+            <div className="text-green-600 text-center text-sm">{successMessage}</div>
           )}
         </form>
         <div className="mt-6 flex flex-col text-gray-800 items-center gap-2">
           <span className="text-sm">
             Đã có tài khoản?{" "}
-            <Link href="/login" className="text-blue-600 hover:underline font-medium">
+            <a href="/login" className="text-blue-600 hover:underline font-medium"> {/* Changed Link to <a> */}
               Đăng nhập
-            </Link>
+            </a>
           </span>
         </div>
       </div>

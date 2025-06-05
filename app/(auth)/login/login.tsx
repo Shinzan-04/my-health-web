@@ -18,7 +18,7 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch("http://localhost:8080/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -50,7 +50,7 @@ export default function LoginPage() {
           window.location.href = "/customer/dashboard"; // Hoặc giao diện bệnh nhân
           break;
         case "DOCTOR":
-          window.location.href = "/doctor/dashboard"; // Giao diện bác sĩ
+          window.location.href = "/doctorPanel"; // Giao diện bác sĩ
           break;
         case "ADMIN":
           window.location.href = "/admin/dashboard"; // Giao diện quản trị viên

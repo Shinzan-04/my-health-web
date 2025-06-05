@@ -1,29 +1,60 @@
 "use client";
 
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react"; // Import useEffect
+
+// Define a type for Doctor for better type safety
+interface Doctor {
+  id: number;
+  name: string;
+  // Add other doctor properties if needed, but 'name' is sufficient for this dropdown
+}
 
 const RegistrationPage: FC = () => {
   const [form, setForm] = useState({
-    name: "",
+    fullName: "", // Maps to fullName in RegistrationRequest
     email: "",
-    gender: "",
+    gender: "", // Will be converted to uppercase for backend enum
+    dateOfBirth: "", // Maps to dateOfBirth (YYYY-MM-DD)
     phone: "",
     address: "",
-    doctor: "",
-    specialty: "",
-    date: "",
+    doctorName: "", // Maps to doctorName in RegistrationRequest
+    specialization: "",
+    mode: "",
+    appointmentDate: "", // Maps to appointmentDate (ISO 8601)
     session: "",
     symptom: "",
-    mode: "",
-    insurance: "",
-    dob: "",
-    note: "",
+    notes: "", // Maps to notes (was 'note' in original form)
   });
 
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "" }>({
     text: "",
     type: "",
   });
+  const [isLoading, setIsLoading] = useState(false); // State for loading indicator
+  const [doctors, setDoctors] = useState<Doctor[]>([]); // State to store fetched doctors
+  const [doctorsLoading, setDoctorsLoading] = useState(true); // State for loading doctors
+  const [doctorsError, setDoctorsError] = useState<string | null>(null); // State for doctor fetch error
+
+  // Effect to fetch doctors when the component mounts
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/doctors"); // Assuming an endpoint to get all doctors
+        if (!response.ok) {
+          throw new Error("Không thể tải danh sách bác sĩ.");
+        }
+        const data: Doctor[] = await response.json();
+        setDoctors(data);
+      } catch (error: any) {
+        setDoctorsError(error.message);
+        console.error("Lỗi khi tải danh sách bác sĩ:", error);
+      } finally {
+        setDoctorsLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -31,16 +62,74 @@ const RegistrationPage: FC = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage({ text: "", type: "" }); // Clear previous messages
+    setIsLoading(true); // Set loading state
 
-    if (!form.name || !form.phone || !form.date || !form.specialty) {
-      setMessage({ text: "Vui lòng điền đầy đủ thông tin bắt buộc", type: "error" });
+    // Basic client-side validation
+    if (!form.fullName || !form.phone || !form.appointmentDate || !form.specialization || !form.doctorName) {
+      setMessage({ text: "Vui lòng điền đầy đủ thông tin bắt buộc (Họ và tên, SĐT, Ngày khám, Chuyên khoa, Bác sĩ)", type: "error" });
+      setIsLoading(false);
       return;
     }
 
-    setMessage({ text: "Đăng ký khám thành công!", type: "success" });
-    // TODO: Gửi dữ liệu lên server
+    try {
+      // Construct the RegistrationRequest DTO object
+      const requestBody = {
+        fullName: form.fullName,
+        email: form.email,
+        gender: form.gender.toUpperCase(), // Convert to uppercase for backend enum (e.g., "MALE", "FEMALE", "OTHER")
+        dateOfBirth: form.dateOfBirth, // YYYY-MM-DD string
+        phone: form.phone,
+        address: form.address,
+        doctorName: form.doctorName, // This will now be the selected doctor's name from the dropdown
+        specialization: form.specialization,
+        mode: form.mode,
+        // Convert appointmentDate to ISO 8601 string for backend Date object
+        appointmentDate: form.appointmentDate ? new Date(form.appointmentDate).toISOString() : null,
+        session: form.session,
+        symptom: form.symptom,
+        notes: form.notes,
+      };
+
+      const response = await fetch("http://localhost:8080/api/registrations", { // Adjust URL if your backend runs on a different port/path
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) { // Check for 2xx status codes (201 Created is included)
+        setMessage({ text: "Đăng ký khám thành công!", type: "success" });
+        setForm({ // Clear form after successful submission
+          fullName: "",
+          email: "",
+          gender: "",
+          dateOfBirth: "",
+          phone: "",
+          address: "",
+          doctorName: "",
+          specialization: "",
+          mode: "",
+          appointmentDate: "",
+          session: "",
+          symptom: "",
+          notes: "",
+        });
+      } else {
+        const errorData = await response.json();
+        // Assuming backend sends a 'message' field in error response body
+        const errorMessage = errorData.message || "Đăng ký khám thất bại. Vui lòng thử lại.";
+        setMessage({ text: errorMessage, type: "error" });
+      }
+    } catch (error) {
+      console.error("Error submitting registration:", error);
+      setMessage({ text: "Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng kiểm tra kết nối mạng.", type: "error" });
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
   };
 
   return (
@@ -96,14 +185,14 @@ const RegistrationPage: FC = () => {
           >
             {/* Họ và tên */}
             <div>
-              <label htmlFor="name" className="block text-gray-700 text-sm mb-1">
+              <label htmlFor="fullName" className="block text-gray-700 text-sm mb-1">
                 Họ và tên <span className="text-red-500">*</span>
               </label>
               <input
-                id="name"
+                id="fullName"
                 type="text"
-                name="name"
-                value={form.name}
+                name="fullName" // Changed name to match form state key
+                value={form.fullName}
                 onChange={handleChange}
                 placeholder="Nhập họ và tên"
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -140,24 +229,23 @@ const RegistrationPage: FC = () => {
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Chọn giới tính</option>
-                <option value="male">Nam</option>
-                <option value="female">Nữ</option>
-                <option value="other">Khác</option>
+                <option value="MALE">Nam</option>
+                <option value="FEMALE">Nữ</option>
+                <option value="OTHER">Khác</option>
               </select>
             </div>
 
             {/* Năm sinh */}
             <div>
-              <label htmlFor="dob" className="block text-gray-700 text-sm mb-1">
+              <label htmlFor="dateOfBirth" className="block text-gray-700 text-sm mb-1">
                 Năm sinh
               </label>
               <input
-                id="dob"
-                type="text"
-                name="dob"
-                value={form.dob}
+                id="dateOfBirth"
+                type="date" // Changed type to 'date' for better input handling
+                name="dateOfBirth" // Changed name to match form state key
+                value={form.dateOfBirth}
                 onChange={handleChange}
-                placeholder="VD: 1990"
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -195,39 +283,52 @@ const RegistrationPage: FC = () => {
               />
             </div>
 
-            {/* Bác sĩ */}
+            {/* Bác sĩ (Dropdown) */}
             <div>
-              <label htmlFor="doctor" className="block text-gray-700 text-sm mb-1">
-                Bác sĩ
+              <label htmlFor="doctorName" className="block text-gray-700 text-sm mb-1">
+                Bác sĩ <span className="text-red-500">*</span>
               </label>
-              <input
-                id="doctor"
-                type="text"
-                name="doctor"
-                value={form.doctor}
-                onChange={handleChange}
-                placeholder="Nhập tên bác sĩ"
-                className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {doctorsLoading ? (
+                <p className="text-gray-500 text-sm">Đang tải danh sách bác sĩ...</p>
+              ) : doctorsError ? (
+                <p className="text-red-500 text-sm">{doctorsError}</p>
+              ) : (
+                <select
+                  id="doctorName"
+                  name="doctorName"
+                  value={form.doctorName}
+                  onChange={handleChange}
+                  className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Chọn bác sĩ</option>
+                  {doctors.map((doctor) => (
+                    <option key={doctor.id} value={doctor.name}>
+                      {doctor.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Chuyên khoa */}
             <div>
-              <label htmlFor="specialty" className="block text-gray-700 text-sm mb-1">
+              <label htmlFor="specialization" className="block text-gray-700 text-sm mb-1">
                 Chuyên khoa <span className="text-red-500">*</span>
               </label>
               <select
-                id="specialty"
-                name="specialty"
-                value={form.specialty}
+                id="specialization"
+                name="specialization"
+                value={form.specialization}
                 onChange={handleChange}
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
                 <option value="">Chọn chuyên khoa</option>
-                <option value="hiv">HIV/AIDS</option>
-                <option value="da-lieu">Da liễu</option>
-                <option value="other">Khác</option>
+                <option value="HIV/AIDS">HIV/AIDS</option>
+                <option value="Da liễu">Da liễu</option>
+                <option value="Nội tổng quát">Nội tổng quát</option>
+                <option value="Khác">Khác</option>
               </select>
             </div>
 
@@ -244,21 +345,21 @@ const RegistrationPage: FC = () => {
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Chọn hình thức</option>
-                <option value="online">Online</option>
-                <option value="offline">Offline</option>
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
               </select>
             </div>
 
             {/* Ngày khám */}
             <div>
-              <label htmlFor="date" className="block text-gray-700 text-sm mb-1">
+              <label htmlFor="appointmentDate" className="block text-gray-700 text-sm mb-1">
                 Ngày khám <span className="text-red-500">*</span>
               </label>
               <input
-                id="date"
+                id="appointmentDate"
                 type="date"
-                name="date"
-                value={form.date}
+                name="appointmentDate"
+                value={form.appointmentDate}
                 onChange={handleChange}
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -278,27 +379,9 @@ const RegistrationPage: FC = () => {
                 className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Chọn buổi</option>
-                <option value="morning">Sáng</option>
-                <option value="afternoon">Chiều</option>
-                <option value="evening">Tối</option>
-              </select>
-            </div>
-
-            {/* Bảo hiểm */}
-            <div>
-              <label htmlFor="insurance" className="block text-gray-700 text-sm mb-1">
-                Bảo hiểm
-              </label>
-              <select
-                id="insurance"
-                name="insurance"
-                value={form.insurance}
-                onChange={handleChange}
-                className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Chọn</option>
-                <option value="yes">Có</option>
-                <option value="no">Không</option>
+                <option value="Sáng">Sáng</option>
+                <option value="Chiều">Chiều</option>
+                <option value="Tối">Tối</option>
               </select>
             </div>
 
@@ -320,13 +403,13 @@ const RegistrationPage: FC = () => {
 
             {/* Ghi chú */}
             <div className="md:col-span-2">
-              <label htmlFor="note" className="block text-gray-700 text-sm mb-1">
+              <label htmlFor="notes" className="block text-gray-700 text-sm mb-1">
                 Ghi chú
               </label>
               <textarea
-                id="note"
-                name="note"
-                value={form.note}
+                id="notes"
+                name="notes"
+                value={form.notes}
                 onChange={handleChange}
                 placeholder="Thêm ghi chú (nếu có)"
                 rows={2}
@@ -339,8 +422,9 @@ const RegistrationPage: FC = () => {
               <button
                 type="submit"
                 className="w-full py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors font-semibold"
+                disabled={isLoading || doctorsLoading} // Disable button if form is submitting or doctors are loading
               >
-                Gửi
+                {isLoading ? "Đang gửi..." : "Gửi"}
               </button>
             </div>
           </form>

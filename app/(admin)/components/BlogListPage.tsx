@@ -1,9 +1,26 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+interface Doctor {
+  id: number;
+  name: string;
+  phone: string;
+  role: string;
+}
+
+interface BlogPostDTO {
+  id: number;
+  title: string;
+  content: string | null;
+  createdAt: string;
+  tag: string;
+  doctor: Doctor;
+}
+
 export default function BlogListPage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPostDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -28,21 +45,57 @@ export default function BlogListPage() {
     fetchBlogs();
   }, []);
 
-  if (loading) return <div>Đang tải...</div>;
-  if (error) return <div className="text-red-600">Lỗi: {error}</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen text-lg text-gray-600">
+        Đang tải...
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-600 text-center px-4">
+        Lỗi: {error}
+      </div>
+    );
 
   return (
-    <div className="pt-24 px-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Blog</h1>
-      {posts.map((post) => (
-        <div key={post.postID} className="mb-6 border-b pb-4">
-          <h2 className="text-xl font-semibold text-blue-700">
-            <Link href={`/blog/${post.postID}`}>{post.title}</Link>
-          </h2>
-          <p className="text-sm text-gray-500">{post.createdAt}</p>
-          <p>{post.content.slice(0, 100)}...</p>
+    <div className="pt-24 px-4 md:px-8 max-w-5xl mx-auto">
+      <h1 className="text-4xl font-bold mb-8 text-center text-blue-800">Bài viết Blog</h1>
+
+      {posts.length === 0 ? (
+        <p className="text-gray-500 text-center">Chưa có bài viết nào.</p>
+      ) : (
+        <div className="space-y-6">
+          {posts.map((post) => (
+            <div
+              key={post.id}
+              className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 transition hover:shadow-md"
+            >
+              <Link href={`/blog/${post.id}`}>
+                <h2 className="text-2xl font-semibold text-blue-700 hover:underline cursor-pointer">
+                  {post.title}
+                </h2>
+              </Link>
+              <p className="text-sm text-gray-500 mt-1">
+                {new Date(post.createdAt).toLocaleString("vi-VN")} —{" "}
+                <span className="italic text-gray-600">Bác sĩ {post.doctor.name}</span>
+              </p>
+              <p className="mt-3 text-gray-700">
+                {post.content ? post.content.slice(0, 150) + "..." : "Không có nội dung"}
+              </p>
+              <div className="mt-4">
+                <Link
+                  href={`/blog/${post.id}`}
+                  className="inline-block text-sm text-blue-600 hover:underline"
+                >
+                  Đọc thêm →
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }
