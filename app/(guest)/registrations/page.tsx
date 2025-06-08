@@ -2,11 +2,10 @@
 
 import React, { FC, useState, useEffect } from "react"; // Import useEffect
 
-// Define a type for Doctor for better type safety
 interface Doctor {
-  id: number;
-  name: string;
-  // Add other doctor properties if needed, but 'name' is sufficient for this dropdown
+  fullName: string;
+  phone: string;
+  email: string;
 }
 
 const RegistrationPage: FC = () => {
@@ -17,7 +16,7 @@ const RegistrationPage: FC = () => {
     dateOfBirth: "", // Maps to dateOfBirth (YYYY-MM-DD)
     phone: "",
     address: "",
-    doctorName: "", // Maps to doctorName in RegistrationRequest
+    doctorEmail: "", // Maps to doctorName in RegistrationRequest
     specialization: "",
     mode: "",
     appointmentDate: "", // Maps to appointmentDate (ISO 8601)
@@ -26,7 +25,10 @@ const RegistrationPage: FC = () => {
     notes: "", // Maps to notes (was 'note' in original form)
   });
 
-  const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "" }>({
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "success" | "error" | "";
+  }>({
     text: "",
     type: "",
   });
@@ -57,7 +59,9 @@ const RegistrationPage: FC = () => {
   }, []); // Empty dependency array means this runs once on mount
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -68,8 +72,17 @@ const RegistrationPage: FC = () => {
     setIsLoading(true); // Set loading state
 
     // Basic client-side validation
-    if (!form.fullName || !form.phone || !form.appointmentDate || !form.specialization || !form.doctorName) {
-      setMessage({ text: "Vui lòng điền đầy đủ thông tin bắt buộc (Họ và tên, SĐT, Ngày khám, Chuyên khoa, Bác sĩ)", type: "error" });
+    if (
+      !form.fullName ||
+      !form.phone ||
+      !form.appointmentDate ||
+      !form.specialization ||
+      !form.doctorEmail
+    ) {
+      setMessage({
+        text: "Vui lòng điền đầy đủ thông tin bắt buộc (Họ và tên, SĐT, Ngày khám, Chuyên khoa, Bác sĩ)",
+        type: "error",
+      });
       setIsLoading(false);
       return;
     }
@@ -83,17 +96,20 @@ const RegistrationPage: FC = () => {
         dateOfBirth: form.dateOfBirth, // YYYY-MM-DD string
         phone: form.phone,
         address: form.address,
-        doctorName: form.doctorName, // This will now be the selected doctor's name from the dropdown
+        doctorName: form.doctorEmail, // This will now be the selected doctor's name from the dropdown
         specialization: form.specialization,
         mode: form.mode,
         // Convert appointmentDate to ISO 8601 string for backend Date object
-        appointmentDate: form.appointmentDate ? new Date(form.appointmentDate).toISOString() : null,
+        appointmentDate: form.appointmentDate
+          ? new Date(form.appointmentDate).toISOString()
+          : null,
         session: form.session,
         symptom: form.symptom,
         notes: form.notes,
       };
 
-      const response = await fetch("http://localhost:8080/api/registrations", { // Adjust URL if your backend runs on a different port/path
+      const response = await fetch("http://localhost:8080/api/registrations", {
+        // Adjust URL if your backend runs on a different port/path
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,16 +117,18 @@ const RegistrationPage: FC = () => {
         body: JSON.stringify(requestBody),
       });
 
-      if (response.ok) { // Check for 2xx status codes (201 Created is included)
+      if (response.ok) {
+        // Check for 2xx status codes (201 Created is included)
         setMessage({ text: "Đăng ký khám thành công!", type: "success" });
-        setForm({ // Clear form after successful submission
+        setForm({
+          // Clear form after successful submission
           fullName: "",
           email: "",
           gender: "",
           dateOfBirth: "",
           phone: "",
           address: "",
-          doctorName: "",
+          doctorEmail: "",
           specialization: "",
           mode: "",
           appointmentDate: "",
@@ -121,12 +139,16 @@ const RegistrationPage: FC = () => {
       } else {
         const errorData = await response.json();
         // Assuming backend sends a 'message' field in error response body
-        const errorMessage = errorData.message || "Đăng ký khám thất bại. Vui lòng thử lại.";
+        const errorMessage =
+          errorData.message || "Đăng ký khám thất bại. Vui lòng thử lại.";
         setMessage({ text: errorMessage, type: "error" });
       }
     } catch (error) {
       console.error("Error submitting registration:", error);
-      setMessage({ text: "Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng kiểm tra kết nối mạng.", type: "error" });
+      setMessage({
+        text: "Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng kiểm tra kết nối mạng.",
+        type: "error",
+      });
     } finally {
       setIsLoading(false); // Reset loading state
     }
@@ -142,13 +164,19 @@ const RegistrationPage: FC = () => {
             Lịch hẹn có hiệu lực sau khi có xác nhận chính thức.
             <br />
             <br />
-            Quý khách hàng vui lòng cung cấp thông tin chính xác để được sắp xếp lịch hẹn khám. Thời gian khám có thể thay đổi tuỳ theo tình trạng bệnh và sắp xếp của cơ sở y tế.
+            Quý khách hàng vui lòng cung cấp thông tin chính xác để được sắp xếp
+            lịch hẹn khám. Thời gian khám có thể thay đổi tuỳ theo tình trạng
+            bệnh và sắp xếp của cơ sở y tế.
             <br />
             <br />
-            Nếu cần hỗ trợ, vui lòng liên hệ bộ phận chăm sóc khách hàng hoặc gọi trực tiếp đến số hotline của đơn vị.
+            Nếu cần hỗ trợ, vui lòng liên hệ bộ phận chăm sóc khách hàng hoặc
+            gọi trực tiếp đến số hotline của đơn vị.
             <br />
             <br />
-            Trong trường hợp quý khách nghi ngờ có nguy cơ lây nhiễm HIV, hãy đến cơ sở gần nhất để được tư vấn và xét nghiệm miễn phí thông qua các chương trình “Xét nghiệm HIV miễn phí”, “Tự xét nghiệm HIV” hoặc liên hệ các trung tâm hỗ trợ gần nhất để được hỗ trợ kịp thời.
+            Trong trường hợp quý khách nghi ngờ có nguy cơ lây nhiễm HIV, hãy
+            đến cơ sở gần nhất để được tư vấn và xét nghiệm miễn phí thông qua
+            các chương trình “Xét nghiệm HIV miễn phí”, “Tự xét nghiệm HIV” hoặc
+            liên hệ các trung tâm hỗ trợ gần nhất để được hỗ trợ kịp thời.
           </p>
         </div>
 
@@ -163,9 +191,12 @@ const RegistrationPage: FC = () => {
             ×
           </button>
 
-          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6 w-full">ĐĂNG KÝ KHÁM</h1>
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6 w-full">
+            ĐĂNG KÝ KHÁM
+          </h1>
           <p className="text-center text-gray-600 text-sm mb-6 w-full">
-            Vui lòng điền thông tin vào form bên dưới để đặt đăng ký khám bệnh theo yêu cầu
+            Vui lòng điền thông tin vào form bên dưới để đặt đăng ký khám bệnh
+            theo yêu cầu
           </p>
 
           {message.text && (
@@ -185,7 +216,10 @@ const RegistrationPage: FC = () => {
           >
             {/* Họ và tên */}
             <div>
-              <label htmlFor="fullName" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="fullName"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Họ và tên <span className="text-red-500">*</span>
               </label>
               <input
@@ -202,7 +236,10 @@ const RegistrationPage: FC = () => {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="email"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Email
               </label>
               <input
@@ -218,7 +255,10 @@ const RegistrationPage: FC = () => {
 
             {/* Giới tính */}
             <div>
-              <label htmlFor="gender" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="gender"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Giới tính
               </label>
               <select
@@ -237,7 +277,10 @@ const RegistrationPage: FC = () => {
 
             {/* Năm sinh */}
             <div>
-              <label htmlFor="dateOfBirth" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="dateOfBirth"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Năm sinh
               </label>
               <input
@@ -252,7 +295,10 @@ const RegistrationPage: FC = () => {
 
             {/* Số điện thoại */}
             <div>
-              <label htmlFor="phone" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="phone"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Số điện thoại <span className="text-red-500">*</span>
               </label>
               <input
@@ -269,7 +315,10 @@ const RegistrationPage: FC = () => {
 
             {/* Địa chỉ */}
             <div>
-              <label htmlFor="address" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="address"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Địa chỉ
               </label>
               <input
@@ -285,26 +334,31 @@ const RegistrationPage: FC = () => {
 
             {/* Bác sĩ (Dropdown) */}
             <div>
-              <label htmlFor="doctorName" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="doctorName"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Bác sĩ <span className="text-red-500">*</span>
               </label>
               {doctorsLoading ? (
-                <p className="text-gray-500 text-sm">Đang tải danh sách bác sĩ...</p>
+                <p className="text-gray-500 text-sm">
+                  Đang tải danh sách bác sĩ...
+                </p>
               ) : doctorsError ? (
                 <p className="text-red-500 text-sm">{doctorsError}</p>
               ) : (
                 <select
-                  id="doctorName"
-                  name="doctorName"
-                  value={form.doctorName}
+                  id="doctorEmail"
+                  name="doctorEmail"
+                  value={form.doctorEmail}
                   onChange={handleChange}
                   className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">Chọn bác sĩ</option>
                   {doctors.map((doctor) => (
-                    <option key={doctor.id} value={doctor.name}>
-                      {doctor.name}
+                    <option key={doctor.email} value={doctor.email}>
+                      {doctor.fullName}
                     </option>
                   ))}
                 </select>
@@ -313,7 +367,10 @@ const RegistrationPage: FC = () => {
 
             {/* Chuyên khoa */}
             <div>
-              <label htmlFor="specialization" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="specialization"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Chuyên khoa <span className="text-red-500">*</span>
               </label>
               <select
@@ -334,7 +391,10 @@ const RegistrationPage: FC = () => {
 
             {/* Online/Offline */}
             <div>
-              <label htmlFor="mode" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="mode"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Online/Offline
               </label>
               <select
@@ -352,7 +412,10 @@ const RegistrationPage: FC = () => {
 
             {/* Ngày khám */}
             <div>
-              <label htmlFor="appointmentDate" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="appointmentDate"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Ngày khám <span className="text-red-500">*</span>
               </label>
               <input
@@ -368,7 +431,10 @@ const RegistrationPage: FC = () => {
 
             {/* Buổi khám */}
             <div>
-              <label htmlFor="session" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="session"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Buổi khám
               </label>
               <select
@@ -387,7 +453,10 @@ const RegistrationPage: FC = () => {
 
             {/* Triệu chứng */}
             <div className="md:col-span-2">
-              <label htmlFor="symptom" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="symptom"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Triệu chứng
               </label>
               <textarea
@@ -403,7 +472,10 @@ const RegistrationPage: FC = () => {
 
             {/* Ghi chú */}
             <div className="md:col-span-2">
-              <label htmlFor="notes" className="block text-gray-700 text-sm mb-1">
+              <label
+                htmlFor="notes"
+                className="block text-gray-700 text-sm mb-1"
+              >
                 Ghi chú
               </label>
               <textarea
