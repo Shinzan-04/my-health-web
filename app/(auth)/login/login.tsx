@@ -39,10 +39,10 @@ export default function LoginPage() {
       const result = await res.json();
       console.log("Đăng nhập thành công:", result);
 
-      // Lưu token vào localStorage (hoặc cookies, tùy chiến lược)
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("userEmail", result.email); // Lưu email để dùng sau
-      localStorage.setItem("userRole", result.role); // Lưu vai trò
+      // --- THAY ĐỔI QUAN TRỌNG TẠI ĐÂY ---
+      // Lưu toàn bộ đối tượng result vào một mục 'authData' duy nhất trong localStorage
+      localStorage.setItem("authData", JSON.stringify(result));
+      // --- KẾT THÚC THAY ĐỔI ---
 
       // Chuyển hướng dựa trên vai trò
       switch (result.role) {
