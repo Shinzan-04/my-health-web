@@ -1,78 +1,87 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { useState } from "react";
+import './fullcalendar-custom.css';
 
-type Schedule = {
-  scheduleId: number;
-  date: string;
-  startTime: string;
-};
+const scheduleEvents = [
+  {
+    id: "1",
+    title: "Khám bệnh (Sáng)",
+    start: "2025-06-10T08:00:00",
+    end: "2025-06-10T10:00:00",
+  },
+  {
+    id: "2",
+    title: "Khám bệnh (Chiều)",
+    start: "2025-06-10T14:00:00",
+    end: "2025-06-10T16:00:00",
+  },
+  {
+    id: "3",
+    title: "Khám tổng quát",
+    start: "2025-06-11T09:00:00",
+    end: "2025-06-11T11:00:00",
+  },
+  {
+    id: "4",
+    title: "Tái khám",
+    start: "2025-06-12T13:00:00",
+    end: "2025-06-12T14:30:00",
+  },
+];
 
-export default function DoctorSchedule() {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [doctorId, setDoctorId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const authData = localStorage.getItem("authData");
-    if (!authData) return;
-
-    try {
-      const parsed = JSON.parse(authData);
-      const id = parsed?.account?.doctor?.doctorId || parsed?.doctor?.doctorId;
-      if (id) setDoctorId(id);
-    } catch (e) {
-      console.error("Lỗi khi phân tích authData:", e);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!doctorId) return;
-
-    const token = JSON.parse(localStorage.getItem("authData") || "{}")?.token;
-
-    fetch(`http://localhost:8080/api/schedules/doctor/${doctorId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Lỗi khi gọi API");
-        return res.json();
-      })
-      .then(setSchedules)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [doctorId]);
+export default function DoctorSchedulePro() {
+  const [events, setEvents] = useState(scheduleEvents);
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold text-blue-700 mb-4">Thời khóa biểu khám</h2>
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : (
-        <div className="grid grid-cols-7 gap-4 text-center">
-          {["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"].map((day, idx) => (
-            <div key={idx} className="font-semibold">{day}</div>
-          ))}
-          {Array.from({ length: 7 }).map((_, dayIdx) => {
-            const daySchedules = schedules.filter((s) =>
-              new Date(s.date).getDay() === dayIdx
-            );
-            return (
-              <div key={dayIdx} className="border p-2 min-h-[80px] bg-white rounded-md shadow-sm">
-                {daySchedules.length > 0 ? (
-                  daySchedules.map((s) => (
-                    <div key={s.scheduleId} className="text-sm text-gray-700">
-                      {s.startTime}
-                    </div>
-                  ))
-                ) : (
-                  <span className="text-gray-400 text-sm">Trống</span>
-                )}
-              </div>
-            );
-          })}
+    <div className="max-w-6xl mx-auto p-6">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-6 italic">
+        <span className="font-bold not-italic"></span> SCHEDULE
+      </h2>
+      <div className="bg-white shadow rounded-lg p-4 border">
+        <div className="mb-4 flex gap-6">
+          <div>
+            <label className="block text-sm text-gray-800 font-medium">Tên:</label>
+            <input
+              type="text"
+              className="mt-1 block w-48 border border-gray-300 rounded-md text-gray-600 shadow-sm p-2"
+              placeholder="Nhập tên"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-800 font-medium">Phòng khám:</label>
+            <input
+              type="text"
+              className="mt-1 block w-48 border border-gray-300 rounded-md text-gray-600 shadow-sm p-2"
+              placeholder="Nhập phòng khám"
+            />
+          </div>
         </div>
-      )}
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="timeGridWeek"
+          headerToolbar={{
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          }}
+          events={events}
+          locale="vi"
+          nowIndicator={true}
+          slotMinTime="07:00:00"
+          slotMaxTime="18:00:00"
+          contentHeight="auto"
+          dayHeaderClassNames={() => "bg-green-100 text-green-900 text-sm font-semibold"}
+          slotLabelClassNames={() => "text-gray-700 text-xs"}
+          eventClassNames={() =>
+            "bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded-md shadow"
+          }
+        />
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ApiService from "@/app/service/ApiService";
 
 export default function EditDoctorProfile() {
   const [doctor, setDoctor] = useState<any>(null);
@@ -12,34 +13,35 @@ export default function EditDoctorProfile() {
   const router = useRouter();
 
   useEffect(() => {
-    const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-    const token = authData.token;
-
-    if (!token) {
+    const raw = localStorage.getItem("authData");
+    if (!raw) {
       alert("Vui lòng đăng nhập lại.");
       router.push("/login");
       return;
     }
 
-    setToken(token);
+    try {
+      const authData = JSON.parse(raw);
+      const token = authData.token;
+      if (!token) throw new Error("Token không hợp lệ.");
 
-    fetch(`http://localhost:8080/api/doctors/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Lỗi khi lấy dữ liệu");
-        return res.json();
-      })
-      .then((data) => {
-        setDoctor(data);
-        setDoctorId(data.doctorId);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Không thể tải hồ sơ bác sĩ.");
-        router.push("/login");
-      });
+      setToken(token);
+
+      ApiService.getMyDoctorProfile()
+        .then((data) => {
+          setDoctor(data);
+          setDoctorId(data.doctorId);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Không thể tải hồ sơ bác sĩ.");
+          router.push("/login");
+        });
+    } catch (err) {
+      console.error("Lỗi khi đọc token:", err);
+      router.push("/login");
+    }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -49,37 +51,28 @@ export default function EditDoctorProfile() {
   };
 
   const handleSubmit = async () => {
-  if (!doctor || !doctorId || !token) return;
+    if (!doctor || !doctorId || !token) return;
 
-  try {
-    const formData = new FormData();
-    // Đưa object doctor vào dạng JSON blob
-    const doctorBlob = new Blob([JSON.stringify(doctor)], {
-      type: "application/json",
-    });
-    formData.append("doctor", doctorBlob);
+    try {
+      const formData = new FormData();
+      const doctorBlob = new Blob([JSON.stringify(doctor)], {
+        type: "application/json",
+      });
+      formData.append("doctor", doctorBlob);
 
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
+      if (avatarFile) {
+        formData.append("avatar", avatarFile);
+      }
+
+      await ApiService.updateDoctorWithAvatar(doctorId, formData, token);
+
+      alert("Cập nhật thành công!");
+      router.push("/doctorPanel");
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi cập nhật.");
     }
-
-    const res = await fetch(`http://localhost:8080/api/doctors/${doctorId}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`, // KHÔNG thêm Content-Type ở đây, để trình duyệt tự set multipart/form-data
-      },
-      body: formData,
-    });
-
-    if (!res.ok) throw new Error("Cập nhật thất bại");
-
-    alert("Cập nhật thành công!");
-    router.push("/doctorPanel");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi khi cập nhật.");
-  }
-};
+  };
 
   if (loading || !doctor) return <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>;
 

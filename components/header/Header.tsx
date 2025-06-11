@@ -4,59 +4,57 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ProfileMenu from "@/components/header/ProfileMenu";
 
 export default function Header() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState("");
-  const [mounted, setMounted] = useState(false); // 👈 Thêm state kiểm tra SSR
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   const navLinks = [
-    { label: "Trang Chủ", href: "/home" },
-    { label: "Bác Sĩ", href: "/doctor" },
+    { label: "Trang Chủ", href: "/" },
+    { label: "Bác Sĩ", href: "/doctors" },
     { label: "Liên Hệ", href: "/contact" },
     { label: "Blog", href: "/blog" },
   ];
 
   const userMenuItems = [
-    { label: "Chỉnh sửa hồ sơ", href: "/userPanel/edit" },
-    { label: "Kết quả xét nghiệm", href: "/userPanel/lab-results" },
-    { label: "Lịch sử khám bệnh", href: "/userPanel/medical-history" },
-    { label: "ARV", href: "/userPanel/arv" },
-    { label: "Hệ thống nhắc nhở", href: "/profile/reminders" },
+    { label: "Chỉnh sửa hồ sơ", href: "/user-panel/edit" },
+    { label: "Kết quả xét nghiệm", href: "/user-panel/lab-results" },
+    { label: "Lịch sử khám bệnh", href: "/user-panel/medical-history" },
+    { label: "ARV", href: "/user-panel/arv" },
+    { label: "Nhắc nhở", href: "/profile/reminders" },
   ];
 
   const staffMenuItems = [
     { label: "Chỉnh sửa hồ sơ", href: "/staff/edit" },
-    { label: "Cập nhật lịch sử khám/tư vấn", href: "/staff/medical-history" },
+    { label: "Lịch sử khám/tư vấn", href: "/staff/medical-history" },
     { label: "Nhập kết quả xét nghiệm", href: "/staff/lab-results" },
-    { label: "Cập nhật tiến trình điều trị", href: "/staff/reminder-system" },
+    { label: "Tiến trình điều trị", href: "/staff/reminder-system" },
   ];
 
   const doctorMenuItems = [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile" },
-    { label: "Danh sách bệnh nhân điều trị", href: "/doctor/patients" },
-    { label: "Xem hồ sơ bệnh nhân", href: "/doctor/records" },
-    { label: "Nhắc nhở uống thuốc", href: "/doctor/reminders" },
-    { label: "Cập nhật phác đồ điều trị", href: "/doctor/treatment-plan" },
+    { label: "Bệnh nhân điều trị", href: "/doctor/patients" },
+    { label: "Hồ sơ bệnh nhân", href: "/doctor/records" },
+    { label: "Nhắc thuốc", href: "/doctor/reminders" },
+    { label: "Phác đồ điều trị", href: "/doctor/treatment-plan" },
     { label: "Lịch làm việc", href: "/schedule" },
   ];
-
-  const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   useEffect(() => {
     const authData = JSON.parse(localStorage.getItem("authData") || "{}");
     const token = authData.token;
+
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      if (payload.role) {
-        setUserRole(payload.role);
-        setIsLoggedIn(true);
-      }
+      setUserRole(payload.role || "");
+      setIsLoggedIn(true);
 
-      // Fetch avatar from /me if role is DOCTOR
       if (payload.role === "DOCTOR") {
         fetch("http://localhost:8080/api/doctors/me", {
           headers: { Authorization: `Bearer ${token}` },
@@ -64,29 +62,26 @@ export default function Header() {
           .then((res) => res.json())
           .then((data) => {
             if (data.avatarUrl) {
-              setAvatarUrl(data.avatarUrl); // Không thêm localhost ở đây
+              setAvatarUrl(data.avatarUrl);
             }
           })
-          .catch((err) => console.error("Lỗi lấy avatar:", err));
+          .catch(console.error);
       }
     }
+
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ✅ Chặn render trước khi client load xong
-
-  const handleProfileMenuLinkClick = (href: string) => {
-    router.push(href);
-    setShowProfileMenu(false);
-  };
+  if (!mounted) return null;
 
   const handleLogout = () => {
     localStorage.removeItem("authData");
     router.push("/login");
   };
 
-  const handleProfileMenuContainerClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleProfileMenuLinkClick = (href: string) => {
+    router.push(href);
+    setShowProfileMenu(false);
   };
 
   const getProfileMenuItems = () => {
@@ -109,7 +104,7 @@ export default function Header() {
           <Link
             key={href}
             href={href}
-            className="text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
+            className="text-[#27509f] text-base font-medium no-underline hover:underline"
           >
             {label}
           </Link>
@@ -118,25 +113,25 @@ export default function Header() {
 
       <button
         onClick={() => router.push("/registrations")}
-        className="px-4 py-1.5 bg-blue-600 text-white rounded text-base hover:bg-blue-700 transition"
+        className="px-4 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
       >
         Đăng Ký Khám
       </button>
       <button
         onClick={() => router.push("/login")}
-        className="px-4 py-1.5 bg-sky-300 text-white rounded text-base hover:bg-sky-400 transition"
+        className="px-4 py-1.5 bg-sky-300 text-white rounded hover:bg-sky-400 transition"
       >
-        Login
+        Đăng nhập
       </button>
     </div>
   );
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm fixed w-full top-0 z-50">
-      <div className="w-full px-4 py-4 md:px-8 md:py-6 flex justify-between items-center">
-        <Link href="/home" className="flex items-center space-x-3">
+      <div className="px-4 py-4 md:px-8 md:py-6 flex justify-between items-center">
+        <Link href="/" className="flex items-center space-x-3">
           <img src="/logo.jpg" alt="Logo" className="w-[100px] h-auto" />
-          <h1 className="font-roboto text-[20px] text-[#879FC5EB] m-0">
+          <h1 className="text-lg text-[#879FC5EB] m-0 font-semibold">
             HIV Treatment and Medical
           </h1>
         </Link>
@@ -148,7 +143,7 @@ export default function Header() {
                 <Link
                   key={href}
                   href={href}
-                  className="text-[#27509f] font-roboto text-base font-medium hover:underline"
+                  className="text-[#27509f] text-base font-medium hover:underline"
                 >
                   {label}
                 </Link>
@@ -172,30 +167,11 @@ export default function Header() {
               </button>
 
               {showProfileMenu && (
-                <div
-                  className="absolute right-0 mt-2 w-72 bg-white border rounded-xl shadow-lg z-50 p-2"
-                  onClick={handleProfileMenuContainerClick}
-                >
-                  <ul className="space-y-1">
-                    {getProfileMenuItems().map((item) => (
-                      <li key={item.href}>
-                        <button
-                          onClick={() => handleProfileMenuLinkClick(item.href)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg"
-                        >
-                          {item.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <hr className="my-2" />
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
+                <ProfileMenu
+                  items={getProfileMenuItems()}
+                  onClose={() => setShowProfileMenu(false)}
+                  onLogout={handleLogout}
+                />
               )}
             </div>
           </div>
