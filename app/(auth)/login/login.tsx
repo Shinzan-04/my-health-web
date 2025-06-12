@@ -31,16 +31,20 @@ export default function LoginPage() {
         return;
       }
 
-const result = await res.json();
-      const { token, doctor } = result;
+      const result = await res.json();
+      const { token, doctor, customer, account } = result;
 
-      if (!token || !doctor) {
-        setError("Thiếu thông tin đăng nhập từ server.");
+      if (!token) {
+        setError("Thiếu token từ server.");
         return;
       }
 
       // Lưu token và thông tin bác sĩ vào localStorage
-      localStorage.setItem("authData", JSON.stringify({ token, doctor }));
+      // Lưu token và các thông tin liên quan vào localStorage
+      localStorage.setItem(
+        "authData",
+        JSON.stringify({ token, doctor, customer, account })
+      );
 
       // Giải mã token để lấy role
       const decoded = jwtDecode<{ role: string }>(token);
@@ -64,12 +68,11 @@ const result = await res.json();
         default:
           window.location.href = "/";
       }
-      
     } catch (err) {
       console.error("Lỗi khi đăng nhập:", err);
       setError("Không thể kết nối đến máy chủ.");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 px-4 py-8">
@@ -122,7 +125,10 @@ const result = await res.json();
               Đăng ký ngay
             </Link>
           </p>
-          <Link href="/forgot-password" className="text-blue-600 hover:underline">
+          <Link
+            href="/forgot-password"
+            className="text-blue-600 hover:underline"
+          >
             Quên mật khẩu?
           </Link>
         </div>

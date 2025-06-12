@@ -3,24 +3,23 @@ import axios from "axios";
 export default class ApiService {
   static BASE_URL = "http://localhost:8080";
 
-static getHeader() {
-  const authData = localStorage.getItem("authData");
-  try {
-    const parsed = JSON.parse(authData || "{}");
-    const token = parsed?.token;
+  static getHeader() {
+    const authData = localStorage.getItem("authData");
+    try {
+      const parsed = JSON.parse(authData || "{}");
+      const token = parsed?.token;
 
-    return {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    };
-  } catch (err) {
-    console.error("Lỗi khi đọc token từ localStorage:", err);
-    return {
-      "Content-Type": "application/json"
-    };
+      return {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+    } catch (err) {
+      console.error("Lỗi khi đọc token từ localStorage:", err);
+      return {
+        "Content-Type": "application/json",
+      };
+    }
   }
-}
-
 
   /** ---------------- AUTHENTICATION ---------------- */
   static async registerUser(data) {
@@ -45,7 +44,8 @@ static getHeader() {
   }
 
   static async updateTestResult(id, data) {
-    return (await axios.put(`${this.BASE_URL}/api/test-results/${id}`, data)).data;
+    return (await axios.put(`${this.BASE_URL}/api/test-results/${id}`, data))
+      .data;
   }
 
   static async deleteTestResult(id) {
@@ -62,7 +62,9 @@ static getHeader() {
   }
 
   static async getSchedulesByDoctor(doctorId) {
-    return (await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`)).data;
+    return (
+      await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`)
+    ).data;
   }
 
   static async createSchedule(data) {
@@ -76,6 +78,16 @@ static getHeader() {
   static async deleteSchedule(id) {
     return (await axios.delete(`${this.BASE_URL}/api/schedules/${id}`)).data;
   }
+  static async getScheduleByDoctorId(doctorId) {
+    const res = await axios.get(
+      `${this.BASE_URL}/api/schedules/doctor/${doctorId}`,
+      {
+        headers: this.getHeader(),
+      }
+    );
+    console.log("API res:", res.data); // Ghi log để kiểm tra
+    return res.data; // Bạn cần đảm bảo đây là một array
+  }
 
   /** ---------------- REMINDER ---------------- */
   static async createReminder(data) {
@@ -83,27 +95,36 @@ static getHeader() {
   }
 
   static async updateReminderStatus(id, data) {
-    return (await axios.put(`${this.BASE_URL}/api/reminders/${id}/status`, data)).data;
+    return (
+      await axios.put(`${this.BASE_URL}/api/reminders/${id}/status`, data)
+    ).data;
   }
 
   static async markReminderDone(id) {
-    return (await axios.patch(`${this.BASE_URL}/api/reminders/${id}/done`)).data;
+    return (await axios.patch(`${this.BASE_URL}/api/reminders/${id}/done`))
+      .data;
   }
 
   static async getTodayReminders() {
-    return (await axios.get(`${this.BASE_URL}/api/reminders/today/me`, {
-      headers: this.getHeader()
-    })).data;
+    return (
+      await axios.get(`${this.BASE_URL}/api/reminders/today/me`, {
+        headers: this.getHeader(),
+      })
+    ).data;
   }
 
   static async getRemindersByCustomer(customerId) {
-    return (await axios.get(`${this.BASE_URL}/api/reminders/customer/${customerId}`)).data;
+    return (
+      await axios.get(`${this.BASE_URL}/api/reminders/customer/${customerId}`)
+    ).data;
   }
 
   static async getAllMyReminders() {
-    return (await axios.get(`${this.BASE_URL}/api/reminders/all/me`, {
-      headers: this.getHeader()
-    })).data;
+    return (
+      await axios.get(`${this.BASE_URL}/api/reminders/all/me`, {
+        headers: this.getHeader(),
+      })
+    ).data;
   }
 
   /** ---------------- MEDICAL HISTORY ---------------- */
@@ -112,19 +133,24 @@ static getHeader() {
   }
 
   static async getMedicalHistoryById(id) {
-    return (await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
+    return (await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`))
+      .data;
   }
 
   static async createMedicalHistory(data) {
-    return (await axios.post(`${this.BASE_URL}/api/medical-histories`, data)).data;
+    return (await axios.post(`${this.BASE_URL}/api/medical-histories`, data))
+      .data;
   }
 
   static async updateMedicalHistory(id, data) {
-    return (await axios.put(`${this.BASE_URL}/api/medical-histories/${id}`, data)).data;
+    return (
+      await axios.put(`${this.BASE_URL}/api/medical-histories/${id}`, data)
+    ).data;
   }
 
   static async deleteMedicalHistory(id) {
-    return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
+    return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`))
+      .data;
   }
 
   /** ---------------- DOCTOR ---------------- */
@@ -137,9 +163,11 @@ static getHeader() {
   }
 
   static async getMyDoctorProfile() {
-    return (await axios.get(`${this.BASE_URL}/api/doctors/me`, {
-      headers: this.getHeader()
-    })).data;
+    return (
+      await axios.get(`${this.BASE_URL}/api/doctors/me`, {
+        headers: this.getHeader(),
+      })
+    ).data;
   }
 
   static async createDoctor(data) {
@@ -154,23 +182,22 @@ static getHeader() {
     return (await axios.delete(`${this.BASE_URL}/api/doctors/${id}`)).data;
   }
   static async updateDoctorWithAvatar(id, formData, token) {
-  const res = await fetch(`${this.BASE_URL}/api/doctors/${id}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      // KHÔNG thêm Content-Type, trình duyệt sẽ tự động thêm multipart/form-data + boundary
-    },
-    body: formData,
-  });
+    const res = await fetch(`${this.BASE_URL}/api/doctors/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // KHÔNG thêm Content-Type, trình duyệt sẽ tự động thêm multipart/form-data + boundary
+      },
+      body: formData,
+    });
 
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(error || "Cập nhật thất bại");
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(error || "Cập nhật thất bại");
+    }
+
+    return res.json();
   }
-
-  return res.json();
-}
-
 
   /** ---------------- BLOG ---------------- */
   static async getAllBlogs() {
@@ -207,7 +234,8 @@ static getHeader() {
   }
 
   static async updateAppointment(id, data) {
-    return (await axios.put(`${this.BASE_URL}/api/appointments/${id}`, data)).data;
+    return (await axios.put(`${this.BASE_URL}/api/appointments/${id}`, data))
+      .data;
   }
 
   static async deleteAppointment(id) {

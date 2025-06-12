@@ -4,38 +4,47 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useState } from "react";
-import './fullcalendar-custom.css';
-
-const scheduleEvents = [
-  {
-    id: "1",
-    title: "Khám bệnh (Sáng)",
-    start: "2025-06-10T08:00:00",
-    end: "2025-06-10T10:00:00",
-  },
-  {
-    id: "2",
-    title: "Khám bệnh (Chiều)",
-    start: "2025-06-10T14:00:00",
-    end: "2025-06-10T16:00:00",
-  },
-  {
-    id: "3",
-    title: "Khám tổng quát",
-    start: "2025-06-11T09:00:00",
-    end: "2025-06-11T11:00:00",
-  },
-  {
-    id: "4",
-    title: "Tái khám",
-    start: "2025-06-12T13:00:00",
-    end: "2025-06-12T14:30:00",
-  },
-];
+import { useState, useEffect } from "react";
+import ApiService from "@/app/service/ApiService";
+import "./fullcalendar-custom.css";
 
 export default function DoctorSchedulePro() {
-  const [events, setEvents] = useState(scheduleEvents);
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+  const fetchSchedule = async () => {
+    try {
+      const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+      const token = authData.token;
+      const doctorId = authData.doctor?.doctorId;
+
+      if (!token || !doctorId) {
+        alert("Không tìm thấy thông tin đăng nhập.");
+        return;
+      }
+
+      const res = await ApiService.getScheduleByDoctorId(doctorId);
+      console.log("===> res từ API:", res); // <-- DÒNG QUAN TRỌNG
+
+      if (!Array.isArray(res)) {
+        throw new Error("Dữ liệu trả về không phải dạng mảng");
+      }
+
+      const transformed = res.map((s: any) => ({
+        id: s.scheduleId,
+        title: s.title,
+        start: s.startTime,
+        end: s.endTime,
+      }));
+      setEvents(transformed);
+    } catch (error) {
+      console.error("Lỗi khi tải lịch khám:", error);
+    }
+  };
+
+  fetchSchedule();
+}, []);
+
 
   return (
     <div className="max-w-6xl mx-auto p-6">
