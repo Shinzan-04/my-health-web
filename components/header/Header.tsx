@@ -23,18 +23,18 @@ export default function Header() {
   ];
 
   const userMenuItems = [
-    { label: "Chỉnh sửa hồ sơ", href: "/user-panel/edit" },
+    { label: "Chỉnh sửa hồ sơ", href: "/userPanel/edit" },
     { label: "Kết quả xét nghiệm", href: "/user-panel/lab-results" },
     { label: "Lịch sử khám bệnh", href: "/user-panel/medical-history" },
     { label: "ARV", href: "/user-panel/arv" },
     { label: "Nhắc nhở", href: "/profile/reminders" },
   ];
 
-  const staffMenuItems = [
-    { label: "Chỉnh sửa hồ sơ", href: "/staff/edit" },
-    { label: "Lịch sử khám/tư vấn", href: "/staff/medical-history" },
-    { label: "Nhập kết quả xét nghiệm", href: "/staff/lab-results" },
-    { label: "Tiến trình điều trị", href: "/staff/reminder-system" },
+  const adminMenuItems = [
+    { label: "Chỉnh sửa hồ sơ", href: "/admin/edit" },
+    { label: "Lịch sử khám/tư vấn", href: "/admin/medical-history" },
+    { label: "Nhập kết quả xét nghiệm", href: "/admin/lab-results" },
+    { label: "Tiến trình điều trị", href: "/admin/reminder-system" },
   ];
 
   const doctorMenuItems = [
@@ -128,7 +128,9 @@ export default function Header() {
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm fixed w-full top-0 z-50">
-      <div className="px-4 py-4 md:px-8 md:py-6 flex justify-between items-center">
+      <div className="px-4 py-1 md:px-8 md:py-1 flex justify-between items-center">
+
+
         <Link href="/" className="flex items-center space-x-3">
           <img src="/logo.jpg" alt="Logo" className="w-[100px] h-auto" />
           <h1 className="text-lg text-[#879FC5EB] m-0 font-semibold">

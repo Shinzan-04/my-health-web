@@ -39,22 +39,23 @@ export default function LoginPage() {
         return;
       }
 
+      // Giải mã token để lấy role
+      const decoded = jwtDecode<{ role: string }>(token);
+      const role = decoded.role || account?.role || customer?.role || doctor?.role || "UNKNOWN";
       // Lưu token và thông tin bác sĩ vào localStorage
       // Lưu token và các thông tin liên quan vào localStorage
       localStorage.setItem(
         "authData",
-        JSON.stringify({ token, doctor, customer, account })
+        JSON.stringify({ token, doctor, customer, account, role })
       );
 
-      // Giải mã token để lấy role
-      const decoded = jwtDecode<{ role: string }>(token);
-      const role = decoded.role;
+
 
       // Chuyển hướng theo role
       switch (role) {
         case "CUSTOMER":
         case "USER":
-          window.location.href = "/user-panel";
+          window.location.href = "/userPanel";
           break;
         case "DOCTOR":
           window.location.href = "/doctorPanel";
