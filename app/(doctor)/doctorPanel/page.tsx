@@ -3,6 +3,6 @@ export const metadata = {
     description: "Khám phá các dịch vụ y tế chất lượng cao, đặt lịch dễ dàng.",
 };
 
-export default function doctorPaneldoctorPanel() {
+export default function doctorPanel() {
 
 }

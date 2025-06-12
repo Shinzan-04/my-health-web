@@ -64,7 +64,7 @@ export default function LoginPage() {
           window.location.href = "/staff/dashboard";
           break;
         case "ADMIN":
-          window.location.href = "/admin/dashboard";
+          window.location.href = "/admin";
           break;
         default:
           window.location.href = "/";

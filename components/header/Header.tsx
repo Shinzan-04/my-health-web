@@ -17,7 +17,7 @@ export default function Header() {
 
   const navLinks = [
     { label: "Trang Chủ", href: "/" },
-    { label: "Bác Sĩ", href: "/doctors" },
+    { label: "Bác Sĩ", href: "/list-doctor" },
     { label: "Liên Hệ", href: "/contact" },
     { label: "Blog", href: "/blog" },
   ];
@@ -88,8 +88,6 @@ export default function Header() {
     switch (userRole) {
       case "USER":
         return userMenuItems;
-      case "STAFF":
-        return staffMenuItems;
       case "DOCTOR":
         return doctorMenuItems;
       default:
