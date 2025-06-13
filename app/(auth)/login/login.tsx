@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { jwtDecode } from "jwt-decode";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError("");
 
     if (!email || !password) {
       setError("Vui lòng nhập đầy đủ thông tin.");
@@ -25,56 +26,58 @@ export default function LoginPage() {
       });
 
       if (!res.ok) {
-        const contentType = res.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const errData = await res.json();
-          setError(errData.message || "Đăng nhập thất bại.");
-        } else {
-          const errText = await res.text();
-          setError(errText || "Đăng nhập thất bại: Lỗi không xác định từ máy chủ.");
-        }
+        const errData = await res.json();
+        setError(errData.message || "Đăng nhập thất bại.");
         return;
       }
 
       const result = await res.json();
-      console.log("Đăng nhập thành công:", result);
+      const { token, doctor, customer, account } = result;
 
-      // Lưu token vào localStorage (hoặc cookies, tùy chiến lược)
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("userEmail", result.email); // Lưu email để dùng sau
-      localStorage.setItem("userRole", result.role); // Lưu vai trò
+      if (!token) {
+        setError("Thiếu token từ server.");
+        return;
+      }
 
-      // Chuyển hướng dựa trên vai trò
-      switch (result.role) {
+      // Giải mã token để lấy role
+      const decoded = jwtDecode<{ role: string }>(token);
+      const role = decoded.role || account?.role || customer?.role || doctor?.role || "UNKNOWN";
+      // Lưu token và thông tin bác sĩ vào localStorage
+      // Lưu token và các thông tin liên quan vào localStorage
+      localStorage.setItem(
+        "authData",
+        JSON.stringify({ token, doctor, customer, account, role })
+      );
+
+
+
+      // Chuyển hướng theo role
+      switch (role) {
         case "CUSTOMER":
-          window.location.href = "/customer/dashboard"; // Hoặc giao diện bệnh nhân
-          break;
-        case "DOCTOR":
-          window.location.href = "/doctorPanel"; // Giao diện bác sĩ
-          break;
-        case "ADMIN":
-          window.location.href = "/admin/dashboard"; // Giao diện quản trị viên
-          break;
-        case "STAFF":
-          window.location.href = "/staff/dashboard"; // Giao diện lễ tân
-          break;
-        case "USER": // Nếu USER là một vai trò độc lập không phải Customer
+        case "USER":
           window.location.href = "/userPanel";
           break;
-        default:
-          window.location.href = "/"; // Trang mặc định nếu không khớp
+        case "DOCTOR":
+          window.location.href = "/doctorPanel";
           break;
+        case "STAFF":
+          window.location.href = "/staff/dashboard";
+          break;
+        case "ADMIN":
+          window.location.href = "/admin";
+          break;
+        default:
+          window.location.href = "/";
       }
     } catch (err) {
-      setError("Lỗi kết nối máy chủ. Vui lòng thử lại sau.");
       console.error("Lỗi khi đăng nhập:", err);
+      setError("Không thể kết nối đến máy chủ.");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 px-4 py-8">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
-        {/* Icon + Title */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-16 h-16 flex items-center justify-center bg-blue-600 text-white text-3xl rounded-full shadow">
             🔒
@@ -85,12 +88,11 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            placeholder="Email hoặc số điện thoại" // Để người dùng có thể nhập cả email hoặc sđt
-            value={email} // Sẽ là trường hợp email trong DTO LoginRequest
+            placeholder="Email hoặc số điện thoại"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -114,7 +116,6 @@ export default function LoginPage() {
           )}
         </form>
 
-        {/* Links */}
         <div className="mt-6 flex flex-col text-gray-800 items-center gap-2 text-sm">
           <p>
             Chưa có tài khoản?{" "}
@@ -125,7 +126,10 @@ export default function LoginPage() {
               Đăng ký ngay
             </Link>
           </p>
-          <Link href="/forgot-password" className="text-blue-600 hover:underline">
+          <Link
+            href="/forgot-password"
+            className="text-blue-600 hover:underline"
+          >
             Quên mật khẩu?
           </Link>
         </div>

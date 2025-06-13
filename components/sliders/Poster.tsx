@@ -22,7 +22,7 @@ const posters: Poster[] = [
         title: 'Khám sức khỏe miễn phí',
         description: 'Đăng ký ngay hôm nay để nhận ưu đãi khám tổng quát miễn phí!',
         ctaText: 'Đặt lịch ngay',
-        ctaLink: '/booking',
+        ctaLink: '/registrations',
     },
     {
         id: 2,
