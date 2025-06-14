@@ -18,15 +18,16 @@ import {
   FaHistory,
   FaVial,
   FaChartLine,
+  FaClipboardList ,
 } from "react-icons/fa";
 
 const menus = {
   USER: [
-    { label: "Chỉnh sửa hồ sơ", href: "/edit", icon: <FaUserEdit /> },
-    { label: "Kết quả xét nghiệm", href: "/lab-results", icon: <FaVial /> },
-    { label: "Lịch sử khám bệnh", href: "/medical-history", icon: <FaHistory /> },
-    { label: "ARV", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
-    { label: "Nhắc nhở", href: "/userPanel", icon: <FaBell /> },
+    { label: "Chỉnh sửa hồ sơ", href: "/userPanel/edit", icon: <FaUserEdit /> },
+    { label: "Kết quả xét nghiệm", href: "/user-panel/lab-results", icon: <FaVial /> },
+    { label: "Lịch sử khám bệnh", href: "/user-panel/medical-history", icon: <FaHistory /> },
+    { label: "ARV", href: "/user-panel/arv", icon: <FaPrescriptionBottleAlt /> },
+    { label: "Nhắc nhở", href: "/profile/reminders", icon: <FaBell /> },
   ],
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
@@ -45,8 +46,9 @@ const menus = {
     ],
     management: [
       { label: "Quản lý bác sĩ", href: "/admin/doctors", icon: <FaUserShield  /> },
-      { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> },
-      { label: "Quản lý lịch", href: "/admin/schedules", icon: <FaCalendar /> },
+      { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> }, 
+      { label: "Lịch làm việc bác sĩ", href: "/admin/schedules-doctor", icon: <FaCalendar /> },
+      { label: "Lịch đăng ký khám", href: "/admin/list-registration", icon: <FaClipboardList /> },
     ],
     data: [
       { label: "Lịch sử khám", href: "/admin/medical-history", icon: <FaHistory /> },
