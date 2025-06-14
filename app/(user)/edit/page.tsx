@@ -1,380 +1,256 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import ApiService from "@/app/service/ApiService";
 
-export default function UserProfileView() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+export default function EditUserProfile() {
+  const [user, setUser] = useState<any>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
-  const [form, setForm] = useState({
-    name: "Nguyễn Văn A",
-    email: "a@gmail.com",
-    phone: "0901234567",
-    address: "Hà Nội",
-    dob: "1990-01-01",
-    gender: "male",
-  });
   const [errors, setErrors] = useState<any>({});
+  const router = useRouter();
 
-  const user = form;
-  const navLinks = [
-    { label: "Trang Chủ", href: "/home" },
-    { label: "Bác Sĩ", href: "/doctor" },
-    { label: "Đặt Lịch", href: "/booking" },
-    { label: "Liên Hệ", href: "/contact" },
-  ];
-  const profileMenuItems = [
-    { id: "edit-profile", label: "Chỉnh sửa hồ sơ" },
-    { id: "lab-results", label: "Kết quả xét nghiệm" },
-    { id: "medical-history", label: "Lịch sử khám bệnh" },
-    { id: "arv", label: "ARV" },
-    { id: "reminder-system", label: "Hệ thống nhắc nhở" },
-  ];
-  function handleProfileMenuClick(id: string) {
-    switch (id) {
-      case "edit-profile":
-        window.location.href = "/userPanel/edit";
-        break;
-      case "lab-results":
-        window.location.href = "/userPanel/lab-results";
-        break;
-      case "medical-history":
-        window.location.href = "/userPanel/medical-history";
-        break;
-      case "arv":
-        window.location.href = "/userPanel/arv";
-        break;
-      case "reminder-system":
-        window.location.href = "/profile/reminders";
-        break;
-      default:
-        break;
+  useEffect(() => {
+    const raw = localStorage.getItem("authData");
+    if (!raw) {
+      alert("Vui lòng đăng nhập lại.");
+      router.push("/login");
+      return;
     }
-    setShowProfileMenu(false);
+    try {
+      const authData = JSON.parse(raw);
+      const token = authData.token;
+      if (!token) throw new Error("Token không hợp lệ.");
+      setToken(token);
+      fetch("http://localhost:8080/api/customers/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Không thể tải hồ sơ người dùng.");
+          return res.json();
+        })
+        .then((data) => {
+          setUser(data);
+          setUserId(data.customerID); // Sửa đúng tên trường ID
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Không thể tải hồ sơ người dùng.");
+          router.push("/login");
+        });
+    } catch (err) {
+      console.error("Lỗi khi đọc token:", err);
+      router.push("/login");
+    }
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (user) {
+      const { name, value } = e.target;
+      if (name === "name") {
+        setUser({ ...user, fullName: value });
+      } else {
+        setUser({ ...user, [name]: value });
+      }
+    }
+  };
+
+  function validateForm(user: any) {
+    const newErrors: any = {};
+    if (!user.fullName || user.fullName.trim().length < 2) {
+      newErrors.name = "Vui lòng nhập họ tên hợp lệ";
+    }
+    if (!user.email) {
+      newErrors.email = "Vui lòng nhập email";
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+    if (!user.phone) {
+      newErrors.phone = "Vui lòng nhập số điện thoại";
+    } else if (!/^[0-9]{9,11}$/.test(user.phone)) {
+      newErrors.phone = "Số điện thoại không hợp lệ. Chỉ gồm 9-11 chữ số.";
+    }
+    // Nếu đã có ngày sinh (user.dob hoặc user.dateOfBirth) thì không bắt buộc nhập lại
+    if (!user.dob && !user.dateOfBirth) {
+      newErrors.dob = "Vui lòng nhập ngày sinh";
+    }
+    return newErrors;
   }
 
+  const handleSubmit = async () => {
+    console.log("submit clicked");
+    setSuccessMsg("");
+    setErrors({});
+
+    if (!user || !userId || !token) {
+      console.warn("Thiếu user, userId hoặc token");
+      return;
+    }
+
+    const validationErrors = validateForm(user);
+    console.log("Validation errors:", validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    try {
+      const customerData = {
+  fullName: user.fullName,
+  email: user.email,
+  phone: user.phone,
+  address: user.address,
+  dateOfBirth: user.dob, // đổi từ dob thành dateOfBirth đúng với backend
+  gender: user.gender,
+};
+
+      const formData = new FormData();
+      const customerBlob = new Blob([JSON.stringify(customerData)], {
+        type: "application/json",
+      });
+      formData.append("customer", customerBlob);
+      if (avatarFile) {
+        formData.append("avatar", avatarFile);
+      }
+
+      console.log("Sending update request...");
+      const res = await fetch(`http://localhost:8080/api/customers/${userId}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      console.log("Response status:", res.status);
+      if (!res.ok) {
+  const errMsg = await res.text();
+  console.error("Lỗi từ backend:", errMsg); // Ghi log lỗi
+  setErrors({ submit: errMsg || "Lỗi khi cập nhật hồ sơ." });
+  return;
+}
+
+      setSuccessMsg("Cập nhật thành công!");
+      setTimeout(() => {
+        router.push("/edit");
+      }, 1200);
+    } catch (err) {
+      console.error("Lỗi khi gửi request:", err);
+      setErrors({ submit: "Lỗi khi cập nhật." });
+    }
+  };
+
+  if (loading || !user)
+    return <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>;
+
   return (
-    <>
-      <header className="bg-white border-b border-gray-200 shadow-sm fixed w-full top-0 z-50">
-        <div className="w-full px-8 py-6 flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/home" className="flex items-center space-x-3">
-            <img src="/logo.jpg" alt="Logo" className="w-[100px] h-auto" />
-            <h1 className="font-roboto text-[20px] text-[#879FC5EB] m-0">
-              HIV Treatment and Medical
-            </h1>
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-8">
-            {/* Search bar on the left */}
-            <form
-              className="flex items-center border rounded px-2 py-1 bg-gray-50 mr-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-              style={{ minWidth: 200 }}
-            >
-              <input
-                type="text"
-                placeholder="Tìm kiếm..."
-                className="outline-none bg-transparent text-sm px-2"
-                disabled
-              />
-              <button
-                type="submit"
-                className="text-[#27509f] font-bold px-2"
-                disabled
-              >
-                🔍
-              </button>
-            </form>
-            <nav className="flex space-x-8 items-center">
-              {navLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Avatar + Profile Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 hover:ring-2 hover:ring-blue-400 transition"
-              >
-                <img
-                  src="/avatar.jpg"
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              </button>
-
-              {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-white border rounded shadow-lg z-50 p-2">
-                  <ul className="profile-menu space-y-1">
-                    {profileMenuItems.map((item) => (
-                      <li key={item.id}>
-                        <a
-                          href="#"
-                          data-content-id={item.id}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
-                          onClick={() => handleProfileMenuClick(item.id)}
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <hr className="my-2" />
-                  <button
-                    onClick={() => alert("Đăng xuất")}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded"
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Toggle */}
-          <button
-            className="md:hidden text-gray-700"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 px-6 pb-6 space-y-4">
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setIsOpen(false)}
-                className="block text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
-              >
-                {label}
-              </Link>
-            ))}
-
-            {/* Avatar Mobile Menu */}
-            <div className="pt-4 border-t border-gray-100">
-              <div className="flex items-center space-x-3 mb-3">
-                <img
-                  src="/avatar.jpg"
-                  alt="Avatar"
-                  className="w-10 h-10 rounded-full object-cover border"
-                />
-                <span className="font-medium text-gray-800">Tài Khoản</span>
-              </div>
-              <ul className="profile-menu space-y-1">
-                {profileMenuItems.map((item) => (
-                  <li key={item.id}>
-                    <a
-                      href="#"
-                      data-content-id={item.id}
-                      className="block text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
-                      onClick={() => handleProfileMenuClick(item.id)}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <hr className="my-3" />
-              <button
-                onClick={() => alert("Đăng xuất")}
-                className="w-full text-left px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded"
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
-
-      <div className="max-w-2xl mx-auto mt-32 bg-white p-8 rounded shadow">
-        <h2 className="text-2xl font-bold mb-6 text-[#27509f] text-center">
-          Hồ sơ cá nhân
+    <div className="min-h-0 bg-gray-100 flex items-start justify-center pt-10 px-4">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+        <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+          Chỉnh sửa hồ sơ cá nhân
         </h2>
         {successMsg && (
           <div className="mb-4 text-green-600 text-center font-medium">
             {successMsg}
           </div>
         )}
-        {isEditing ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              // Validate
-              const newErrors: any = {};
-              if (!form.name) newErrors.name = "Vui lòng nhập họ tên";
-              if (!form.email) newErrors.email = "Vui lòng nhập email";
-              if (!form.phone) newErrors.phone = "Vui lòng nhập số điện thoại";
-              if (!form.dob) newErrors.dob = "Vui lòng nhập ngày sinh";
-              setErrors(newErrors);
-              if (Object.keys(newErrors).length > 0) return;
-              setIsEditing(false);
-              setSuccessMsg("Cập nhật hồ sơ thành công!");
-              setTimeout(() => setSuccessMsg(""), 2500);
-            }}
-            className="space-y-4"
-          >
-            <div className="flex items-center mb-2">
-              <label className="w-1/3 font-medium">Họ và tên</label>
-              <input
-                className="flex-1 border rounded px-3 py-2"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              />
-            </div>
-            {errors.name && (
-              <div className="text-red-500 text-sm mb-2 ml-1/3">
-                {errors.name}
-              </div>
-            )}
-            <div className="flex items-center mb-2">
-              <label className="w-1/3 font-medium">Email</label>
-              <input
-                className="flex-1 border rounded px-3 py-2"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                type="email"
-              />
-            </div>
-            {errors.email && (
-              <div className="text-red-500 text-sm mb-2 ml-1/3">
-                {errors.email}
-              </div>
-            )}
-            <div className="flex items-center mb-2">
-              <label className="w-1/3 font-medium">Số điện thoại</label>
-              <input
-                className="flex-1 border rounded px-3 py-2"
-                value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                type="tel"
-              />
-            </div>
-            {errors.phone && (
-              <div className="text-red-500 text-sm mb-2 ml-1/3">
-                {errors.phone}
-              </div>
-            )}
-            <div className="flex items-center mb-2">
-              <label className="w-1/3 font-medium">Địa chỉ</label>
-              <input
-                className="flex-1 border rounded px-3 py-2"
-                value={form.address}
-                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-              />
-            </div>
-            <div className="flex items-center mb-2">
-              <label className="w-1/3 font-medium">Ngày sinh</label>
-              <input
-                className="flex-1 border rounded px-3 py-2"
-                value={form.dob}
-                onChange={(e) => setForm((f) => ({ ...f, dob: e.target.value }))}
-                type="date"
-              />
-            </div>
-            {errors.dob && (
-              <div className="text-red-500 text-sm mb-2 ml-1/3">
-                {errors.dob}
-              </div>
-            )}
-            <div className="flex items-center mb-2">
-              <label className="w-1/3 font-medium">Giới tính</label>
-              <select
-                className="flex-1 border rounded px-3 py-2"
-                value={form.gender}
-                onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
-              >
-                <option value="male">Nam</option>
-                <option value="female">Nữ</option>
-                <option value="other">Khác</option>
-              </select>
-            </div>
-            <div className="flex justify-end space-x-2 mt-6">
-              <button
-                type="button"
-                className="px-4 py-2 rounded bg-gray-200 text-gray-700"
-                onClick={() => {
-                  setIsEditing(false);
-                  setErrors({});
-                }}
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 rounded bg-[#27509f] text-white font-semibold"
-              >
-                Lưu
-              </button>
-            </div>
-          </form>
-        ) : (
-          <>
-            <table className="w-full border text-base">
-              <tbody>
-                <tr>
-                  <td className="py-2 px-3 border font-medium w-1/3">Họ và tên</td>
-                  <td className="py-2 px-3 border">{user.name}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-3 border font-medium">Email</td>
-                  <td className="py-2 px-3 border">{user.email}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-3 border font-medium">Số điện thoại</td>
-                  <td className="py-2 px-3 border">{user.phone}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-3 border font-medium">Địa chỉ</td>
-                  <td className="py-2 px-3 border">{user.address}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-3 border font-medium">Ngày sinh</td>
-                  <td className="py-2 px-3 border">{user.dob}</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-3 border font-medium">Giới tính</td>
-                  <td className="py-2 px-3 border">
-                    {user.gender === "male"
-                      ? "Nam"
-                      : user.gender === "female"
-                      ? "Nữ"
-                      : user.gender === "other"
-                      ? "Khác"
-                      : ""}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div className="flex justify-end mt-6">
-              <button
-                className="px-4 py-2 rounded bg-[#27509f] text-white font-semibold"
-                onClick={() => setIsEditing(true)}
-              >
-                Chỉnh sửa
-              </button>
-            </div>
-          </>
+        {errors.submit && (
+          <div className="text-red-500 text-center font-medium mb-2">{errors.submit}</div>
         )}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-800 mb-1">
+              Họ và tên:
+            </label>
+            <input
+              name="name"
+              value={user.fullName ?? ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.name && (
+              <div className="text-red-500 text-sm mt-1">{errors.name}</div>
+            )}
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-800 mb-1">
+              Số điện thoại:
+            </label>
+            <input
+              name="phone"
+              value={user.phone ?? ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.phone && (
+              <div className="text-red-500 text-sm mt-1">{errors.phone}</div>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-800 mb-1">
+              Địa chỉ:
+            </label>
+            <input
+              name="address"
+              value={user.address ?? ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-800 mb-1">
+              Ngày sinh:
+            </label>
+            <input
+              name="dob"
+              type="date"
+              value={user.dob ?? user.dateOfBirth ?? ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.dob && (
+              <div className="text-red-500 text-sm mt-1">{errors.dob}</div>
+            )}
+         
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-800 mb-1">
+              Giới tính:
+            </label>
+            <select
+              name="gender"
+              value={user.gender ?? ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
+            >
+              <option value="MALE">Nam</option>
+              <option value="FEMALE">Nữ</option>
+              <option value="OTHER">Khác</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Tải ảnh đại diện:</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setAvatarFile(file);
+              }}
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
+            />
+          </div>
+        </div>
+        <button
+          onClick={handleSubmit}
+          className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Lưu thay đổi
+        </button>
       </div>
-    </>
+    </div>
   );
 }
