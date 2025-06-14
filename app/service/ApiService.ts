@@ -253,23 +253,23 @@ export default class ApiService {
 
   /** ---------------- BLOG ---------------- */
   static async getAllBlogs(): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/blog`)).data;
+    return (await axios.get(`${this.BASE_URL}/api/blogposts`)).data;
   }
 
   static async getBlogById(id: number): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/blog/${id}`)).data;
+    return (await axios.get(`${this.BASE_URL}/api/blogposts/${id}`)).data;
   }
 
   static async createBlog(data: any): Promise<any> {
-    return (await axios.post(`${this.BASE_URL}/api/blog`, data)).data;
+    return (await axios.post(`${this.BASE_URL}/api/blogposts`, data)).data;
   }
 
   static async updateBlog(id: number, data: any): Promise<any> {
-    return (await axios.put(`${this.BASE_URL}/api/blog/${id}`, data)).data;
+    return (await axios.put(`${this.BASE_URL}/api/blogposts/${id}`, data)).data;
   }
 
   static async deleteBlog(id: number): Promise<any> {
-    return (await axios.delete(`${this.BASE_URL}/api/blog/${id}`)).data;
+    return (await axios.delete(`${this.BASE_URL}/api/blogposts/${id}`)).data;
   }
 
   /** ---------------- REGISTRATION ---------------- */
@@ -282,5 +282,62 @@ export default class ApiService {
   static async getRegistrationById(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
   }
+  
+  /** ---------------- ARV REGIMEN ---------------- */
+
+static async getARVRegimens(): Promise<any> {
+  const token = JSON.parse(localStorage.getItem("authData") || "{}")?.token;
+  if (!token) throw new Error("Token not found");
+
+  const response = await axios.get(`${this.BASE_URL}/api/arv-regimens`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return response.data;
+}
+static async createARVRegimen(data: any): Promise<any> {
+  const headers = this.getHeader();
+
+  const response = await axios.post(`${this.BASE_URL}/api/arv-regimens`, data, {
+    headers,
+  });
+
+  return response.data;
+}
+static async getARVRegimenById(id: number): Promise<any> {
+  const headers = this.getHeader();
+
+  return (
+    await axios.get(`${this.BASE_URL}/api/arv-regimens/${id}`, {
+      headers,
+    })
+  ).data;
+}
+static async updateARVRegimen(id: number, data: any): Promise<any> {
+  const headers = this.getHeader();
+
+  return (
+    await axios.put(`${this.BASE_URL}/api/arv-regimens/${id}`, data, {
+      headers,
+    })
+  ).data;
+}
+static async deleteARVRegimen(id: number): Promise<any> {
+  const headers = this.getHeader();
+
+  return (
+    await axios.delete(`${this.BASE_URL}/api/arv-regimens/${id}`, {
+      headers,
+    })
+  ).data;
+}
+static async getCustomerByEmail(email: string): Promise<any> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
+    headers,
+    params: { email },
+  });
+  return response.data;
+}
 }
 
