@@ -18,6 +18,7 @@ import {
   FaHistory,
   FaVial,
   FaChartLine,
+  FaClipboardList ,
 } from "react-icons/fa";
 
 const menus = {
@@ -45,8 +46,9 @@ const menus = {
     ],
     management: [
       { label: "Quản lý bác sĩ", href: "/admin/doctors", icon: <FaUserShield  /> },
-      { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> },
-      { label: "Quản lý lịch", href: "/admin/schedules", icon: <FaCalendar /> },
+      { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> }, 
+      { label: "Lịch làm việc bác sĩ", href: "/admin/schedules-doctor", icon: <FaCalendar /> },
+      { label: "Lịch đăng ký khám", href: "/admin/list-registration", icon: <FaClipboardList /> },
     ],
     data: [
       { label: "Lịch sử khám", href: "/admin/medical-history", icon: <FaHistory /> },

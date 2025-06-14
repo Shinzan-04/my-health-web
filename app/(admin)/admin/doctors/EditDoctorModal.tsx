@@ -17,7 +17,7 @@ type Doctor = {
   phone: string;
   specialization: string;
   description: string;
-  work_experience_years: number;
+  workExperienceYears: number;
 };
 
 export default function EditDoctorModal({
@@ -93,9 +93,9 @@ export default function EditDoctorModal({
             />
 
             <input
-              name="work_experience_years"
+              name="workExperienceYears"
               type="number"
-              value={formData.work_experience_years || ""}
+              value={formData.workExperienceYears || ""}
               onChange={handleChange}
               placeholder="Số năm kinh nghiệm"
               className="w-full border border-gray-400 px-3 py-2 rounded"
