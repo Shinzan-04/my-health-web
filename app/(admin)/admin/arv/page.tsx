@@ -1,5 +1,5 @@
 "use client";
-
+import toast from "react-hot-toast";  
 import { useEffect, useState } from "react";
 import ApiService from "@/app/service/ApiService";
 
@@ -120,6 +120,14 @@ export default function ARVRegimenPage() {
       const payload = { ...form, doctorId: authData?.doctor?.doctorId };
       if (editingId) {
         await ApiService.updateARVRegimen(editingId, payload);
+        toast.success("Cập nhật thành công!", {
+  icon: "🎉",
+  style: {
+    borderRadius: "8px",
+    background: "#f0fdf4",
+    color: "#16a34a",
+  },
+        });
       } else {
         await ApiService.createARVRegimen(payload);
       }

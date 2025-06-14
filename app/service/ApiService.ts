@@ -31,27 +31,60 @@ static getHeader() {
   static async loginUser(data: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/login`, data)).data;
   }
+/** ---------------- TEST RESULT ---------------- */
+static getAuthHeader() {
+  const authData = localStorage.getItem("authData");
+  try {
+    const parsed = JSON.parse(authData || "{}");
+    const token = parsed?.token;
 
-  /** ---------------- TEST RESULT ---------------- */
-  static async getTestResults(): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/test-results`)).data;
-  }
+    if (!token) throw new Error("Token not found");
 
-  static async getTestResultById(id: number): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/test-results/${id}`)).data;
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+  } catch (err) {
+    console.error("❌ Token không hợp lệ:", err);
+    return {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
   }
+}
 
-  static async createTestResult(data: any): Promise<any> {
-    return (await axios.post(`${this.BASE_URL}/api/test-results`, data)).data;
-  }
+static async getTestResults(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results`, this.getAuthHeader())
+  ).data;
+}
 
-  static async updateTestResult(id: number, data: any): Promise<any> {
-    return (await axios.put(`${this.BASE_URL}/api/test-results/${id}`, data)).data;
-  }
+static async getTestResultById(id: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/${id}`, this.getAuthHeader())
+  ).data;
+}
 
-  static async deleteTestResult(id: number): Promise<any> {
-    return (await axios.delete(`${this.BASE_URL}/api/test-results/${id}`)).data;
-  }
+static async createTestResult(data: any): Promise<any> {
+  return (
+    await axios.post(`${this.BASE_URL}/api/test-results`, data, this.getAuthHeader())
+  ).data;
+}
+
+static async updateTestResult(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/test-results/${id}`, data, this.getAuthHeader())
+  ).data;
+}
+
+static async deleteTestResult(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/test-results/${id}`, this.getAuthHeader())
+  ).data;
+}
 
   /** ---------------- SCHEDULE ---------------- */
   static async getSchedules(): Promise<any> {
@@ -296,10 +329,6 @@ static async getARVRegimens(): Promise<any> {
 
   return response.data;
 }
-
-
-
-
 
 static async createARVRegimen(data: any): Promise<any> {
   const headers = this.getHeader();
