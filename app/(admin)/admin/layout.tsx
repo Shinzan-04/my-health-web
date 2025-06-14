@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "../styles/globals.css";
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import Sidebar from "@/components/sidebar/Sidebar";
+import "../../styles/globals.css";
+import { Toaster } from "react-hot-toast";
+
 import { FC, ReactNode } from "react";
 
 const geistSans = Geist({
@@ -28,34 +30,28 @@ interface RootLayoutProps {
 
 const HomeLayout: FC<RootLayoutProps> = ({ children }) => {
   return (
-<html lang="vi">
-  <body className="min-h-screen flex flex-col">
-    <Header />
+    <html lang="vi">
+      <body className="min-h-screen flex flex-col">
+        <Header />
 
-    {/* Main layout container (Sidebar + Content) */}
-    <div className="flex flex-1 pt-[64px]">
-  {/* Fixed Sidebar */}
-  <aside className="w-64 fixed top-[64px] left-0 h-[calc(100vh-64px)] bg-white border-r z-40 pt-4">
-    <Sidebar />
-  </aside>
+        {/* Main layout container (Sidebar + Content) */}
+        <div className="flex flex-1 pt-[64px]">
+          {/* Fixed Sidebar */}
+          <aside className="w-64 fixed top-[64px] left-0 h-[calc(100vh-64px)] bg-white border-r z-40 pt-4">
+            <Sidebar />
+          </aside>
 
-  {/* Main content */}
-  <div className="ml-64 flex-1 flex flex-col">
-    <main className="flex-1 p-4 pt-[64px] bg-gray-50 overflow-auto">
-      {children}
-    </main>
-    <Footer />
-  </div>
-</div>
-
-  </body>
-</html>
-
-
-
-
-
-
+          {/* Main content */}
+          <div className="ml-64 flex-1 flex flex-col">
+            <main className="flex-1 p-4 pt-[64px] bg-gray-50 overflow-auto">
+              {children}
+              <Toaster position="top-right" />
+            </main>
+            <Footer />
+          </div>
+        </div>
+      </body>
+    </html>
   );
 };
 
