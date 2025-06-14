@@ -75,7 +75,8 @@ export default function EditUserProfile() {
     } else if (!/^[0-9]{9,11}$/.test(user.phone)) {
       newErrors.phone = "Số điện thoại không hợp lệ. Chỉ gồm 9-11 chữ số.";
     }
-    if (!user.dob) {
+    // Nếu đã có ngày sinh (user.dob hoặc user.dateOfBirth) thì không bắt buộc nhập lại
+    if (!user.dob && !user.dateOfBirth) {
       newErrors.dob = "Vui lòng nhập ngày sinh";
     }
     return newErrors;
@@ -131,7 +132,7 @@ export default function EditUserProfile() {
   return;
 }
 
-      setSuccessMsg("Cập nhật thành công! Dữ liệu đã được lưu vào hệ thống.");
+      setSuccessMsg("Cập nhật thành công!");
       setTimeout(() => {
         router.push("/edit");
       }, 1200);
@@ -145,7 +146,7 @@ export default function EditUserProfile() {
     return <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <div className="min-h-0 bg-gray-100 flex items-start justify-center pt-10 px-4">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
         <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
           Chỉnh sửa hồ sơ cá nhân
