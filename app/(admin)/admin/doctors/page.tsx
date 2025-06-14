@@ -12,6 +12,8 @@ type Doctor = {
   email: string;
   phone: string;
   specialization: string;
+  description: string;
+  workExperienceYears: number;
 };
 
 export default function DoctorManagementPage() {
@@ -80,6 +82,8 @@ export default function DoctorManagementPage() {
               <th className="border border-gray-400 px-4 py-2 text-left">Email</th>
               <th className="border border-gray-400 px-4 py-2 text-left">SĐT</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Chuyên môn</th>
+              <th className="border border-gray-400 px-4 py-2 text-left">Số năm kinh nghiệm</th>
+              <th className="border border-gray-400 px-4 py-2 text-left">Mô tả</th>
               <th className="border border-gray-400 px-4 py-2 text-center">Hành động</th>
             </tr>
           </thead>
@@ -90,6 +94,8 @@ export default function DoctorManagementPage() {
                 <td className="border border-gray-400 px-4 py-2">{doctor.email}</td>
                 <td className="border border-gray-400 px-4 py-2">{doctor.phone}</td>
                 <td className="border border-gray-400 px-4 py-2">{doctor.specialization}</td>
+                <td className="border border-gray-400 px-4 py-2">{doctor.workExperienceYears}</td>
+                <td className="border border-gray-400 px-4 py-2">{doctor.description}</td>
                 <td className="border border-gray-400 px-4 py-2 text-center">
                   <div className="flex justify-center gap-2">
                     <button
