@@ -31,11 +31,12 @@ const menus = {
   ],
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
-    { label: "Bệnh nhân điều trị", href: "/doctor/patients", icon: <FaUsers /> },
+    { label: "Bệnh nhân điều trị", href: "/admin", icon: <FaUsers /> },
     { label: "Hồ sơ bệnh nhân", href: "/doctor/records", icon: <FaNotesMedical /> },
     { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
-    { label: "Phác đồ điều trị", href: "/doctor/treatment-plan", icon: <FaPrescriptionBottleAlt /> },
+    { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaCalendar /> },
   ],
   ADMIN: {
     dashboard: [
