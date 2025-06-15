@@ -23,11 +23,11 @@ import {
 
 const menus = {
   USER: [
-    { label: "Chỉnh sửa hồ sơ", href: "/userPanel/edit", icon: <FaUserEdit /> },
-    { label: "Kết quả xét nghiệm", href: "/user-panel/lab-results", icon: <FaVial /> },
-    { label: "Lịch sử khám bệnh", href: "/user-panel/medical-history", icon: <FaHistory /> },
-    { label: "ARV", href: "/user-panel/arv", icon: <FaPrescriptionBottleAlt /> },
-    { label: "Nhắc nhở", href: "/profile/reminders", icon: <FaBell /> },
+    { label: "Chỉnh sửa hồ sơ", href: "/edit", icon: <FaUserEdit /> },
+    { label: "Kết quả xét nghiệm", href: "/lab-results", icon: <FaVial /> },
+    { label: "Lịch sử khám bệnh", href: "/medical-history", icon: <FaHistory /> },
+    { label: "ARV", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
+    { label: "Nhắc nhở", href: "/userPanel", icon: <FaBell /> },
   ],
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },

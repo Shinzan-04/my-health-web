@@ -50,15 +50,15 @@ export default function ARVRegimenPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [role, setRole] = useState<string>("");
 
-  useEffect(() => {
-    fetchARVs();
-    const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-    setRole(authData?.role || "");
+useEffect(() => {
+  fetchARVs();
 
-    if (authData?.doctor?.doctorId) {
-      setForm((prev) => ({ ...prev, doctorId: authData.doctor.doctorId }));
-    }
-  }, []);
+  // Lấy role từ localStorage
+  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const userRole = authData?.account?.role || authData?.role || "";
+  setRole(userRole);
+}, []);
+
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -169,153 +169,154 @@ export default function ARVRegimenPage() {
     setEditingId(null);
   };
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Quản lý phác đồ ARV</h1>
+return (
+  <div className="p-6 text-gray-700">
+    <h1 className="text-2xl font-bold mb-4 text-gray-900">Quản lý phác đồ ARV</h1>
 
-      {role === "DOCTOR" && (
-        <div className="bg-gray-100 p-4 rounded mb-6">
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email bệnh nhân"
-              value={form.email || ""}
-              onChange={handleChange}
-              className="border p-2"
-            />
-            <input
-              type="text"
-              name="customerName"
-              placeholder="Tên bệnh nhân"
-              value={form.customerName}
-              readOnly
-              className="border p-2 bg-gray-100"
-            />
-            <input
-              type="date"
-              name="createDate"
-              value={form.createDate}
-              onChange={handleChange}
-              className="border p-2"
-            />
-            <input
-              type="date"
-              name="endDate"
-              value={form.endDate}
-              onChange={handleChange}
-              className="border p-2"
-            />
-            <select
-              name="regimenCode"
-              value={form.regimenCode}
-              onChange={handleChange}
-              className="border p-2"
-            >
-              <option value="">Chọn mã phác đồ</option>
-              {ARV_REGIMEN_OPTIONS.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.code}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              name="regimenName"
-              value={form.regimenName}
-              readOnly
-              className="border p-2 bg-gray-100"
-            />
-            <input
-              type="text"
-              name="description"
-              placeholder="Ghi chú"
-              value={form.description}
-              onChange={handleChange}
-              className="border p-2"
-            />
-          </div>
-          <div className="mt-3">
-            <label className="block mb-1 font-semibold">Lịch uống:</label>
-            <div className="flex gap-4">
-              {DOSAGE_OPTIONS.map((time) => (
-                <label key={time}>
-                  <input
-                    type="checkbox"
-                    value={time}
-                    checked={form.medicationSchedule.includes(time)}
-                    onChange={handleDosageChange}
-                    className="mr-1"
-                  />
-                  {time}
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4">
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-            >
-              {editingId ? "Cập nhật" : "Thêm"}
-            </button>
-            <button
-              onClick={resetForm}
-              className="bg-gray-400 text-white px-4 py-2 rounded"
-            >
-              Hủy
-            </button>
+    {role === "DOCTOR" && (
+      <div className="bg-gray-100 p-4 rounded mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email bệnh nhân"
+            value={form.email || ""}
+            onChange={handleChange}
+            className="border p-2 text-gray-700"
+          />
+          <input
+            type="text"
+            name="customerName"
+            placeholder="Tên bệnh nhân"
+            value={form.customerName}
+            readOnly
+            className="border p-2 bg-gray-100 text-gray-400"
+          />
+          <input
+            type="date"
+            name="createDate"
+            value={form.createDate}
+            onChange={handleChange}
+            className="border p-2 text-gray-700"
+          />
+          <input
+            type="date"
+            name="endDate"
+            value={form.endDate}
+            onChange={handleChange}
+            className="border p-2 text-gray-700"
+          />
+          <select
+            name="regimenCode"
+            value={form.regimenCode}
+            onChange={handleChange}
+            className="border p-2 text-gray-700"
+          >
+            <option value="">Chọn mã phác đồ</option>
+            {ARV_REGIMEN_OPTIONS.map((option) => (
+              <option key={option.code} value={option.code}>
+                {option.code}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            name="regimenName"
+            value={form.regimenName}
+            readOnly
+            className="border p-2 bg-gray-100 text-gray-400"
+          />
+          <input
+            type="text"
+            name="description"
+            placeholder="Ghi chú"
+            value={form.description}
+            onChange={handleChange}
+            className="border p-2 text-gray-700"
+          />
+        </div>
+        <div className="mt-3">
+          <label className="block mb-1 font-semibold text-gray-900">Lịch uống:</label>
+          <div className="flex gap-4 text-gray-700">
+            {DOSAGE_OPTIONS.map((time) => (
+              <label key={time}>
+                <input
+                  type="checkbox"
+                  value={time}
+                  checked={form.medicationSchedule.includes(time)}
+                  onChange={handleDosageChange}
+                  className="mr-1"
+                />
+                {time}
+              </label>
+            ))}
           </div>
         </div>
-      )}
+        <div className="mt-4">
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+          >
+            {editingId ? "Cập nhật" : "Thêm"}
+          </button>
+          <button
+            onClick={resetForm}
+            className="bg-gray-400 text-white px-4 py-2 rounded"
+          >
+            Hủy
+          </button>
+        </div>
+      </div>
+    )}
 
-      <table className="min-w-full border border-gray-300 text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-2 py-1">ID</th>
-            <th className="border px-2 py-1">Bác sĩ</th>
-            <th className="border px-2 py-1">Bệnh nhân</th>
-            <th className="border px-2 py-1">Ngày bắt đầu</th>
-            <th className="border px-2 py-1">Ngày kết thúc</th>
-            <th className="border px-2 py-1">Mã</th>
-            <th className="border px-2 py-1">Tên phác đồ</th>
-            <th className="border px-2 py-1">Lịch uống</th>
-            <th className="border px-2 py-1">Ghi chú</th>
-            {role === "DOCTOR" && <th className="border px-2 py-1">Hành động</th>}
+    <table className="min-w-full border border-gray-300 text-sm text-gray-700">
+      <thead className="bg-gray-100 text-gray-900">
+        <tr>
+          <th className="border px-2 py-1">ID</th>
+          <th className="border px-2 py-1">Bác sĩ</th>
+          <th className="border px-2 py-1">Bệnh nhân</th>
+          <th className="border px-2 py-1">Ngày bắt đầu</th>
+          <th className="border px-2 py-1">Ngày kết thúc</th>
+          <th className="border px-2 py-1">Mã</th>
+          <th className="border px-2 py-1">Tên phác đồ</th>
+          <th className="border px-2 py-1">Lịch uống</th>
+          <th className="border px-2 py-1">Ghi chú</th>
+          {role === "DOCTOR" && <th className="border px-2 py-1">Hành động</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {arvs.map((arv) => (
+          <tr key={arv.arvRegimenId} className="hover:bg-gray-50">
+            <td className="border px-2 py-1 text-gray-700">{arv.arvRegimenId}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.doctorName}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.customerName}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.createDate}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.endDate}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.regimenCode}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.regimenName}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.medicationSchedule}</td>
+            <td className="border px-2 py-1 text-gray-700">{arv.description}</td>
+            {role === "DOCTOR" && (
+              <td className="border px-2 py-1 text-gray-700">
+                <button
+                  className="text-blue-600 hover:underline mr-2"
+                  onClick={() => handleEdit(arv)}
+                >
+                  Sửa
+                </button>
+                <button
+                  className="text-red-600 hover:underline"
+                  onClick={() => handleDelete(arv.arvRegimenId!)}
+                >
+                  Xóa
+                </button>
+              </td>
+            )}
           </tr>
-        </thead>
-        <tbody>
-          {arvs.map((arv) => (
-            <tr key={arv.arvRegimenId} className="hover:bg-gray-50">
-              <td className="border px-2 py-1">{arv.arvRegimenId}</td>
-              <td className="border px-2 py-1">{arv.doctorName}</td>
-              <td className="border px-2 py-1">{arv.customerName}</td>
-              <td className="border px-2 py-1">{arv.createDate}</td>
-              <td className="border px-2 py-1">{arv.endDate}</td>
-              <td className="border px-2 py-1">{arv.regimenCode}</td>
-              <td className="border px-2 py-1">{arv.regimenName}</td>
-              <td className="border px-2 py-1">{arv.medicationSchedule}</td>
-              <td className="border px-2 py-1">{arv.description}</td>
-              {role === "DOCTOR" && (
-                <td className="border px-2 py-1">
-                  <button
-                    className="text-blue-600 hover:underline mr-2"
-                    onClick={() => handleEdit(arv)}
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    className="text-red-600 hover:underline"
-                    onClick={() => handleDelete(arv.arvRegimenId!)}
-                  >
-                    Xóa
-                  </button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 }

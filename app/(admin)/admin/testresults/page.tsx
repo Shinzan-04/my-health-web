@@ -14,12 +14,14 @@ type TestResult = {
   date: string;
   typeOfTest: string;
   resultDescription: string;
+  doctorName?: string;
 };
 
 export default function TestResultPage() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [formData, setFormData] = useState<TestResult>({
     doctorId: 0,
+    doctorName: "",
     customerId: 0,
     customerName: "",
     customerEmail: "",
@@ -250,7 +252,7 @@ export default function TestResultPage() {
       <tr key={item.testResultId} className="hover:bg-gray-50">
         <td className="border px-2 py-1 text-gray-700">{item.customerEmail}</td>
         <td className="border px-2 py-1 text-gray-700">{item.customerName}</td>
-        <td className="border px-2 py-1 text-gray-700">{item.doctorId}</td>
+        <td className="border px-2 py-1 text-gray-700">{item.doctorName}</td>
         <td className="border px-2 py-1 text-gray-700">
           {format(new Date(item.date), "dd/MM/yyyy")}
         </td>

@@ -1,222 +1,126 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
 
-export default function MedicalHistory() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-  // Giả lập dữ liệu lịch sử khám bệnh
-  const medicalHistory = [
-    {
-      id: 1,
-      date: "2024-12-10",
-      doctor: "BS. Nguyễn Văn A",
-      diagnosis: "Khám tổng quát",
-      note: "Không phát hiện bất thường."
-    },
-    {
-      id: 2,
-      date: "2024-08-22",
-      doctor: "BS. Trần Thị B",
-      diagnosis: "Xét nghiệm máu",
-      note: "Cholesterol hơi cao."
-    },
-    {
-      id: 3,
-      date: "2024-03-15",
-      doctor: "BS. Lê Văn C",
-      diagnosis: "Khám chuyên khoa",
-      note: "Đề nghị tái khám sau 6 tháng."
+export default function MedicalHistoryDetail() {
+  const searchParams = useSearchParams();
+  const id = Number(searchParams.get("id"));
+
+  const [history, setHistory] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const raw = localStorage.getItem("authData");
+    if (!raw) {
+      setError("Vui lòng đăng nhập lại.");
+      setLoading(false);
+      return;
     }
-  ];
-
-  const navLinks = [
-    { label: "Trang Chủ", href: "/home" },
-    { label: "Bác Sĩ", href: "/doctor" },
-    { label: "Đặt Lịch", href: "/booking" },
-    { label: "Liên Hệ", href: "/contact" },
-  ];
-  const profileMenuItems = [
-    { id: "edit-profile", label: "Chỉnh sửa hồ sơ" },
-    { id: "lab-results", label: "Kết quả xét nghiệm" },
-    { id: "medical-history", label: "Lịch sử khám bệnh" },
-    { id: "arv", label: "ARV" },
-    { id: "reminder-system", label: "Hệ thống nhắc nhở" },
-  ];
-  function handleProfileMenuClick(id: string) {
-    switch (id) {
-      case "edit-profile":
-        window.location.href = "/userPanel/edit";
-        break;
-      case "lab-results":
-        window.location.href = "/userPanel/lab-results";
-        break;
-      case "medical-history":
-        window.location.href = "/userPanel/medical-history";
-        break;
-      case "arv":
-        window.location.href = "/userPanel/arv";
-        break;
-      case "reminder-system":
-        window.location.href = "/profile/reminders";
-        break;
-      default:
-        break;
+    try {
+      const authData = JSON.parse(raw);
+      const token = authData.token || authData.accessToken;
+      if (!token) throw new Error("Token không hợp lệ.");
+      // Lấy customerId bằng cách fetch /api/customers/me giống trang edit
+      fetch("http://localhost:8080/api/customers/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Không thể tải hồ sơ người dùng.");
+          return res.json();
+        })
+        .then((data) => {
+          const customerId = data.customerID;
+          // Lấy medical history theo customerId
+          return fetch(
+            `http://localhost:8080/api/medical-histories/customer/${customerId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+        })
+        .then((res) => {
+          if (!res.ok) throw new Error("Lỗi khi lấy dữ liệu lịch sử khám bệnh");
+          return res.json();
+        })
+        .then((data) => {
+          console.log("API response:", data);
+          if (Array.isArray(data)) setHistory(data);
+          else if (data && Array.isArray(data.content)) setHistory(data.content);
+          else setHistory([]);
+        })
+        .catch((err) => {
+          console.error("Error fetching medical history:", err);
+          setError(err.message || "Lỗi không xác định");
+        })
+        .finally(() => setLoading(false));
+    } catch (err) {
+      setError("Lỗi khi đọc token từ localStorage");
+      setLoading(false);
     }
-    setShowProfileMenu(false);
-  }
+  }, []);
 
-  return (
-    <>
-      <header className="bg-white border-b border-gray-200 shadow-sm fixed w-full top-0 z-50">
-        <div className="w-full px-8 py-6 flex justify-between items-center">
-          <Link href="/home" className="flex items-center space-x-3">
-            <img src="/logo.jpg" alt="Logo" className="w-[100px] h-auto" />
-            <h1 className="font-roboto text-[20px] text-[#879FC5EB] m-0">
-              HIV Treatment and Medical
-            </h1>
-          </Link>
-          <div className="hidden md:flex items-center space-x-8">
-            <form
-              className="flex items-center border rounded px-2 py-1 bg-gray-50 mr-4"
-              onSubmit={e => e.preventDefault()}
-              style={{ minWidth: 200 }}
-            >
-              <input
-                type="text"
-                placeholder="Tìm kiếm..."
-                className="outline-none bg-transparent text-sm px-2"
-              />
-              <button type="submit" className="text-[#27509f] font-bold px-2">🔍</button>
-            </form>
-            <nav className="flex space-x-8 items-center">
-              {navLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-            <div className="relative">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 hover:ring-2 hover:ring-blue-400 transition"
-              >
-                <img
-                  src="/avatar.jpg"
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              </button>
-              {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-white border rounded shadow-lg z-50 p-2">
-                  <ul className="profile-menu space-y-1">
-                    {profileMenuItems.map((item) => (
-                      <li key={item.id}>
-                        <a
-                          href="#"
-                          data-content-id={item.id}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
-                          onClick={() => handleProfileMenuClick(item.id)}
-                        >
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <hr className="my-2" />
-                  <button
-                    onClick={() => alert("Đăng xuất")}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded"
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          <button
-            className="md:hidden text-gray-700"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-        {isOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 px-6 pb-6 space-y-4">
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setIsOpen(false)}
-                className="block text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
-              >
-                {label}
-              </Link>
-            ))}
-            <div className="pt-4 border-t border-gray-100">
-              <div className="flex items-center space-x-3 mb-3">
-                <img
-                  src="/avatar.jpg"
-                  alt="Avatar"
-                  className="w-10 h-10 rounded-full object-cover border"
-                />
-                <span className="font-medium text-gray-800">Tài Khoản</span>
-              </div>
-              <ul className="profile-menu space-y-1">
-                {profileMenuItems.map((item) => (
-                  <li key={item.id}>
-                    <a
-                      href="#"
-                      data-content-id={item.id}
-                      className="block text-[#27509f] font-roboto text-base font-medium no-underline hover:underline"
-                      onClick={() => handleProfileMenuClick(item.id)}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <hr className="my-3" />
-              <button
-                onClick={() => alert("Đăng xuất")}
-                className="w-full text-left px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded"
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
-      <div className="max-w-6xl mx-auto mt-10 bg-white p-10 rounded shadow">
-        <h2 className="text-4xl font-bold mb-6 text-[#27509f] text-center">Lịch sử khám bệnh</h2>
-        <table className="w-full border text-base">
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
+return (
+  <div className="min-h-0 bg-gray-100 flex items-start justify-center pt-10 px-2">
+    <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-5xl">
+      <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+        Lịch sử khám bệnh
+      </h2>
+      <div className="overflow-x-auto">
+        <table className="w-full border text-base text-gray-700">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-3 border">Ngày khám</th>
-              <th className="py-2 px-3 border">Bác sĩ</th>
-              <th className="py-2 px-3 border">Chẩn đoán</th>
-              <th className="py-2 px-3 border">Ghi chú</th>
+            <tr className="bg-gray-100 text-gray-900">
+              <th className="py-3 px-6 border text-lg">Ngày khám</th>
+              <th className="py-3 px-6 border text-lg">Lý do khám</th>
+              <th className="py-3 px-6 border text-lg">Chẩn đoán</th>
+              <th className="py-3 px-6 border text-lg">Điều trị</th>
+              <th className="py-3 px-6 border text-lg">Đơn thuốc</th>
+              <th className="py-3 px-6 border text-lg">Ghi chú</th>
             </tr>
           </thead>
           <tbody>
-            {medicalHistory.map((item) => (
-              <tr key={item.id} className="hover:bg-blue-50">
-                <td className="py-2 px-3 border">{item.date}</td>
-                <td className="py-2 px-3 border">{item.doctor}</td>
-                <td className="py-2 px-3 border">{item.diagnosis}</td>
-                <td className="py-2 px-3 border">{item.note}</td>
+            {history.length === 0 ? (
+              <tr>
+                <td
+                  className="py-3 px-6 border text-center text-gray-500"
+                  colSpan={6}
+                >
+                  Không có dữ liệu lịch sử khám bệnh.
+                </td>
               </tr>
-            ))}
+            ) : (
+              history.map((item, idx) => (
+                <tr key={item.medicalHistoryId || idx} className="bg-white hover:bg-gray-50">
+                  <td className="py-3 px-6 border whitespace-nowrap">
+                    <span className="text-gray-700">{item.visitDate}</span>
+                  </td>
+                  <td className="py-3 px-6 border">
+                    <span className="text-gray-700">{item.reason}</span>
+                  </td>
+                  <td className="py-3 px-6 border">
+                    <span className="text-gray-700">{item.diagnosis}</span>
+                  </td>
+                  <td className="py-3 px-6 border">
+                    <span className="text-gray-700">{item.treatment}</span>
+                  </td>
+                  <td className="py-3 px-6 border">
+                    <span className="text-gray-700">{item.prescription}</span>
+                  </td>
+                  <td className="py-3 px-6 border">
+                    <span className="text-gray-700">{item.notes}</span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-    </>
-  );
+    </div>
+  </div>
+);
+
 }
