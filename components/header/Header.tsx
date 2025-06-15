@@ -46,31 +46,39 @@ export default function Header() {
     { label: "Lịch làm việc", href: "/schedule" },
   ];
 
-  useEffect(() => {
-    const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-    const token = authData.token;
+useEffect(() => {
+  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const token = authData.token;
 
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserRole(payload.role || "");
-      setIsLoggedIn(true);
+  if (token) {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    setUserRole(payload.role || "");
+    setIsLoggedIn(true);
 
-      if (payload.role === "DOCTOR") {
-        fetch("http://localhost:8080/api/doctors/me", {
-          headers: { Authorization: `Bearer ${token}` },
+    const headers = { Authorization: `Bearer ${token}` };
+
+    if (payload.role === "DOCTOR") {
+      fetch("http://localhost:8080/api/doctors/me", { headers })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
         })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.avatarUrl) {
-              setAvatarUrl(data.avatarUrl);
-            }
-          })
-          .catch(console.error);
-      }
+        .catch(console.error);
     }
 
-    setMounted(true);
-  }, []);
+    if (payload.role === "USER") {
+      fetch("http://localhost:8080/api/customers/me", { headers })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+        })
+        .catch(console.error);
+    }
+  }
+
+  setMounted(true);
+}, []);
+
 
   if (!mounted) return null;
 

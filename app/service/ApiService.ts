@@ -397,6 +397,34 @@ static async getCustomerByEmail(email: string): Promise<any> {
   return response.data;
 }
 
+  /** ---------------- Customer---------------- */
+static async getAllCustomers(): Promise<any[]> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers`, { headers });
+  return response.data;
+}
+static async getCustomerById(id: number): Promise<any> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers/${id}`, { headers });
+  return response.data;
+}
+static async getMyCustomerProfile(): Promise<any> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers/me`, { headers });
+  return response.data;
+}
+static async updateCustomerProfile(id: number, formData: FormData, token: string): Promise<any> {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
+      headers,
+    })
+  ).data;
+}
+
 
 
 
