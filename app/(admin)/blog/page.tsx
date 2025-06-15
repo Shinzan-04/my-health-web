@@ -112,131 +112,131 @@ export default function BlogAdminFullPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-800">📋 Quản lý Blog</h1>
-        {userRole === "DOCTOR" && (
-          <button
-            onClick={() => {
-              setShowForm((prev) => !prev);
-              setEditingId(null);
-              setForm((prev) => ({ ...prev }));
-            }}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow"
-          >
-            {showForm ? "Ẩn Form" : "➕ Thêm Blog"}
-          </button>
-        )}
-      </div>
-
-      {showForm && userRole === "DOCTOR" && (
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 mb-10 bg-blue-50 p-6 rounded-lg shadow-md"
+  <div className="p-6 max-w-6xl mx-auto text-gray-700">
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-3xl font-bold text-blue-800">📋 Quản lý Blog</h1>
+      {userRole === "DOCTOR" && (
+        <button
+          onClick={() => {
+            setShowForm((prev) => !prev);
+            setEditingId(null);
+            setForm((prev) => ({ ...prev }));
+          }}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow"
         >
-          <input
-            type="text"
-            placeholder="Tiêu đề"
-            value={form.title || ""}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            required
-            className="w-full border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Thẻ (tag)"
-            value={form.tag || ""}
-            onChange={(e) => setForm({ ...form, tag: e.target.value })}
-            className="w-full border p-2 rounded"
-          />
-          <textarea
-            placeholder="Nội dung"
-            value={form.content || ""}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            required
-            className="w-full border p-2 rounded h-40"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className={`px-4 py-2 rounded text-white ${
-              loading ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {loading
-              ? "Đang xử lý..."
-              : editingId
-              ? "Cập nhật bài viết"
-              : "Đăng Blog"}
-          </button>
-        </form>
+          {showForm ? "Ẩn Form" : "➕ Thêm Blog"}
+        </button>
       )}
-
-      <div className="space-y-6">
-        {blogs.map((blog) => {
-          const isExpanded = expandedBlogIds.includes(blog.id);
-          const displayContent = isExpanded
-            ? blog.content
-            : blog.content.length > 300
-            ? blog.content.slice(0, 300) + "..."
-            : blog.content;
-
-          return (
-            <article
-              key={blog.id}
-              className="bg-white p-6 rounded-lg shadow-md border border-gray-200 w-full"
-            >
-              <header className="mb-4 border-b pb-2 border-blue-100 flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-semibold text-blue-900">
-                    {blog.title}
-                  </h2>
-                  <div className="flex items-center text-sm text-gray-600 gap-2 flex-wrap mt-1">
-                    <span className="text-blue-700">{blog.tag}</span>
-                    <span className="text-gray-500">
-                      {new Date(blog.createdAt).toLocaleString("vi-VN")}
-                    </span>
-                    <span className="flex items-center text-gray-500">
-                      <span className="mr-1">👨‍⚕️</span>
-                      {blog.doctor?.name || doctorName || "Bác sĩ ẩn danh"}
-                    </span>
-                  </div>
-                </div>
-
-                {userRole === "DOCTOR" && (
-                  <div className="flex flex-col gap-2 items-end ml-4">
-                    <button
-                      onClick={() => handleEdit(blog)}
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      ✏️ Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(blog.id)}
-                      className="text-sm text-red-600 hover:underline"
-                    >
-                      🗑️ Xoá
-                    </button>
-                  </div>
-                )}
-              </header>
-
-              <p className="text-gray-700 text-base leading-relaxed mb-4 whitespace-pre-wrap">
-                {displayContent}
-              </p>
-
-              {blog.content.length > 300 && (
-                <button
-                  onClick={() => toggleExpanded(blog.id)}
-                  className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors duration-200"
-                >
-                  {isExpanded ? "Ẩn bớt ↑" : "Đọc thêm →"}
-                </button>
-              )}
-            </article>
-          );
-        })}
-      </div>
     </div>
-  );
+
+    {showForm && userRole === "DOCTOR" && (
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 mb-10 bg-blue-50 p-6 rounded-lg shadow-md"
+      >
+        <input
+          type="text"
+          placeholder="Tiêu đề"
+          value={form.title || ""}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          required
+          className="w-full border p-2 rounded text-gray-900"
+        />
+        <input
+          type="text"
+          placeholder="Thẻ (tag)"
+          value={form.tag || ""}
+          onChange={(e) => setForm({ ...form, tag: e.target.value })}
+          className="w-full border p-2 rounded text-gray-900"
+        />
+        <textarea
+          placeholder="Nội dung"
+          value={form.content || ""}
+          onChange={(e) => setForm({ ...form, content: e.target.value })}
+          required
+          className="w-full border p-2 rounded h-40 text-gray-900"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className={`px-4 py-2 rounded text-white ${
+            loading ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"
+          }`}
+        >
+          {loading
+            ? "Đang xử lý..."
+            : editingId
+            ? "Cập nhật bài viết"
+            : "Đăng Blog"}
+        </button>
+      </form>
+    )}
+
+    <div className="space-y-6">
+      {blogs.map((blog) => {
+        const isExpanded = expandedBlogIds.includes(blog.id);
+        const displayContent =
+          isExpanded || blog.content.length <= 300
+            ? blog.content
+            : blog.content.slice(0, 300) + "...";
+
+        return (
+          <article
+            key={blog.id}
+            className="bg-white p-6 rounded-lg shadow-md border border-gray-200 w-full"
+          >
+            <header className="mb-4 border-b pb-2 border-blue-100 flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-semibold text-blue-900">
+                  {blog.title}
+                </h2>
+                <div className="flex items-center text-sm text-gray-600 gap-2 flex-wrap mt-1">
+                  <span className="text-blue-700 font-medium">{blog.tag}</span>
+                  <span className="text-gray-500">
+                    {new Date(blog.createdAt).toLocaleString("vi-VN")}
+                  </span>
+                  <span className="flex items-center text-gray-500">
+                    <span className="mr-1">👨‍⚕️</span>
+                    {blog.doctor?.name || doctorName || "Bác sĩ ẩn danh"}
+                  </span>
+                </div>
+              </div>
+
+              {userRole === "DOCTOR" && (
+                <div className="flex flex-col gap-2 items-end ml-4">
+                  <button
+                    onClick={() => handleEdit(blog)}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    ✏️ Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(blog.id)}
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    🗑️ Xoá
+                  </button>
+                </div>
+              )}
+            </header>
+
+            <p className="text-gray-700 text-base leading-relaxed mb-4 whitespace-pre-wrap">
+              {displayContent}
+            </p>
+
+            {blog.content.length > 300 && (
+              <button
+                onClick={() => toggleExpanded(blog.id)}
+                className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors duration-200"
+              >
+                {isExpanded ? "Ẩn bớt ↑" : "Đọc thêm →"}
+              </button>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  </div>
+);
+
 }

@@ -96,6 +96,20 @@ static async deleteTestResult(id: number): Promise<any> {
   }
 
   static async getSchedulesByDoctor(doctorId: number): Promise<any> {
+    const authData = localStorage.getItem("authData");
+    const token = authData ? JSON.parse(authData).token : null;
+
+    if (!token) {
+      throw new Error("Token không tồn tại.");
+    }
+
+    return (
+      await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    ).data;
     return (await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`)).data;
   }
 
@@ -249,10 +263,6 @@ static async getAllDoctorsWithAvatar(): Promise<Doctor[]> {
 }
 
 
-
-
-
-  /** ---------------- BLOG ---------------- */
   /** ---------------- BLOG ---------------- */
 static async getAllBlogs(): Promise<any> {
   return (await axios.get(`${this.BASE_URL}/api/blogposts`, {
@@ -316,6 +326,12 @@ static async deleteBlog(id: number): Promise<any> {
   static async registerAppointment(data: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/registrations`, data)).data;
   }
+    static async getAllRegistrations(): Promise<any> {
+    return (await axios.get(`${this.BASE_URL}/api/registrations`)).data;
+  }
+  static async getRegistrationById(id: number): Promise<any> {
+    return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
+  }
 
   /** ---------------- ARV REGIMEN ---------------- */
 
@@ -330,6 +346,8 @@ static async getARVRegimens(): Promise<any> {
   return response.data;
 }
 
+
+
 static async createARVRegimen(data: any): Promise<any> {
   const headers = this.getHeader();
 
@@ -339,6 +357,7 @@ static async createARVRegimen(data: any): Promise<any> {
 
   return response.data;
 }
+
 static async getARVRegimenById(id: number): Promise<any> {
   const headers = this.getHeader();
 
@@ -348,6 +367,7 @@ static async getARVRegimenById(id: number): Promise<any> {
     })
   ).data;
 }
+
 static async updateARVRegimen(id: number, data: any): Promise<any> {
   const headers = this.getHeader();
 
@@ -357,6 +377,7 @@ static async updateARVRegimen(id: number, data: any): Promise<any> {
     })
   ).data;
 }
+
 static async deleteARVRegimen(id: number): Promise<any> {
   const headers = this.getHeader();
 
@@ -366,6 +387,7 @@ static async deleteARVRegimen(id: number): Promise<any> {
     })
   ).data;
 }
+
 static async getCustomerByEmail(email: string): Promise<any> {
   const headers = this.getHeader();
   const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
@@ -374,6 +396,7 @@ static async getCustomerByEmail(email: string): Promise<any> {
   });
   return response.data;
 }
+
 
 
 
