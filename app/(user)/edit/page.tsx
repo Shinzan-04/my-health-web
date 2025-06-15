@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import ApiService from "@/app/service/ApiService";
 
 export default function EditUserProfile() {
-  const [user, setUser] = useState<any>(null);
+  const [customer, setCustomer] = useState<any>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
+  const [customerId, setCustomerId] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState("");
   const [errors, setErrors] = useState<any>({});
   const router = useRouter();
+  
 
   useEffect(() => {
     const raw = localStorage.getItem("authData");
@@ -34,8 +35,8 @@ export default function EditUserProfile() {
           return res.json();
         })
         .then((data) => {
-          setUser(data);
-          setUserId(data.customerID); // Sửa đúng tên trường ID
+          setCustomer(data);
+          setCustomerId(data.customerID); 
           setLoading(false);
         })
         .catch((err) => {
@@ -50,35 +51,60 @@ export default function EditUserProfile() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    if (user) {
+    if (customer) {
       const { name, value } = e.target;
       if (name === "name") {
-        setUser({ ...user, fullName: value });
+        setCustomer({ ...customer, fullName: value });
       } else {
-        setUser({ ...user, [name]: value });
+        setCustomer({ ...customer, [name]: value });
       }
     }
   };
 
-  function validateForm(user: any) {
+  function validateForm(customer: any, avatarFile?: File) {
     const newErrors: any = {};
-    if (!user.fullName || user.fullName.trim().length < 2) {
+
+    // Họ tên: bắt buộc, tối thiểu 2 ký tự
+    if (!customer.fullName || customer.fullName.trim().length < 2) {
       newErrors.name = "Vui lòng nhập họ tên hợp lệ";
     }
-    if (!user.email) {
-      newErrors.email = "Vui lòng nhập email";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
-      newErrors.email = "Email không hợp lệ";
+     if (!customer.address || customer.address.trim().length < 6) {
+      newErrors.address = "Vui lòng nhập địa chỉ";
     }
-    if (!user.phone) {
+
+    // Số điện thoại: bắt buộc, chỉ gồm 9-11 chữ số
+    if (!customer.phone) {
       newErrors.phone = "Vui lòng nhập số điện thoại";
-    } else if (!/^[0-9]{9,11}$/.test(user.phone)) {
+    } else if (!/^[0-9]{9,11}$/.test(customer.phone)) {
       newErrors.phone = "Số điện thoại không hợp lệ. Chỉ gồm 9-11 chữ số.";
     }
-    // Nếu đã có ngày sinh (user.dob hoặc user.dateOfBirth) thì không bắt buộc nhập lại
-    if (!user.dob && !user.dateOfBirth) {
+
+    // Ngày sinh: bắt buộc, phải đủ 16 tuổi trở lên
+    const dob = customer.dob || customer.dateOfBirth;
+    if (!dob) {
       newErrors.dob = "Vui lòng nhập ngày sinh";
+    } else {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      const isBirthdayPassed =
+        m > 0 || (m === 0 && today.getDate() >= birthDate.getDate());
+      const realAge = isBirthdayPassed ? age : age - 1;
+      if (realAge < 16) {
+        newErrors.dob = "Bạn phải đủ 16 tuổi trở lên";
+      }
     }
+
+    // Email: không bắt buộc, nhưng nếu nhập thì phải đúng định dạng
+    if (customer.email && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(customer.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    if (!avatarFile) {
+      newErrors.avatar = "Vui lòng chọn ảnh đại diện";
+    }
+
     return newErrors;
   }
 
@@ -87,26 +113,21 @@ export default function EditUserProfile() {
     setSuccessMsg("");
     setErrors({});
 
-    if (!user || !userId || !token) {
-      console.warn("Thiếu user, userId hoặc token");
+    if (!customer || !customerId || !token) {
+      console.warn("Thiếu customer, customerId hoặc token");
       return;
     }
 
-    const validationErrors = validateForm(user);
-    console.log("Validation errors:", validationErrors);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    
 
     try {
       const customerData = {
-  fullName: user.fullName,
-  email: user.email,
-  phone: user.phone,
-  address: user.address,
-  dateOfBirth: user.dob, // đổi từ dob thành dateOfBirth đúng với backend
-  gender: user.gender,
+  fullName: customer.fullName,
+  email: customer.email,
+  phone: customer.phone,
+  address: customer.address,
+  dateOfBirth: customer.dob, // đổi từ dob thành dateOfBirth đúng với backend
+  gender: customer.gender,
 };
 
       const formData = new FormData();
@@ -119,7 +140,7 @@ export default function EditUserProfile() {
       }
 
       console.log("Sending update request...");
-      const res = await fetch(`http://localhost:8080/api/customers/${userId}`, {
+      const res = await fetch(`http://localhost:8080/api/customers/${customerId}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -142,7 +163,9 @@ export default function EditUserProfile() {
     }
   };
 
-  if (loading || !user)
+  
+
+  if (loading || !customer)
     return <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>;
 
   return (
@@ -166,7 +189,7 @@ export default function EditUserProfile() {
             </label>
             <input
               name="name"
-              value={user.fullName ?? ""}
+              value={customer.fullName ?? ""}
               onChange={handleChange}
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -181,7 +204,7 @@ export default function EditUserProfile() {
             </label>
             <input
               name="phone"
-              value={user.phone ?? ""}
+              value={customer.phone ?? ""}
               onChange={handleChange}
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -189,13 +212,14 @@ export default function EditUserProfile() {
               <div className="text-red-500 text-sm mt-1">{errors.phone}</div>
             )}
           </div>
+          
           <div>
             <label className="block text-sm font-medium text-gray-800 mb-1">
               Địa chỉ:
             </label>
             <input
               name="address"
-              value={user.address ?? ""}
+              value={customer.address ?? ""}
               onChange={handleChange}
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -207,7 +231,7 @@ export default function EditUserProfile() {
             <input
               name="dob"
               type="date"
-              value={user.dob ?? user.dateOfBirth ?? ""}
+              value={customer.dob ?? customer.dateOfBirth ?? ""}
               onChange={handleChange}
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -222,7 +246,7 @@ export default function EditUserProfile() {
             </label>
             <select
               name="gender"
-              value={user.gender ?? ""}
+              value={customer.gender ?? ""}
               onChange={handleChange}
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
             >
@@ -241,7 +265,12 @@ export default function EditUserProfile() {
                 if (file) setAvatarFile(file);
               }}
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
+              required // Bắt buộc chọn ảnh đại diện
             />
+            {/* Hiển thị lỗi nếu có */}
+            {errors.avatar && (
+              <span className="text-red-500 text-sm">{errors.avatar}</span>
+            )}
           </div>
         </div>
         <button
