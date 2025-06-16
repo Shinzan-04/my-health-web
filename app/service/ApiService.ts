@@ -68,6 +68,14 @@ static async getTestResultById(id: number): Promise<any> {
   ).data;
 }
 
+static async getTestResultsByCustomerId(customerId: number, token: string): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/customer/${customerId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+  ).data;
+}
+
 static async createTestResult(data: any): Promise<any> {
   return (
     await axios.post(`${this.BASE_URL}/api/test-results`, data, this.getAuthHeader())
@@ -182,6 +190,15 @@ static async deleteTestResult(id: number): Promise<any> {
     return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
   }
 
+      static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any[]> {
+         const headers = this.getHeader();
+         const response = await axios.get(
+             `${this.BASE_URL}/api/medical-histories/customer/${customerId}`,
+             { headers }
+         );
+         return response.data;
+     }
+     
 /** ---------------- DOCTOR ---------------- */
 static async getAllDoctors(): Promise<any> {
   return (
@@ -396,6 +413,19 @@ static async getCustomerByEmail(email: string): Promise<any> {
   });
   return response.data;
 }
+
+
+
+// Lấy danh sách phác đồ ARV theo customerId
+static async getARVRegimensByCustomerId(customerId: number): Promise<any[]> {
+  const headers = this.getHeader();
+  const response = await axios.get(
+    `${this.BASE_URL}/api/arv-regimens/customer/${customerId}`,
+    { headers }
+  );
+  return response.data;
+}
+
 
   /** ---------------- Customer---------------- */
 static async getAllCustomers(): Promise<any[]> {
