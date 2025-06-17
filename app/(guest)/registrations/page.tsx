@@ -2,6 +2,10 @@
 
 import React, { FC, useState, useEffect } from "react";
 import ApiService from "@/app/service/ApiService";
+import { useSearchParams } from "next/navigation";
+import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, parseISO } from "date-fns";
 
 interface Doctor {
   doctorId: number;
@@ -10,9 +14,18 @@ interface Doctor {
   email: string;
 }
 
-interface Schedule {
-  date: string; // yyyy-mm-dd
-  session: string; // "Sáng" | "Chiều" | "Tối"
+interface schedule {
+  date: string;
+  slots: Slot[];
+}
+
+interface Slot {
+  slotId: number;
+  startTime: string;
+  endTime: string;
+  date: string;
+  available: boolean;
+  schedule?: schedule;
 }
 
 const RegistrationPage: FC = () => {
@@ -27,28 +40,43 @@ const RegistrationPage: FC = () => {
     specialization: "",
     mode: "",
     appointmentDate: "",
-    session: "",
+    slotId: "",
     symptom: "",
     notes: "",
     visitType: "REGISTRATION",
   });
 
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" | "" }>({ text: "", type: "" });
-  const [availableTimes, setAvailableTimes] = useState<Schedule[]>([]);
+  const [slots, setSlots] = useState<Slot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [doctorsLoading, setDoctorsLoading] = useState(true);
   const [doctorsError, setDoctorsError] = useState<string | null>(null);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
 
-  const availableDates = [...new Set(availableTimes.map((s) => s.date))];
+  const searchParams = useSearchParams();
 
-  const availableSessions = [
-    ...new Set(
-      availableTimes
-        .filter((s) => s.date === form.appointmentDate)
-        .map((s) => s.session)
-    ),
-  ];
+  useEffect(() => {
+    const doctor = doctors.find((d) => d.email === form.doctorEmail);
+    if (doctor?.doctorId) {
+      ApiService.getAvailableDatesByDoctor(doctor.doctorId)
+        .then(setAvailableDates)
+        .catch((err) => console.error("Lỗi lấy ngày có slot:", err));
+    }
+  }, [form.doctorEmail]);
+
+  useEffect(() => {
+    const idFromUrl = searchParams.get("doctorId");
+    if (idFromUrl && doctors.length > 0) {
+      const doctor = doctors.find((d) => d.doctorId.toString() === idFromUrl);
+      if (doctor) {
+        setForm((prev) => ({
+          ...prev,
+          doctorEmail: doctor.email,
+        }));
+      }
+    }
+  }, [searchParams, doctors]);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -65,26 +93,15 @@ const RegistrationPage: FC = () => {
   }, []);
 
   useEffect(() => {
-    const selectedDoctor = doctors.find((d) => d.email === form.doctorEmail);
-    if (selectedDoctor?.doctorId) {
-      ApiService.getSchedulesByDoctor(selectedDoctor.doctorId)
-        .then((data) => {
-          const transformed = data.map((item: any) => ({
-            date: item.startTime.split("T")[0],
-            session: (() => {
-              const hour = parseInt(item.startTime.split("T")[1].split(":"[0]));
-              if (hour < 12) return "Sáng";
-              if (hour < 17) return "Chiều";
-              return "Tối";
-            })(),
-          }));
-          setAvailableTimes(transformed);
-        })
-        .catch((error) => console.error("Lỗi khi lấy lịch bác sĩ:", error));
+    const doctor = doctors.find((d) => d.email === form.doctorEmail);
+    if (doctor?.doctorId && form.appointmentDate) {
+      ApiService.getSlotsByDoctorAndDate(doctor.doctorId, form.appointmentDate)
+        .then(setSlots)
+        .catch((err) => console.error("Lỗi khi lấy slot:", err));
     } else {
-      setAvailableTimes([]);
+      setSlots([]);
     }
-  }, [form.doctorEmail, doctors]);
+  }, [form.doctorEmail, form.appointmentDate, doctors]);
 
   useEffect(() => {
     if (form.visitType === "APPOINTMENT") {
@@ -101,17 +118,7 @@ const RegistrationPage: FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "visitType" && value === "APPOINTMENT") {
-      setForm((prev) => ({
-        ...prev,
-        [name]: value,
-        mode: "Online",
-        gender: "",
-        dateOfBirth: "",
-      }));
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,9 +126,9 @@ const RegistrationPage: FC = () => {
     setMessage({ text: "", type: "" });
     setIsLoading(true);
 
-    if (!form.phone || !form.appointmentDate || !form.specialization) {
+    if (!form.phone || !form.appointmentDate || !form.specialization || !form.slotId) {
       setMessage({
-        text: "Vui lòng điền đủ thông tin bắt buộc (SĐT, Ngày khám, Chuyên khoa)",
+        text: "Vui lòng điền đủ thông tin bắt buộc (SĐT, Ngày khám, Chuyên khoa, Slot)",
         type: "error",
       });
       setIsLoading(false);
@@ -136,10 +143,8 @@ const RegistrationPage: FC = () => {
       phone: form.phone,
       doctorId,
       specialization: form.specialization,
-      appointmentDate: form.appointmentDate
-        ? new Date(form.appointmentDate).toISOString()
-        : null,
-      session: form.session,
+      appointmentDate: form.appointmentDate,
+      slotId: parseInt(form.slotId),
       symptom: form.symptom,
       notes: form.notes,
       visitType: form.visitType,
@@ -166,7 +171,7 @@ const RegistrationPage: FC = () => {
         specialization: "",
         mode: "",
         appointmentDate: "",
-        session: "",
+        slotId: "",
         symptom: "",
         notes: "",
         visitType: "REGISTRATION",
@@ -181,13 +186,25 @@ const RegistrationPage: FC = () => {
     }
   };
 
+  const highlightDates = availableDates
+    .map((dateStr) => {
+      try {
+        return parseISO(dateStr);
+      } catch {
+        return null;
+      }
+    })
+    .filter((d): d is Date => d !== null);
+
   return (
+    
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
         {/* LEFT: Lưu ý */}
         <div className="bg-gradient-to-b from-blue-600 to-blue-800 text-white p-6 rounded-lg shadow-lg h-fit flex flex-col justify-center">
           <h2 className="text-lg font-semibold mb-4">Lưu ý:</h2>
           <p className="text-sm leading-relaxed">
+            
             Lịch hẹn có hiệu lực sau khi có xác nhận chính thức.
             <br />
             <br />
@@ -441,42 +458,49 @@ const RegistrationPage: FC = () => {
               </select>
             </div>
 
-{/* Ngày khám */}
-      <div>
+
+      {/* Chọn ngày khám */}
+<div>
         <label htmlFor="appointmentDate" className="block text-gray-700 text-sm mb-1">
           Ngày khám
         </label>
-        <select
-          id="appointmentDate"
-          name="appointmentDate"
-          value={form.appointmentDate}
-          onChange={handleChange}
-          className="border rounded-md px-3 py-2 w-full text-gray-700"
-        >
-          <option value="">Chọn ngày</option>
-          {availableDates.map((date) => (
-            <option key={date} value={date}>{date}</option>
-          ))}
-        </select>
+    <ReactDatePicker
+      selected={form.appointmentDate ? parseISO(form.appointmentDate) : null}
+      onChange={(date: Date | null) => {
+        setForm({
+          ...form,
+          appointmentDate: date ? format(date, "yyyy-MM-dd") : "",
+        });
+      }}
+      highlightDates={highlightDates}
+      dateFormat="yyyy-MM-dd"
+      className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+
       </div>
 
       {/* Buổi khám */}
       <div>
-        <label htmlFor="session" className="block text-gray-700 text-sm mb-1">
-          Buổi khám
-        </label>
-        <select
-          id="session"
-          name="session"
-          value={form.session}
-          onChange={handleChange}
-          className="border rounded-md px-3 py-2 w-full text-gray-700"
-        >
-          <option value="">Chọn buổi</option>
-          {availableSessions.map((s) => (
-            <option key={s} value={s}>{s}</option>
+      <label htmlFor="slotId" className="block text-gray-700 text-sm mb-1">
+        Khung giờ khám
+      </label>
+      <select
+        id="slotId"
+        name="slotId"
+        value={form.slotId}
+        onChange={handleChange}
+        className="border rounded-md px-3 py-2 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      >
+        <option value="">Chọn khung giờ</option>
+        {slots
+          .filter((s) => s.available)
+          .map((s) => (
+            <option key={s.slotId} value={s.slotId}>
+              {s.startTime} - {s.endTime}
+            </option>
           ))}
-        </select>
+      </select>
       </div>
 
             {/* Loại đăng ký */}

@@ -261,6 +261,22 @@ static async getAllDoctorsWithAvatar(): Promise<Doctor[]> {
     })
   ).data;
 }
+static async getSlotsByDoctorAndDate(doctorId: number, date: string): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/slots/available-slots`, {
+      params: { doctorId, date },
+    })
+  ).data;
+}
+
+static async getAvailableDatesByDoctor(doctorId: number, date: string): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/slots/available-dates`, {
+      params: { doctorId, date },
+    })
+  ).data;
+}
+
 
 
   /** ---------------- BLOG ---------------- */
