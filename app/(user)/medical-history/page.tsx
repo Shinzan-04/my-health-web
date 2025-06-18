@@ -102,7 +102,7 @@ export default function MedicalHistoryDetail() {
                             ) : (
                                 histories.map((history) => (
                                     <tr key={history.medicalHistoryId} className="hover:bg-blue-50">
-                                        <td className="py-2 px-3 border">{history.visitDate}</td>
+                                        <td className="whitespace-nowrap py-2 px-3 border">{history.visitDate}</td>
                                         <td className="py-2 px-3 border">{history.reason}</td>
                                         <td className="py-2 px-3 border">{history.diagnosis}</td>
                                         <td className="py-2 px-3 border">{history.treatment}</td>

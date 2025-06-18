@@ -58,7 +58,7 @@ export default function EditDoctorModal({
           <Dialog.Title className="text-xl font-bold mb-4 text-gray-900">
             Chỉnh sửa thông tin
           </Dialog.Title>
-
+          <label className="block mb-1 font-medium">Họ tên</label>
           <div className="space-y-3 text-gray-900">
             <input
               name="fullName"
@@ -68,22 +68,19 @@ export default function EditDoctorModal({
               className="w-full border border-gray-400 px-3 py-2 rounded"
             />
 
-            <input
-              name="email"
-              value={formData.email || ""}
-              onChange={handleChange}
-              placeholder="Email"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+            <label className="block mb-1 font-medium">Số điện thoại</label>
+             <input
+                name="phone"
+                value={formData.phone ?? ""}
+                onChange={handleChange}
+                placeholder="Số điện thoại"
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+                pattern="^0\d{9}$"
+                title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 số"
+                required
+               />
 
-            <input
-              name="phone"
-              value={formData.phone || ""}
-              onChange={handleChange}
-              placeholder="Số điện thoại"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
-
+            <label className="block mb-1 font-medium">Chuyên môn</label>
             <input
               name="specialization"
               value={formData.specialization || ""}
@@ -91,7 +88,7 @@ export default function EditDoctorModal({
               placeholder="Chuyên môn"
               className="w-full border border-gray-400 px-3 py-2 rounded"
             />
-
+            <label className="block mb-1 font-medium">Kinh nghiệm làm việc</label>
             <input
               name="workExperienceYears"
               type="number"
@@ -100,7 +97,7 @@ export default function EditDoctorModal({
               placeholder="Số năm kinh nghiệm"
               className="w-full border border-gray-400 px-3 py-2 rounded"
             />
-
+            <label className="block mb-1 font-medium">Mô tả</label>
             <textarea
               name="description"
               value={formData.description || ""}

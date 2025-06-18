@@ -78,6 +78,7 @@ export default function DoctorManagementPage() {
         <table className="min-w-full text-sm text-gray-900">
           <thead className="bg-gray-200 text-gray-700">
             <tr>
+              <th className="border border-gray-400 px-4 py-2 text-left">ID</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Họ tên</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Email</th>
               <th className="border border-gray-400 px-4 py-2 text-left">SĐT</th>
@@ -90,6 +91,7 @@ export default function DoctorManagementPage() {
           <tbody>
             {doctors.map((doctor) => (
               <tr key={doctor.doctorId} className="hover:bg-gray-100">
+                <td className="border border-gray-400 px-4 py-2">{doctor.doctorId}</td>
                 <td className="border border-gray-400 px-4 py-2">{doctor.fullName}</td>
                 <td className="border border-gray-400 px-4 py-2">{doctor.email}</td>
                 <td className="border border-gray-400 px-4 py-2">{doctor.phone}</td>

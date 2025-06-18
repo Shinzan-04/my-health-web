@@ -186,6 +186,10 @@ export default function EditCustomerProfile() {
             {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
           </div>
 
+
+
+          
+
           <div>
             <label className="block text-sm font-medium text-gray-800 mb-1">Ngày sinh:</label>
             <input
@@ -227,6 +231,19 @@ export default function EditCustomerProfile() {
               className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
             />
           </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Email</label>
+              <input
+                name="email"
+                type="email"
+                value={customer.email ?? ""}
+                readOnly
+                disabled
+                className="w-full border border-gray-400 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
+                placeholder="Email"
+              />
+            </div>
         </div>
 
         <button

@@ -79,26 +79,30 @@ export default function CustomerManagementPage() {
         <table className="min-w-full text-sm text-gray-900">
           <thead className="bg-gray-200 text-gray-700">
             <tr>
+              <th className="border border-gray-400 px-4 py-2 text-left">ID</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Họ tên</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Email</th>
               <th className="border border-gray-400 px-4 py-2 text-left">SĐT</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Giới tính</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Ngày sinh</th>
               <th className="border border-gray-400 px-4 py-2 text-left">Địa chỉ</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">Mô tả</th>
+ 
               <th className="border border-gray-400 px-4 py-2 text-center">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {customers.map((customer) => (
               <tr key={customer.customerID} className="hover:bg-gray-100">
+                <td className="border border-gray-400 px-4 py-2">{customer.customerID}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.fullName}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.email}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.phone}</td>
-                <td className="border border-gray-400 px-4 py-2">{customer.gender}</td>
+                <td className="border border-gray-400 px-4 py-2">
+                  {customer.gender === "MALE" || customer.gender === "Nam" ? "Nam" : "Nữ"}
+                </td>
                 <td className="border border-gray-400 px-4 py-2">{customer.dateOfBirth}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.address}</td>
-                <td className="border border-gray-400 px-4 py-2">{customer.description || ""}</td>
+               
                 <td className="border border-gray-400 px-4 py-2 text-center">
                   <div className="flex justify-center gap-2">
                     <button

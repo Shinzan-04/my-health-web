@@ -16,7 +16,7 @@ type Customer = {
   email: string;
   phone: string;
   gender: string;
-  dob: string;
+  dateOfBirth: string;
   address: string;
   description?: string;
 };
@@ -30,13 +30,16 @@ export default function EditCustomerModal({
   const [formData, setFormData] = useState<Partial<Customer>>({});
 
   useEffect(() => {
-    setFormData(customer);
+    setFormData(customer || {});
   }, [customer]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = () => {
@@ -57,63 +60,76 @@ export default function EditCustomerModal({
             Chỉnh sửa thông tin khách hàng
           </Dialog.Title>
 
-          <div className="space-y-3 text-gray-900">
-            <input
-              name="fullName"
-              value={formData.fullName || ""}
-              onChange={handleChange}
-              placeholder="Họ tên"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Họ tên:
+              </label>
+              <input
+                name="fullName"
+                value={formData.fullName ?? ""}
+                onChange={handleChange}
+                placeholder="Họ tên"
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
 
-            <input
-              name="email"
-              value={formData.email || ""}
-              onChange={handleChange}
-              placeholder="Email"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Địa chỉ:
+              </label>
+              <input
+                name="address"
+                value={formData.address ?? ""}
+                onChange={handleChange}
+                placeholder="Địa chỉ"
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
 
-            <input
-              name="phone"
-              value={formData.phone || ""}
-              onChange={handleChange}
-              placeholder="Số điện thoại"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Số điện thoại:
+              </label>
+              <input
+                name="phone"
+                value={formData.phone ?? ""}
+                onChange={handleChange}
+                placeholder="Số điện thoại"
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+                pattern="^0\d{9}$"
+                title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 số"
+              />
+            </div>
 
-            <input
-              name="gender"
-              value={formData.gender || ""}
-              onChange={handleChange}
-              placeholder="Giới tính"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Ngày sinh:
+              </label>
+              <input
+                name="dateOfBirth"
+                type="date"
+                value={formData.dateOfBirth || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
 
-            <input
-              name="dob"
-              type="date"
-              value={formData.dob || ""}
-              onChange={handleChange}
-              placeholder="Ngày sinh"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
-
-            <input
-              name="address"
-              value={formData.address || ""}
-              onChange={handleChange}
-              placeholder="Địa chỉ"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
-
-            <textarea
-              name="description"
-              value={formData.description || ""}
-              onChange={handleChange}
-              placeholder="Mô tả"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Giới tính:
+              </label>
+              <select
+                name="gender"
+                value={formData.gender || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              >
+                <option value="">Chọn giới tính</option>
+                <option value="MALE">Nam</option>
+                <option value="FEMALE">Nữ</option>
+              </select>
+            </div>
           </div>
 
           <div className="mt-4 flex justify-end space-x-2">
