@@ -85,6 +85,14 @@ static async deleteTestResult(id: number): Promise<any> {
     await axios.delete(`${this.BASE_URL}/api/test-results/${id}`, this.getAuthHeader())
   ).data;
 }
+static async getTestResultsByDoctorId(doctorId: number): Promise<any> {
+  return (
+    await axios.get(
+      `${this.BASE_URL}/api/test-results/doctor/${doctorId}`,
+      this.getAuthHeader()
+    )
+  ).data;
+}
 
   /** ---------------- SCHEDULE ---------------- */
   static async getSchedules(): Promise<any> {
@@ -387,6 +395,23 @@ static async deleteARVRegimen(id: number): Promise<any> {
     })
   ).data;
 }
+/** ---------------- CUSTOMER PROFILE ---------------- */
+static async getCurrentCustomer(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async getTestResultsByCustomerId(customerId: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/customer/${customerId}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
 
 static async getCustomerByEmail(email: string): Promise<any> {
   const headers = this.getHeader();
@@ -396,9 +421,12 @@ static async getCustomerByEmail(email: string): Promise<any> {
   });
   return response.data;
 }
-
-
-
-
+static async getMyTestResults(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
 
 }
