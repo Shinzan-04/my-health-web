@@ -26,7 +26,7 @@ const menus = {
     { label: "Chỉnh sửa hồ sơ", href: "/edit", icon: <FaUserEdit /> },
     { label: "Kết quả xét nghiệm", href: "/lab-results", icon: <FaVial /> },
     { label: "Lịch sử khám bệnh", href: "/medical-history", icon: <FaHistory /> },
-    { label: "ARV", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
+    { label: "Phác đồ điều trị", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Nhắc nhở", href: "/userPanel", icon: <FaBell /> },
   ],
   DOCTOR: [

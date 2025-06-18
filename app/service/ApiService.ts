@@ -428,21 +428,86 @@ static async getARVRegimensByCustomerId(customerId: number): Promise<any[]> {
 
 
   /** ---------------- Customer---------------- */
-static async getAllCustomers(): Promise<any[]> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers`, { headers });
-  return response.data;
+static async getAllCustomers(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers`, {
+      headers: this.getHeader(),
+    })
+  ).data;
 }
+
 static async getCustomerById(id: number): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/${id}`, { headers });
-  return response.data;
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/${id}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
 }
+
 static async getMyCustomerProfile(): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/me`, { headers });
-  return response.data;
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
 }
+
+static async createCustomer(data: any): Promise<any> {
+  return (
+    await axios.post(`${this.BASE_URL}/api/customers`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async updateCustomer(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/${id}`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async deleteCustomer(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/customers/${id}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async updateCustomerWithAvatar(id: number, formData: FormData): Promise<any> {
+  const headers = this.getHeader();
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
+      headers: {
+        Authorization: headers.Authorization,
+        // Không set Content-Type, axios sẽ tự động thêm cho multipart
+      },
+    })
+  ).data;
+}
+
+static async updateCustomerNoAvatar(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/update-no-avatar/${id}`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async getAllCustomersWithAvatar(): Promise<any[]> {
+  const headers = this.getHeader();
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/with-avatar`, {
+      headers: {
+        Authorization: headers.Authorization,
+      },
+    })
+  ).data;
+}
+
+
 static async updateCustomerProfile(id: number, formData: FormData, token: string): Promise<any> {
   const headers = {
     Authorization: `Bearer ${token}`,
