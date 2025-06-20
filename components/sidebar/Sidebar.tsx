@@ -32,7 +32,7 @@ const menus = {
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
     { label: "Bệnh nhân điều trị", href: "/medical", icon: <FaUsers /> },
-    { label: "Hồ sơ bệnh nhân", href: "/doctor/records", icon: <FaNotesMedical /> },
+    { label: "Hồ sơ bệnh nhân", href: "/profilecustomer", icon: <FaNotesMedical /> },
     { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
     { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },

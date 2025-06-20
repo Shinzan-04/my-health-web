@@ -170,13 +170,21 @@ static async getTestResultsByDoctorId(doctorId: number): Promise<any> {
   }
 
   /** ---------------- MEDICAL HISTORY ---------------- */
-  static async getMedicalHistories(): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/medical-histories`)).data;
-  }
+ static async getMedicalHistories(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
 
-  static async getMedicalHistoryById(id: number): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
-  }
+ static async getMedicalHistoryById(id: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
 
   static async createMedicalHistory(data: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/medical-histories`, data)).data;
@@ -189,6 +197,14 @@ static async getTestResultsByDoctorId(doctorId: number): Promise<any> {
   static async deleteMedicalHistory(id: number): Promise<any> {
     return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
   }
+  static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories/customer/${customerId}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
 
 /** ---------------- DOCTOR ---------------- */
 static async getAllDoctors(): Promise<any> {
@@ -340,10 +356,16 @@ static async deleteBlog(id: number): Promise<any> {
   static async getRegistrationById(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
   }
+  static async markRegistrationCompleted(id: number): Promise<void> {
+  const headers = this.getHeader();
+  await axios.patch(`${this.BASE_URL}/api/registrations/${id}/complete`, null, {
+    headers,
+  });
+}
 
   /** ---------------- ARV REGIMEN ---------------- */
 
-static async getARVRegimens(): Promise<any> {
+static async getARVRegimens(): Promise<any[]> {
   const token = JSON.parse(localStorage.getItem("authData") || "{}")?.token;
   if (!token) throw new Error("Token not found");
 
@@ -351,10 +373,16 @@ static async getARVRegimens(): Promise<any> {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  return response.data;
+ const data = response.data;
+
+if (!Array.isArray(data)) {
+  console.error("❌ Dữ liệu không phải là mảng:", data);
+  throw new Error("❌ Dữ liệu không phải là mảng");
 }
 
+return data;
 
+}
 
 static async createARVRegimen(data: any): Promise<any> {
   const headers = this.getHeader();
@@ -395,6 +423,25 @@ static async deleteARVRegimen(id: number): Promise<any> {
     })
   ).data;
 }
+static async createARVWithHistory(data: any): Promise<any> {
+  const headers = this.getHeader();
+
+  return (
+    await axios.post(`${this.BASE_URL}/api/arv-regimens/with-history`, data, {
+      headers,
+    })
+  ).data;
+}
+
+static async updateARVWithHistory(data: any): Promise<any> {
+  const headers = this.getHeader();
+  return (
+    await axios.put(`${this.BASE_URL}/api/arv-regimens/update-with-history`, data, {
+      headers,
+    })
+  ).data;
+}
+
 /** ---------------- CUSTOMER PROFILE ---------------- */
 static async getCurrentCustomer(): Promise<any> {
   return (

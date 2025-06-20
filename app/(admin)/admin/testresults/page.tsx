@@ -29,25 +29,23 @@ export default function TestResultPage() {
   });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [role, setRole] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   const fetchTestResults = async () => {
     try {
       const authData = JSON.parse(localStorage.getItem("authData") || "{}");
       const doctorId = authData?.doctor?.doctorId;
       const currentRole = authData?.role;
-      const customerEmail = authData?.email;
       setRole(currentRole);
 
       let results: TestResult[] = [];
-   if (currentRole === "DOCTOR") {
-  results = await ApiService.getTestResultsByDoctorId(doctorId);
-} else if (currentRole === "USER") {
-  results = await ApiService.getMyTestResults();
-} else {
-  results = await ApiService.getTestResults(); // dành cho ADMIN
-}
-
-
+      if (currentRole === "DOCTOR") {
+        results = await ApiService.getTestResultsByDoctorId(doctorId);
+      } else if (currentRole === "USER") {
+        results = await ApiService.getMyTestResults();
+      } else {
+        results = await ApiService.getTestResults(); // ADMIN
+      }
 
       setTestResults(results);
     } catch (error) {
@@ -98,6 +96,7 @@ export default function TestResultPage() {
       resultDescription: "",
     });
     setEditingId(null);
+    setShowForm(false);
   };
 
   const handleCreateOrUpdate = async () => {
@@ -126,6 +125,7 @@ export default function TestResultPage() {
   const handleEdit = (testResult: TestResult) => {
     setFormData({ ...testResult });
     setEditingId(testResult.testResultId || null);
+    setShowForm(true);
   };
 
   const handleDelete = async (id?: number) => {
@@ -142,8 +142,23 @@ export default function TestResultPage() {
 
   return (
     <div className="p-4">
-      {(role === "DOCTOR" || role === "ADMIN") && (
-        <>
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">
+        Kết quả xét nghiệm
+      </h1>
+      {(role === "DOCTOR" || role === "ADMIN") && !showForm && (
+  <div className="flex justify-end mb-4">
+    <button
+      onClick={() => setShowForm(true)}
+      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+    >
+      Thêm
+    </button>
+  </div>
+)}
+
+
+      {(role === "DOCTOR" || role === "ADMIN") && showForm && (
+        <div className="mb-6 border border-gray-300 rounded p-4 bg-gray-50">
           <h2 className="text-xl font-semibold mb-4">
             {editingId ? "Chỉnh sửa kết quả xét nghiệm" : "Thêm kết quả xét nghiệm mới"}
           </h2>
@@ -190,7 +205,7 @@ export default function TestResultPage() {
             />
           </div>
 
-          <div className="flex gap-2 mb-6">
+          <div className="flex gap-2">
             <button
               onClick={handleCreateOrUpdate}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -204,52 +219,67 @@ export default function TestResultPage() {
               Hủy
             </button>
           </div>
-        </>
+        </div>
       )}
 
-      <table className="w-full border table-auto">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Email bệnh nhân</th>
-            <th className="border p-2">Tên bệnh nhân</th>
-            <th className="border p-2">Tên bác sĩ</th>
-            <th className="border p-2">Ngày</th>
-            <th className="border p-2">Loại</th>
-            <th className="border p-2">Kết quả</th>
-            {(role === "DOCTOR" || role === "ADMIN") && (
-              <th className="border p-2">Hành động</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {testResults.map((tr) => (
-            <tr key={tr.testResultId}>
-              <td className="border p-2">{tr.customerEmail}</td>
-              <td className="border p-2">{tr.customerName}</td>
-              <td className="border p-2">{tr.doctorName}</td>
-              <td className="border p-2">{format(new Date(tr.date), "dd/MM/yyyy")}</td>
-              <td className="border p-2">{tr.typeOfTest}</td>
-              <td className="border p-2">{tr.resultDescription}</td>
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
+        <table className="min-w-full text-sm text-gray-800 table-fixed border-collapse">
+          <thead className="bg-blue-100 text-blue-800 uppercase text-sm font-semibold border-b border-gray-300">
+            <tr>
+              <th className="border border-gray-300 px-4 py-2">Email bệnh nhân</th>
+              <th className="border border-gray-300 px-4 py-2">Tên bệnh nhân</th>
+              <th className="border border-gray-300 px-4 py-2">Tên bác sĩ</th>
+              <th className="border border-gray-300 px-4 py-2">Ngày</th>
+              <th className="border border-gray-300 px-4 py-2">Loại xét nghiệm</th>
+              <th className="border border-gray-300 px-4 py-2">Kết quả mô tả</th>
               {(role === "DOCTOR" || role === "ADMIN") && (
-                <td className="border p-2 space-x-2">
-                  <button
-                    onClick={() => handleEdit(tr)}
-                    className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500"
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    onClick={() => handleDelete(tr.testResultId)}
-                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                  >
-                    Xóa
-                  </button>
-                </td>
+                <th className="border border-gray-300 px-4 py-2">Hành động</th>
               )}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {testResults.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={role === "DOCTOR" || role === "ADMIN" ? 7 : 6}
+                  className="text-center text-gray-500 py-6 border"
+                >
+                  Không có kết quả xét nghiệm nào.
+                </td>
+              </tr>
+            ) : (
+              testResults.map((tr, index) => (
+                <tr key={tr.testResultId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <td className="border px-4 py-2">{tr.customerEmail}</td>
+                  <td className="border px-4 py-2">{tr.customerName}</td>
+                  <td className="border px-4 py-2">{tr.doctorName}</td>
+                  <td className="border px-4 py-2 text-center">
+                    {format(new Date(tr.date), "dd/MM/yyyy")}
+                  </td>
+                  <td className="border px-4 py-2">{tr.typeOfTest}</td>
+                  <td className="border px-4 py-2">{tr.resultDescription}</td>
+                  {(role === "DOCTOR" || role === "ADMIN") && (
+                    <td className="border px-4 py-2 text-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(tr)}
+                         className="text-indigo-600 hover:text-indigo-800 font-medium"
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        onClick={() => handleDelete(tr.testResultId)}
+                         className="text-red-600 hover:text-red-800 font-medium"
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
