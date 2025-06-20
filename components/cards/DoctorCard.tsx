@@ -4,6 +4,7 @@
 import { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import ApiService from "@/app/service/ApiService";
+import StarRating from "./StarRating"; // Import the StarRating component
 
 interface Doctor {
   doctorId: number;
@@ -14,6 +15,7 @@ interface Doctor {
   description: string | null;
   workExperienceYears: number;
   avatarUrl?: string;
+  rating: number; // Add rating property
 }
 
 const DoctorCardList: FC = () => {
@@ -31,6 +33,12 @@ const DoctorCardList: FC = () => {
 
     fetchDoctors();
   }, []);
+
+  const handleRatingSubmit = (doctorId: number, rating: number, comment: string) => {
+    // Handle the rating submission logic here
+    console.log(`Doctor ID: ${doctorId}, Rating: ${rating}, Comment: ${comment}`);
+    // You can send this data to your backend API to save the rating
+  };
 
   if (!doctors || doctors.length === 0) {
     return (
@@ -65,6 +73,13 @@ const DoctorCardList: FC = () => {
           <p className="text-gray-700 text-sm mt-1">
             {doctor.description || "Không có mô tả"}, {doctor.workExperienceYears} năm kinh nghiệm
           </p>
+          
+          {/* Add the StarRating component here */}
+          <StarRating
+            rating={doctor.rating}
+            onRate={(rating, comment) => handleRatingSubmit(doctor.doctorId, rating, comment)}
+          />
+
           <Link
             href={`/booking?doctorId=${doctor.doctorId}`}
             className="mt-4 text-blue-600 hover:underline"

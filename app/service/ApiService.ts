@@ -23,6 +23,12 @@ static getHeader() {
 }
 
 
+static async forgotPassword(email: string): Promise<any> {
+  return (
+    await axios.post(`${this.BASE_URL}/api/auth/forgot-password`, { email })
+  ).data;
+}
+
   /** ---------------- AUTHENTICATION ---------------- */
   static async registerUser(data: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/register`, data)).data;

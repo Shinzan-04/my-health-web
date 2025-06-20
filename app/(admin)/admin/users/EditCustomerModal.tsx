@@ -94,11 +94,15 @@ export default function EditCustomerModal({
               <input
                 name="phone"
                 value={formData.phone ?? ""}
-                onChange={handleChange}
+                onChange={(e) => {
+                  // Chỉ cho phép số, tối đa 10 ký tự
+                  const onlyNums = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setFormData((prev) => ({ ...prev, phone: onlyNums }));
+                }}
                 placeholder="Số điện thoại"
                 className="w-full border border-gray-400 px-3 py-2 rounded"
-                pattern="^0\d{9}$"
-                title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 số"
+                maxLength={10}
+                required
               />
             </div>
 

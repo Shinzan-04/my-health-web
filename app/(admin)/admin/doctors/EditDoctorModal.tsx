@@ -69,16 +69,19 @@ export default function EditDoctorModal({
             />
 
             <label className="block mb-1 font-medium">Số điện thoại</label>
-             <input
-                name="phone"
-                value={formData.phone ?? ""}
-                onChange={handleChange}
-                placeholder="Số điện thoại"
-                className="w-full border border-gray-400 px-3 py-2 rounded"
-                pattern="^0\d{9}$"
-                title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 số"
-                required
-               />
+            <input
+              name="phone"
+              value={formData.phone ?? ""}
+              onChange={e => {
+                // Chỉ cho phép số, tối đa 10 ký tự
+                const onlyNums = e.target.value.replace(/\D/g, "").slice(0, 10);
+                setFormData(prev => ({ ...prev, phone: onlyNums }));
+              }}
+              placeholder="Số điện thoại"
+              className="w-full border border-gray-400 px-3 py-2 rounded"
+              maxLength={10}
+              required
+            />
 
             <label className="block mb-1 font-medium">Chuyên môn</label>
             <input
