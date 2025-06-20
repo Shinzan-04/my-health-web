@@ -1,6 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import StarRating from "./StarRating";
+
+interface Rating {
+  ratingId: number;
+  rating: number;
+  comment: string;
+  createAt: string;
+}
 
 interface Doctor {
   doctorId: number;
@@ -11,6 +19,8 @@ interface Doctor {
   description: string | null;
   workExperienceYears: number;
   avatarUrl?: string;
+  averageRating: number;
+  ratings: Rating[]; // Thêm dòng này
 }
 
 const DoctorCard = ({ doctor }: { doctor: Doctor }) => {
@@ -34,6 +44,14 @@ const DoctorCard = ({ doctor }: { doctor: Doctor }) => {
       <p className="text-gray-600 text-sm mt-1">
       {doctor.workExperienceYears} năm kinh nghiệm
     </p>
+<StarRating
+  rating={doctor.averageRating}
+  doctorId={doctor.doctorId}
+  ratingCount={doctor.ratings.length}
+/>
+
+
+
     <Link
       href={`/registrations?doctorId=${doctor.doctorId}`}
       className="mt-3 inline-block text-sm text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-full"

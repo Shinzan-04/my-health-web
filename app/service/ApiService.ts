@@ -453,6 +453,42 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
   ).data;
 }
 
+//RATING API
+
+static async submitRating(star: number, doctorId: number, comment: string) {
+  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const token = authData?.token;
+
+  if (!token) {
+    throw new Error("Không tìm thấy token trong localStorage");
+  }
+
+  const payload = { star, doctorId, comment };
+
+  return axios.post(
+    `${this.BASE_URL}/api/rating`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+}
+static async countRatingsByDoctorId(doctorId: number): Promise<number> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/rating/count/${doctorId}`, {
+    headers,
+  });
+  return response.data;
+}
+
+
+
+
+
+
 
 
 
