@@ -14,6 +14,8 @@ export default function Header() {
   const [userRole, setUserRole] = useState("");
   const [mounted, setMounted] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+
 
   const navLinks = [
     { label: "Trang Chủ", href: "/" },
@@ -62,6 +64,7 @@ useEffect(() => {
         .then((res) => res.json())
         .then((data) => {
           if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+          if (data.email) setEmail(data.email);
         })
         .catch(console.error);
     }
@@ -71,6 +74,7 @@ useEffect(() => {
         .then((res) => res.json())
         .then((data) => {
           if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+          if (data.email) setEmail(data.email);
         })
         .catch(console.error);
     }
@@ -158,30 +162,40 @@ useEffect(() => {
               ))}
             </nav>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full overflow-hidden border hover:ring-2 hover:ring-blue-400 transition"
-              >
-                <img
-                  src={
-                    avatarUrl
-                      ? `http://localhost:8080${avatarUrl}`
-                      : "/avatar-default.png"
-                  }
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              </button>
+<div className="relative flex items-center space-x-3 ml-25">
+  <button
+    onClick={() => setShowProfileMenu(!showProfileMenu)}
+    className="w-14 h-14 rounded-full overflow-hidden border hover:ring-2 hover:ring-blue-400 transition"
+  >
+    <img
+      src={
+        avatarUrl
+          ? `http://localhost:8080${avatarUrl}`
+          : "/avatar-default.png"
+      }
+      alt="Avatar"
+      className="w-full h-full object-cover"
+    />
+  </button>
 
-              {showProfileMenu && (
-                <ProfileMenu
-                  items={getProfileMenuItems()}
-                  onClose={() => setShowProfileMenu(false)}
-                  onLogout={handleLogout}
-                />
-              )}
-            </div>
+  {/* Hiển thị email */}
+  {email && (
+    <span className="text-sm text-medium text-gray-700">{email}</span>
+  )}
+
+  {/* Menu dropdown */}
+{showProfileMenu && (
+  <div className="absolute right-0 top-full mt-2 z-50">
+    <ProfileMenu
+      items={getProfileMenuItems()}
+      onClose={() => setShowProfileMenu(false)}
+      onLogout={handleLogout}
+    />
+  </div>
+)}
+
+</div>
+
           </div>
         ) : (
           renderDefaultHeader()
