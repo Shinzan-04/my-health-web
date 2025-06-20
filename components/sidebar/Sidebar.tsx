@@ -48,7 +48,7 @@ const menus = {
     management: [
       { label: "Quản lý bác sĩ", href: "/admin/doctors", icon: <FaUserShield  /> },
       { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> }, 
-      { label: "Lịch làm việc bác sĩ", href: "/admin/schedules-doctor", icon: <FaCalendar /> },
+      { label: "Lịch làm việc bác sĩ", href: "/schedule", icon: <FaCalendar /> },
       { label: "Lịch đăng ký khám", href: "/admin/list-registration", icon: <FaClipboardList /> },
     ],
     data: [
