@@ -113,9 +113,21 @@ static async deleteTestResult(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`)).data;
   }
 
-  static async createSchedule(data: any): Promise<any> {
-    return (await axios.post(`${this.BASE_URL}/api/schedules`, data)).data;
-  }
+static async createSchedule(schedule: any): Promise<any> {
+  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const token = authData?.token;
+  if (!token) throw new Error("Missing token");
+
+  return (
+    await axios.post(`${this.BASE_URL}/api/schedules`, schedule, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  ).data;
+}
+
+
 
   static async updateSchedule(id: number, data: any): Promise<any> {
     return (await axios.put(`${this.BASE_URL}/api/schedules/${id}`, data)).data;
