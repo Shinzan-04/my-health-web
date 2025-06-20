@@ -1,4 +1,4 @@
-import DoctorCardList from "@/components/cards/DoctorCardList";
+import DoctorCardList from "@/components/cards/DoctorCard";
 
 const ListDoctorPage = () => {
   return (
