@@ -93,13 +93,6 @@ static async getTestResultsByDoctorId(doctorId: number): Promise<any> {
     )
   ).data;
 }
-static async getMyTestResults(): Promise<any> {
-  return (
-    await axios.get(`${this.BASE_URL}/api/test-results/me`, {
-      headers: this.getHeader(),
-    })
-  ).data;
-}
 
   /** ---------------- SCHEDULE ---------------- */
   static async getSchedules(): Promise<any> {
@@ -128,21 +121,9 @@ static async getMyTestResults(): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`)).data;
   }
 
-static async createSchedule(schedule: any): Promise<any> {
-  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-  const token = authData?.token;
-  if (!token) throw new Error("Missing token");
-
-  return (
-    await axios.post(`${this.BASE_URL}/api/schedules`, schedule, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  ).data;
-}
-
-
+  static async createSchedule(data: any): Promise<any> {
+    return (await axios.post(`${this.BASE_URL}/api/schedules`, data)).data;
+  }
 
   static async updateSchedule(id: number, data: any): Promise<any> {
     return (await axios.put(`${this.BASE_URL}/api/schedules/${id}`, data)).data;
@@ -196,6 +177,7 @@ static async createSchedule(schedule: any): Promise<any> {
     })
   ).data;
 }
+
  static async getMedicalHistoryById(id: number): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`, {
@@ -215,7 +197,6 @@ static async createSchedule(schedule: any): Promise<any> {
   static async deleteMedicalHistory(id: number): Promise<any> {
     return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
   }
-
   static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/medical-histories/customer/${customerId}`, {
@@ -223,12 +204,8 @@ static async createSchedule(schedule: any): Promise<any> {
     })
   ).data;
 }
-  static async markRegistrationCompleted(id: number): Promise<void> {
-  const headers = this.getHeader();
-  await axios.patch(`${this.BASE_URL}/api/registrations/${id}/complete`, null, {
-    headers,
-  });
-}
+
+
 /** ---------------- DOCTOR ---------------- */
 static async getAllDoctors(): Promise<any> {
   return (
@@ -308,22 +285,6 @@ static async getAllDoctorsWithAvatar(): Promise<Doctor[]> {
     })
   ).data;
 }
-static async getSlotsByDoctorAndDate(doctorId: number, date: string): Promise<any> {
-  return (
-    await axios.get(`${this.BASE_URL}/api/slots/available-slots`, {
-      params: { doctorId, date },
-    })
-  ).data;
-}
-
-static async getAvailableDatesByDoctor(doctorId: number, date: string): Promise<any> {
-  return (
-    await axios.get(`${this.BASE_URL}/api/slots/available-dates`, {
-      params: { doctorId, date },
-    })
-  ).data;
-}
-
 
 
   /** ---------------- BLOG ---------------- */
@@ -395,8 +356,15 @@ static async deleteBlog(id: number): Promise<any> {
   static async getRegistrationById(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
   }
+  static async markRegistrationCompleted(id: number): Promise<void> {
+  const headers = this.getHeader();
+  await axios.patch(`${this.BASE_URL}/api/registrations/${id}/complete`, null, {
+    headers,
+  });
+}
 
- 
+  /** ---------------- ARV REGIMEN ---------------- */
+
 static async getARVRegimens(): Promise<any[]> {
   const token = JSON.parse(localStorage.getItem("authData") || "{}")?.token;
   if (!token) throw new Error("Token not found");
@@ -474,33 +442,6 @@ static async updateARVWithHistory(data: any): Promise<any> {
   ).data;
 }
 
-  /** ---------------- Customer---------------- */
-static async getAllCustomers(): Promise<any[]> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers`, { headers });
-  return response.data;
-}
-static async getCustomerById(id: number): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/${id}`, { headers });
-  return response.data;
-}
-static async getMyCustomerProfile(): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/me`, { headers });
-  return response.data;
-}
-static async updateCustomerProfile(id: number, formData: FormData, token: string): Promise<any> {
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
-  return (
-    await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
-      headers,
-    })
-  ).data;
-}
 /** ---------------- CUSTOMER PROFILE ---------------- */
 static async getCurrentCustomer(): Promise<any> {
   return (
@@ -517,6 +458,8 @@ static async getTestResultsByCustomerId(customerId: number): Promise<any> {
     })
   ).data;
 }
+
+
 static async getCustomerByEmail(email: string): Promise<any> {
   const headers = this.getHeader();
   const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
@@ -525,35 +468,12 @@ static async getCustomerByEmail(email: string): Promise<any> {
   });
   return response.data;
 }
-//RATING API
-
-static async submitRating(star: number, doctorId: number, comment: string) {
-  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-  const token = authData?.token;
-
-  if (!token) {
-    throw new Error("Không tìm thấy token trong localStorage");
-  }
-
-  const payload = { star, doctorId, comment };
-
-  return axios.post(
-    `${this.BASE_URL}/api/rating`,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-}
-static async countRatingsByDoctorId(doctorId: number): Promise<number> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/rating/count/${doctorId}`, {
-    headers,
-  });
-  return response.data;
+static async getMyTestResults(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
 }
 
 }
