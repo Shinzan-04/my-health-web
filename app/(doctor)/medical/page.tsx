@@ -14,16 +14,24 @@ type Registration = {
   customerId: number | null;
   session: string;
   doctorId: number;
+  appointmentDate: string; // Thêm trường ngày khám
 };
 
 export default function RegistrationBasicList() {
   const [data, setData] = useState<Registration[]>([]);
 
+  // Lấy ngày hiện tại định dạng yyyy-MM-dd
+  const getTodayDate = (): string => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const today = getTodayDate();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await ApiService.getAllRegistrations();
-
         const authData = JSON.parse(localStorage.getItem("authData") || "{}");
         const doctorId = authData?.doctor?.doctorId;
 
@@ -32,39 +40,35 @@ export default function RegistrationBasicList() {
           return;
         }
 
-        // ✅ Lọc theo doctor đang đăng nhập
-        const filtered = res.filter((reg: Registration) => reg.doctorId === doctorId);
+        // ✅ Lọc theo bác sĩ và ngày hôm nay
+        const filtered = res.filter(
+          (reg: Registration) =>
+            reg.doctorId === doctorId && reg.appointmentDate === today
+        );
+
         setData(filtered);
       } catch (err) {
-        console.error("Lỗi khi lấy danh sách bệnh nhân:", err);
+        console.error("Lỗi khi lấy danh sách đăng ký:", err);
       }
     };
 
     fetchData();
-  }, []);
+  }, [today]);
 
   const handleComplete = async (id: number) => {
     try {
       await ApiService.markRegistrationCompleted(id);
-      setData((prevData) => prevData.filter((item) => item.registrationID !== id));
+      setData((prevData) =>
+        prevData.filter((item) => item.registrationID !== id)
+      );
     } catch (err) {
       console.error("Lỗi khi hoàn thành đăng ký:", err);
     }
   };
 
-  const getCurrentSession = (): string => {
-    const hour = new Date().getHours();
-    if (hour >= 7 && hour < 12) return "Sáng";
-    if (hour >= 13 && hour <= 17) return "Chiều";
-    return "";
-  };
-
-  const currentSession = getCurrentSession();
-  const currentData = data.filter((p) => p.session === currentSession);
-
   const renderTable = (list: Registration[], title: string) => (
     <div className="mb-8">
-      <h3 className="text-xl font-semibold text-blue-600 mb-2">🕒 {title}</h3>
+      <h3 className="text-xl font-semibold text-blue-600 mb-2">📅 {title}</h3>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-blue-50">
@@ -75,6 +79,7 @@ export default function RegistrationBasicList() {
               <th className="px-6 py-3">Giới tính</th>
               <th className="px-6 py-3">Ngày sinh</th>
               <th className="px-6 py-3">Địa chỉ</th>
+              <th className="px-6 py-3">Buổi</th>
               <th className="px-6 py-3">Hành động</th>
             </tr>
           </thead>
@@ -87,6 +92,7 @@ export default function RegistrationBasicList() {
                 <td className="px-6 py-3">{p.gender}</td>
                 <td className="px-6 py-3">{p.dateOfBirth}</td>
                 <td className="px-6 py-3">{p.address}</td>
+                <td className="px-6 py-3">{p.session}</td>
                 <td className="px-6 py-3">
                   <button
                     onClick={() => handleComplete(p.registrationID)}
@@ -106,14 +112,12 @@ export default function RegistrationBasicList() {
   return (
     <div className="w-full max-w-7xl mx-auto bg-white p-8 rounded-xl shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-blue-700">
-        🧾 Lịch Khám – Buổi {currentSession || "Không xác định"}
+        📅 Danh sách đăng ký khám ngày {today}
       </h2>
-      {currentData.length > 0 ? (
-        renderTable(currentData, `Buổi ${currentSession}`)
+      {data.length > 0 ? (
+        renderTable(data, `Lịch khám ngày ${today}`)
       ) : (
-        <p className="text-gray-500">
-          Không có đăng ký nào cho buổi {currentSession || "này"}.
-        </p>
+        <p className="text-gray-500">Không có đăng ký nào cho hôm nay ({today}).</p>
       )}
     </div>
   );

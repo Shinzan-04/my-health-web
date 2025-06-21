@@ -62,52 +62,66 @@ export default function ARVRegimenPage() {
   const [form, setForm] = useState<ARVRegimen>({ ...defaultForm });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [role, setRole] = useState<string>("");
-  const [showForm, setShowForm] = useState<boolean>(false); // NEW STATE: Kiểm soát hiển thị form
+  const [doctorId, setDoctorId] = useState<number | null>(null); // <- Thêm biến doctorId
+  const [showForm, setShowForm] = useState<boolean>(false);
 
+  // Lấy role và doctorId từ localStorage
   useEffect(() => {
-    fetchARVs();
-
     const stored = localStorage.getItem("authData");
     if (stored && stored.trim() !== "") {
       try {
         const authData = JSON.parse(stored);
         const userRole = authData?.account?.role || authData?.role || "";
         setRole(userRole);
+
+        if (userRole === "DOCTOR") {
+          setDoctorId(authData?.doctor?.doctorId || null);
+        }
       } catch (err) {
         console.warn("Lỗi phân tích authData:", err);
         setRole("");
+        setDoctorId(null);
       }
     } else {
       console.warn("authData không tồn tại hoặc rỗng trong localStorage");
       setRole("");
+      setDoctorId(null);
     }
   }, []);
 
+  // Gọi API khi đã biết doctorId và role
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (form.email) {
-        fetchCustomerByEmail(form.email);
-      }
-    }, 500);
-    return () => clearTimeout(delayDebounce);
-  }, [form.email]);
+    if (role === "DOCTOR" && doctorId !== null) {
+      fetchARVs();
+    } else if (role !== "DOCTOR") {
+      fetchARVs();
+    }
+  }, [doctorId, role]);
 
+  // Hàm fetch dữ liệu ARV
   const fetchARVs = async () => {
     try {
       const data = await ApiService.getARVRegimens();
-      console.log("✅ Dữ liệu ARV trả về từ API:", data);
 
-      if (Array.isArray(data)) {
-        setArvs(data);
-      } else {
+      if (!Array.isArray(data)) {
         console.error("❌ Dữ liệu không phải là mảng:", data);
         setArvs([]);
+        return;
+      }
+
+      if (role === "DOCTOR" && doctorId !== null) {
+        const filtered = data.filter((arv) => arv.doctorId === doctorId);
+        setArvs(filtered);
+      } else {
+        setArvs(data);
       }
     } catch (err) {
       console.error("Lỗi khi tải ARVs:", err);
       setArvs([]);
     }
   };
+
+
 
   const fetchCustomerByEmail = async (email: string) => {
     try {
