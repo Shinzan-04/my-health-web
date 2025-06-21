@@ -31,3 +31,16 @@ body {
 .input-custom-text {
   @apply w-full border border-gray-200 rounded-md px-3 py-2 text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:border-gray-400;
 }
+
+.react-datepicker__day--highlighted {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-radius: 50% !important;
+}
+
+
+.react-datepicker__day--highlighted-custom {
+  background-color: #10b981 !important; 
+  color: white !important;
+  border-radius: 50% !important;
+}
