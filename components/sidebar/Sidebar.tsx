@@ -24,15 +24,15 @@ import {
 const menus = {
   USER: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit", icon: <FaUserEdit /> },
-    { label: "Kết quả xét nghiệm", href: "/lab-results", icon: <FaVial /> },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaVial /> },
     { label: "Lịch sử khám bệnh", href: "/medical-history", icon: <FaHistory /> },
     { label: "Phác đồ điều trị", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Nhắc nhở", href: "/userPanel", icon: <FaBell /> },
   ],
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
-    { label: "Bệnh nhân điều trị", href: "/admin", icon: <FaUsers /> },
-    { label: "Hồ sơ bệnh nhân", href: "/doctor/records", icon: <FaNotesMedical /> },
+    { label: "Bệnh nhân điều trị", href: "/medical", icon: <FaUsers /> },
+    { label: "Hồ sơ bệnh nhân", href: "/profilecustomer", icon: <FaNotesMedical /> },
     { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
     { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },
@@ -48,12 +48,12 @@ const menus = {
     management: [
       { label: "Quản lý bác sĩ", href: "/admin/doctors", icon: <FaUserShield  /> },
       { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> }, 
-      { label: "Lịch làm việc bác sĩ", href: "/admin/schedules-doctor", icon: <FaCalendar /> },
+      { label: "Lịch làm việc bác sĩ", href: "/schedule", icon: <FaCalendar /> },
       { label: "Lịch đăng ký khám", href: "/admin/list-registration", icon: <FaClipboardList /> },
     ],
     data: [
       { label: "Lịch sử khám", href: "/admin/medical-history", icon: <FaHistory /> },
-      { label: "Nhập kết quả xét nghiệm", href: "/admin/lab-results", icon: <FaFlask /> },
+      { label: "Nhập kết quả xét nghiệm", href: "/admin/testresults", icon: <FaFlask /> },
       { label: "Tiến trình điều trị", href: "/admin/reminder-system", icon: <FaNotesMedical /> },
     ],
   },

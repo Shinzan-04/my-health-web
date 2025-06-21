@@ -6,21 +6,20 @@ import { format } from "date-fns";
 
 type TestResult = {
   testResultId?: number;
-  doctorId: number;
+  doctorId?: number;
+  doctorName?: string;
   customerId: number;
   customerName?: string;
   customerEmail?: string;
   date: string;
   typeOfTest: string;
   resultDescription: string;
-  doctorName?: string;
 };
 
 export default function TestResultPage() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [formData, setFormData] = useState<TestResult>({
-    doctorId: 0,
-    doctorName: "",
+    doctorId: undefined,
     customerId: 0,
     customerName: "",
     customerEmail: "",
@@ -29,264 +28,258 @@ export default function TestResultPage() {
     resultDescription: "",
   });
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [isDoctor, setIsDoctor] = useState<boolean>(false);
-
-  useEffect(() => {
-    fetchTestResults();
-
-    const authData = localStorage.getItem("authData");
-    if (authData) {
-      try {
-        const parsed = JSON.parse(authData);
-        const doctorId = parsed?.doctor?.doctorId;
-        const role = parsed?.account?.role || parsed?.role;
-        if (doctorId) {
-          setFormData((prev) => ({ ...prev, doctorId }));
-        }
-        if (role === "DOCTOR") {
-          setIsDoctor(true);
-        }
-      } catch (err) {
-        console.error("Lỗi khi xử lý authData:", err);
-      }
-    }
-  }, []);
+  const [role, setRole] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   const fetchTestResults = async () => {
     try {
-      const data = await ApiService.getTestResults();
-      setTestResults(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Lỗi khi fetch test results", err);
-      setTestResults([]);
+      const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+      const doctorId = authData?.doctor?.doctorId;
+      const currentRole = authData?.role;
+      setRole(currentRole);
+
+      let results: TestResult[] = [];
+      if (currentRole === "DOCTOR") {
+        results = await ApiService.getTestResultsByDoctorId(doctorId);
+      } else if (currentRole === "USER") {
+        results = await ApiService.getMyTestResults();
+      } else {
+        results = await ApiService.getTestResults(); // ADMIN
+      }
+
+      setTestResults(results);
+    } catch (error) {
+      console.error("Lỗi khi tải kết quả xét nghiệm:", error);
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  useEffect(() => {
+    fetchTestResults();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleEmailBlur = async () => {
-    if (formData.customerEmail) {
-      try {
-        const customer = await ApiService.getCustomerByEmail(formData.customerEmail);
-        console.log("📥 API trả về:", customer);
+  const handleEmailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setFormData({ ...formData, customerEmail: email });
 
-        const customerId = customer.customerId ?? customer.customerID;
-
-        if (customer && customerId) {
-          setFormData((prev) => ({
-            ...prev,
-            customerId,
-            customerName: customer.fullName,
-          }));
-        } else {
-          alert("Không tìm thấy bệnh nhân với email này.");
-          setFormData((prev) => ({
-            ...prev,
-            customerId: 0,
-            customerName: "",
-          }));
-        }
-      } catch (error) {
-        console.error("Lỗi khi tìm khách hàng theo email", error);
+    try {
+      const customer = await ApiService.getCustomerByEmail(email);
+      if (customer) {
+        setFormData((prev) => ({
+          ...prev,
+          customerId: customer.customerId,
+          customerName: customer.fullName || "",
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          customerId: 0,
+          customerName: "",
+        }));
       }
+    } catch (error) {
+      console.error("Không tìm thấy bệnh nhân:", error);
     }
   };
 
-  const handleSubmit = async () => {
-  try {
-    await handleEmailBlur();
-
-    const dataToSubmit = { ...formData };
-    if (!editingId) delete dataToSubmit.testResultId;
-
-    if (!dataToSubmit.customerId) {
-      alert("Vui lòng nhập đúng email để tìm bệnh nhân.");
-      return;
-    }
-
-    if (editingId) {
-      await ApiService.updateTestResult(editingId, dataToSubmit);
-    } else {
-      await ApiService.createTestResult(dataToSubmit);
-    }
-
-    await fetchTestResults(); // ✅ Đảm bảo reload dữ liệu mới nhất
-    resetForm();
-  } catch (error) {
-    console.error("Lỗi khi lưu kết quả xét nghiệm:", error);
-  }
-};
-
-
   const resetForm = () => {
     setFormData({
-      doctorId: formData.doctorId,
+      doctorId: undefined,
       customerId: 0,
-      customerEmail: "",
       customerName: "",
+      customerEmail: "",
       date: "",
       typeOfTest: "",
       resultDescription: "",
     });
     setEditingId(null);
+    setShowForm(false);
   };
 
-  const handleEdit = (result: TestResult) => {
-    setFormData(result);
-    setEditingId(result.testResultId ?? null);
+  const handleCreateOrUpdate = async () => {
+    try {
+      const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+      const doctorId = authData?.doctor?.doctorId;
+
+      const dto: TestResult = {
+        ...formData,
+        doctorId: editingId ? formData.doctorId : (role === "DOCTOR" ? doctorId : undefined),
+      };
+
+      if (editingId) {
+        await ApiService.updateTestResult(editingId, dto);
+      } else {
+        await ApiService.createTestResult(dto);
+      }
+
+      await fetchTestResults();
+      resetForm();
+    } catch (error) {
+      console.error("Lỗi khi lưu kết quả xét nghiệm:", error);
+    }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm("Xác nhận xóa?")) {
+  const handleEdit = (testResult: TestResult) => {
+    setFormData({ ...testResult });
+    setEditingId(testResult.testResultId || null);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id?: number) => {
+    if (!id) return;
+    if (!confirm("Bạn có chắc muốn xóa kết quả này không?")) return;
+
+    try {
       await ApiService.deleteTestResult(id);
-      fetchTestResults();
+      await fetchTestResults();
+    } catch (error) {
+      console.error("Lỗi khi xóa kết quả xét nghiệm:", error);
     }
   };
 
   return (
-  <div className="p-6 text-gray-700">
-    <h1 className="text-2xl font-bold mb-4 text-gray-900">Quản lý kết quả xét nghiệm</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">
+        Kết quả xét nghiệm
+      </h1>
+      {(role === "DOCTOR" || role === "ADMIN") && !showForm && (
+  <div className="flex justify-end mb-4">
+    <button
+      onClick={() => setShowForm(true)}
+      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+    >
+      Thêm
+    </button>
+  </div>
+)}
 
-    {isDoctor && (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-        className="p-4 border rounded shadow-md mb-6"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block font-medium mb-1 text-gray-900">Email bệnh nhân</label>
-            <input
-              type="email"
-              name="customerEmail"
-              value={formData.customerEmail || ""}
-              onChange={handleChange}
-              onBlur={handleEmailBlur}
-              required
-              className="w-full p-2 border rounded text-gray-700"
-            />
-          </div>
-          <div>
-            <label className="block font-medium mb-1 text-gray-900">Tên bệnh nhân</label>
+
+      {(role === "DOCTOR" || role === "ADMIN") && showForm && (
+        <div className="mb-6 border border-gray-300 rounded p-4 bg-gray-50">
+          <h2 className="text-xl font-semibold mb-4">
+            {editingId ? "Chỉnh sửa kết quả xét nghiệm" : "Thêm kết quả xét nghiệm mới"}
+          </h2>
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <input
               type="text"
-              value={formData.customerName || ""}
-              readOnly
-              className="w-full p-2 border rounded bg-gray-100 text-gray-400"
+              name="customerEmail"
+              value={formData.customerEmail}
+              onChange={handleEmailChange}
+              placeholder="Email bệnh nhân"
+              className="border p-2 rounded"
             />
-          </div>
-          <div>
-            <label className="block font-medium mb-1 text-gray-900">Ngày xét nghiệm</label>
+            <input
+              type="text"
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleChange}
+              placeholder="Tên bệnh nhân"
+              className="border p-2 rounded"
+              readOnly
+            />
             <input
               type="date"
               name="date"
-              value={formData.date || ""}
+              value={formData.date}
               onChange={handleChange}
-              required
-              className="w-full p-2 border rounded text-gray-700"
+              className="border p-2 rounded"
             />
-          </div>
-          <div>
-            <label className="block font-medium mb-1 text-gray-900">Loại xét nghiệm</label>
             <input
               type="text"
               name="typeOfTest"
-              value={formData.typeOfTest || ""}
+              value={formData.typeOfTest}
               onChange={handleChange}
-              required
-              className="w-full p-2 border rounded text-gray-700"
+              placeholder="Loại xét nghiệm"
+              className="border p-2 rounded"
             />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block font-medium mb-1 text-gray-900">Kết quả mô tả</label>
             <textarea
               name="resultDescription"
-              value={formData.resultDescription || ""}
+              value={formData.resultDescription}
               onChange={handleChange}
-              required
-              rows={3}
-              className="w-full p-2 border rounded text-gray-700"
-            ></textarea>
+              placeholder="Kết quả mô tả"
+              className="border p-2 rounded col-span-2"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleCreateOrUpdate}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              {editingId ? "Cập nhật" : "Thêm mới"}
+            </button>
+            <button
+              onClick={resetForm}
+              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Hủy
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="mt-4 flex justify-end gap-2">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {editingId ? "Cập nhật" : "Thêm mới"}
-          </button>
-          <button
-            type="button"
-            onClick={resetForm}
-            className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
-          >
-            Hủy
-          </button>
-        </div>
-      </form>
-    )}
-
-    <table className="w-full border border-gray-300 text-sm text-gray-700">
-  <thead className="bg-gray-100 text-gray-900">
-    <tr>
-      <th className="border px-2 py-1">Email bệnh nhân</th>
-      <th className="border px-2 py-1">Tên bệnh nhân</th>
-      <th className="border px-2 py-1">Bác sĩ</th>
-      <th className="border px-2 py-1">Ngày</th>
-      <th className="border px-2 py-1">Loại</th>
-      <th className="border px-2 py-1">Kết quả</th>
-      <th className="border px-2 py-1">Hành động</th>
-    </tr>
-  </thead>
-  <tbody>
-    {testResults.map((item) => (
-      <tr key={item.testResultId} className="hover:bg-gray-50">
-        <td className="border px-2 py-1 text-gray-700">{item.customerEmail}</td>
-        <td className="border px-2 py-1 text-gray-700">{item.customerName}</td>
-        <td className="border px-2 py-1 text-gray-700">{item.doctorName}</td>
-        <td className="border px-2 py-1 text-gray-700">
-          {format(new Date(item.date), "dd/MM/yyyy")}
-        </td>
-        <td className="border px-2 py-1 text-gray-700">{item.typeOfTest}</td>
-        <td className="border px-2 py-1 text-gray-700">{item.resultDescription}</td>
-        <td className="border px-2 py-1 text-gray-700">
-          {isDoctor && (
-            <>
-              <button
-                onClick={() => handleEdit(item)}
-                className="text-blue-600 mr-2 hover:underline"
-              >
-                Sửa
-              </button>
-              <button
-                onClick={() => handleDelete(item.testResultId!)}
-                className="text-red-600 hover:underline"
-              >
-                Xóa
-              </button>
-            </>
-          )}
-        </td>
-      </tr>
-    ))}
-    {testResults.length === 0 && (
-      <tr>
-        <td colSpan={8} className="text-center p-4 text-gray-500">
-          Không có dữ liệu.
-        </td>
-      </tr>
-    )}
-  </tbody>
-</table>
-
-  </div>
-);
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
+        <table className="min-w-full text-sm text-gray-800 table-fixed border-collapse">
+          <thead className="bg-blue-100 text-blue-800 uppercase text-sm font-semibold border-b border-gray-300">
+            <tr>
+              <th className="border border-gray-300 px-4 py-2">Email bệnh nhân</th>
+              <th className="border border-gray-300 px-4 py-2">Tên bệnh nhân</th>
+              <th className="border border-gray-300 px-4 py-2">Tên bác sĩ</th>
+              <th className="border border-gray-300 px-4 py-2">Ngày</th>
+              <th className="border border-gray-300 px-4 py-2">Loại xét nghiệm</th>
+              <th className="border border-gray-300 px-4 py-2">Kết quả mô tả</th>
+              {(role === "DOCTOR" || role === "ADMIN") && (
+                <th className="border border-gray-300 px-4 py-2">Hành động</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {testResults.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={role === "DOCTOR" || role === "ADMIN" ? 7 : 6}
+                  className="text-center text-gray-500 py-6 border"
+                >
+                  Không có kết quả xét nghiệm nào.
+                </td>
+              </tr>
+            ) : (
+              testResults.map((tr, index) => (
+                <tr key={tr.testResultId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <td className="border px-4 py-2">{tr.customerEmail}</td>
+                  <td className="border px-4 py-2">{tr.customerName}</td>
+                  <td className="border px-4 py-2">{tr.doctorName}</td>
+                  <td className="border px-4 py-2 text-center">
+                    {format(new Date(tr.date), "dd/MM/yyyy")}
+                  </td>
+                  <td className="border px-4 py-2">{tr.typeOfTest}</td>
+                  <td className="border px-4 py-2">{tr.resultDescription}</td>
+                  {(role === "DOCTOR" || role === "ADMIN") && (
+                    <td className="border px-4 py-2 text-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(tr)}
+                         className="text-indigo-600 hover:text-indigo-800 font-medium"
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        onClick={() => handleDelete(tr.testResultId)}
+                         className="text-red-600 hover:text-red-800 font-medium"
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

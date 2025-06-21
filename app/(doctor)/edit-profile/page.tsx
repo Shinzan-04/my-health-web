@@ -44,9 +44,7 @@ export default function EditDoctorProfile() {
     }
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (doctor) {
       setDoctor({ ...doctor, [e.target.name]: e.target.value });
     }
@@ -76,35 +74,16 @@ export default function EditDoctorProfile() {
     }
   };
 
-  if (loading || !doctor)
-    return (
-      <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>
-    );
+  if (loading || !doctor) return <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-          Chỉnh sửa hồ sơ bác sĩ
-        </h2>
-        {doctor.avatarUrl && (
-          <div className="flex justify-center mb-6">
-            <img
-              src={`http://localhost:8080${doctor.avatarUrl}`}
-              alt="Avatar bác sĩ"
-              className="w-32 h-32 rounded-full object-cover border border-gray-300"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/avatar-default.png";
-              }}
-            />
-          </div>
-        )}
+        <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">Chỉnh sửa hồ sơ bác sĩ</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Họ tên:
-            </label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Họ tên:</label>
             <input
               name="fullName"
               value={doctor.fullName ?? ""}
@@ -114,9 +93,7 @@ export default function EditDoctorProfile() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Chuyên khoa:
-            </label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Chuyên khoa:</label>
             <input
               name="specialization"
               value={doctor.specialization ?? ""}
@@ -126,9 +103,7 @@ export default function EditDoctorProfile() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Số điện thoại:
-            </label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Số điện thoại:</label>
             <input
               name="phone"
               value={doctor.phone ?? ""}
@@ -138,9 +113,7 @@ export default function EditDoctorProfile() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Mô tả:
-            </label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Mô tả:</label>
             <textarea
               name="description"
               value={doctor.description ?? ""}
@@ -151,9 +124,7 @@ export default function EditDoctorProfile() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Số năm kinh nghiệm:
-            </label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Số năm kinh nghiệm:</label>
             <input
               name="workExperienceYears"
               type="number"
@@ -164,9 +135,7 @@ export default function EditDoctorProfile() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Tải ảnh đại diện:
-            </label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Tải ảnh đại diện:</label>
             <input
               type="file"
               accept="image/*"

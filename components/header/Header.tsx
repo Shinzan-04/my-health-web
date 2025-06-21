@@ -14,8 +14,6 @@ export default function Header() {
   const [userRole, setUserRole] = useState("");
   const [mounted, setMounted] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-
 
   const navLinks = [
     { label: "Trang Chủ", href: "/" },
@@ -48,41 +46,31 @@ export default function Header() {
     { label: "Lịch làm việc", href: "/schedule" },
   ];
 
-useEffect(() => {
-  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-  const token = authData.token;
+  useEffect(() => {
+    const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+    const token = authData.token;
 
-  if (token) {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    setUserRole(payload.role || "");
-    setIsLoggedIn(true);
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUserRole(payload.role || "");
+      setIsLoggedIn(true);
 
-    const headers = { Authorization: `Bearer ${token}` };
-
-    if (payload.role === "DOCTOR") {
-      fetch("http://localhost:8080/api/doctors/me", { headers })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
-          if (data.email) setEmail(data.email);
+      if (payload.role === "DOCTOR") {
+        fetch("http://localhost:8080/api/doctors/me", {
+          headers: { Authorization: `Bearer ${token}` },
         })
-        .catch(console.error);
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.avatarUrl) {
+              setAvatarUrl(data.avatarUrl);
+            }
+          })
+          .catch(console.error);
+      }
     }
 
-    if (payload.role === "USER") {
-      fetch("http://localhost:8080/api/customers/me", { headers })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
-          if (data.email) setEmail(data.email);
-        })
-        .catch(console.error);
-    }
-  }
-
-  setMounted(true);
-}, []);
-
+    setMounted(true);
+  }, []);
 
   if (!mounted) return null;
 
@@ -162,40 +150,30 @@ useEffect(() => {
               ))}
             </nav>
 
-<div className="relative flex items-center space-x-3 ml-25">
-  <button
-    onClick={() => setShowProfileMenu(!showProfileMenu)}
-    className="w-14 h-14 rounded-full overflow-hidden border hover:ring-2 hover:ring-blue-400 transition"
-  >
-    <img
-      src={
-        avatarUrl
-          ? `http://localhost:8080${avatarUrl}`
-          : "/avatar-default.png"
-      }
-      alt="Avatar"
-      className="w-full h-full object-cover"
-    />
-  </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="w-10 h-10 rounded-full overflow-hidden border hover:ring-2 hover:ring-blue-400 transition"
+              >
+                <img
+                  src={
+                    avatarUrl
+                      ? `http://localhost:8080${avatarUrl}`
+                      : "/avatar-default.png"
+                  }
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              </button>
 
-  {/* Hiển thị email */}
-  {email && (
-    <span className="text-sm text-medium text-gray-700">{email}</span>
-  )}
-
-  {/* Menu dropdown */}
-{showProfileMenu && (
-  <div className="absolute right-0 top-full mt-2 z-50">
-    <ProfileMenu
-      items={getProfileMenuItems()}
-      onClose={() => setShowProfileMenu(false)}
-      onLogout={handleLogout}
-    />
-  </div>
-)}
-
-</div>
-
+              {showProfileMenu && (
+                <ProfileMenu
+                  items={getProfileMenuItems()}
+                  onClose={() => setShowProfileMenu(false)}
+                  onLogout={handleLogout}
+                />
+              )}
+            </div>
           </div>
         ) : (
           renderDefaultHeader()
