@@ -31,16 +31,16 @@ body {
 .input-custom-text {
   @apply w-full border border-gray-200 rounded-md px-3 py-2 text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:border-gray-400;
 }
-
+/* CSS mặc định cho ngày được highlight */
 .react-datepicker__day--highlighted {
-  background-color: #3b82f6 !important;
+  background-color: #3b82f6 !important; /* xanh dương */
   color: white !important;
   border-radius: 50% !important;
 }
 
-
+/* Nếu bạn dùng highlight dạng custom class (không bắt buộc) */
 .react-datepicker__day--highlighted-custom {
-  background-color: #10b981 !important; 
+  background-color: #10b981 !important; /* xanh lá */
   color: white !important;
   border-radius: 50% !important;
 }
