@@ -1,52 +1,98 @@
+// app/admin/dashboard/page.tsx
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import ApiService from "@/service/ApiService";
-import { User, Stethoscope, CalendarCheck } from "lucide-react";
+import ApiService from "@/app/service/ApiService";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import moment from "moment";
 
-export default function AdminDashboard() {
-  const [doctorCount, setDoctorCount] = useState(0);
-  const [customerCount, setCustomerCount] = useState(0);
-  const [appointmentCount, setAppointmentCount] = useState(0);
+export default function Dashboard() {
+  const [counts, setCounts] = useState({
+    doctors: 0,
+    customers: 0,
+    arv: 0,
+    blogs: 0,
+    registrations: 0,
+    testResults: 0,
+  });
+
+  const [registrationStats, setRegistrationStats] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const [doctors, customers, appointments] = await Promise.all([
+    const fetchCounts = async () => {
+      const [doctors, customers, arvs, blogs, regs, tests] = await Promise.all([
         ApiService.getAllDoctors(),
         ApiService.getAllCustomers(),
-        ApiService.getAllAppointments(),
+        ApiService.getARVRegimens(),
+        ApiService.getAllBlogs(),
+        ApiService.getAllRegistrations(),
+        ApiService.getTestResults(),
       ]);
 
-      setDoctorCount(doctors.length);
-      setCustomerCount(customers.length);
-      setAppointmentCount(appointments.length);
-    } catch (err) {
-      console.error("Lỗi khi lấy thống kê:", err);
-    }
-  };
+      setCounts({
+        doctors: doctors.length,
+        customers: customers.length,
+        arv: arvs.length,
+        blogs: blogs.length,
+        registrations: regs.length,
+        testResults: tests.length,
+      });
 
-  const StatCard = ({ icon, label, value }: { icon: JSX.Element; label: string; value: number }) => (
-    <Card className="w-full sm:w-[250px] shadow-md border border-gray-200">
-      <CardContent className="flex flex-col items-center justify-center py-6">
-        <div className="text-primary mb-2">{icon}</div>
-        <div className="text-2xl font-semibold text-gray-700">{value}</div>
-        <div className="text-sm text-gray-500">{label}</div>
-      </CardContent>
-    </Card>
-  );
+      const groupedByMonth = regs.reduce((acc: any, r: any) => {
+        const month = moment(r.appointmentDate).format("YYYY-MM");
+        acc[month] = (acc[month] || 0) + 1;
+        return acc;
+      }, {});
+
+      const stats = Object.entries(groupedByMonth).map(([month, count]) => ({
+        month,
+        count,
+      }));
+
+      setRegistrationStats(stats);
+    };
+
+    fetchCounts();
+  }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Tổng quan quản trị</h1>
-      <div className="flex flex-wrap gap-4">
-        <StatCard icon={<Stethoscope size={32} />} label="Bác sĩ" value={doctorCount} />
-        <StatCard icon={<User size={32} />} label="Bệnh nhân" value={customerCount} />
-        <StatCard icon={<CalendarCheck size={32} />} label="Lịch hẹn" value={appointmentCount} />
+    <div className="p-6 space-y-6 bg-white min-h-screen">
+      <h1 className="text-2xl font-bold text-blue-700">Bảng điều khiển</h1>
+
+      {/* Tổng quan */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+       {[
+  { title: "Bác sĩ", value: counts.doctors },
+  { title: "Bệnh nhân", value: counts.customers },
+  { title: "ARV", value: counts.arv },
+  { title: "Bài viết", value: counts.blogs },
+  { title: "Lịch khám", value: counts.registrations },
+  { title: "Xét nghiệm", value: counts.testResults },
+].map((item) => (
+  <div
+    key={item.title} // ✅ THÊM key ở đây
+    className="bg-blue-50 border border-blue-200 rounded-xl shadow-sm"
+  >
+    <div className="p-4 text-center">
+      <div className="text-lg font-semibold text-blue-900">{item.title}</div>
+      <div className="text-3xl font-bold text-blue-600">{item.value}</div>
+    </div>
+  </div>
+))}
+
+      </div>
+
+      {/* Biểu đồ lượt đăng ký */}
+      <div>
+        <h2 className="text-xl font-semibold text-blue-700 mb-2">Lượt đăng ký theo tháng</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={registrationStats}>
+            <XAxis dataKey="month" stroke="#1D4ED8" />
+            <YAxis stroke="#1D4ED8" />
+            <Tooltip />
+            <Bar dataKey="count" fill="#3B82F6" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

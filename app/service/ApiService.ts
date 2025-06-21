@@ -360,6 +360,20 @@ static async deleteBlog(id: number): Promise<any> {
   static async getRegistrationById(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
   }
+  static async getAllActiveRegistrations(): Promise<any> {
+    return (await axios.get(`${this.BASE_URL}/api/registrations/active`)).data;
+  }
+static async updateRegistrationStatus(id: number, status: boolean): Promise<any> {
+  const headers = this.getHeader();
+
+  return (
+    await axios.patch(`${this.BASE_URL}/api/registrations/${id}/status`, null, {
+      params: { status },
+      headers,
+    })
+  ).data;
+}
+
 
   /** ---------------- ARV REGIMEN ---------------- */
 
