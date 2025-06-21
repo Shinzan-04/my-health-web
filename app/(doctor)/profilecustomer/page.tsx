@@ -6,6 +6,7 @@ import ApiService from "@/app/service/ApiService";
 type MedicalHistory = {
   medicalHistoryId: number;
   customerID: number | null;
+  customerName?: string;
   doctorId: number;
   doctorName: string;
   diseaseName: string;
@@ -19,18 +20,32 @@ type MedicalHistory = {
 
 export default function MedicalHistoryTable() {
   const [data, setData] = useState<MedicalHistory[]>([]);
+  const [filteredData, setFilteredData] = useState<MedicalHistory[]>([]);
+  const [searchName, setSearchName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     ApiService.getMedicalHistories()
-      .then(setData)
+      .then((res) => {
+        setData(res);
+        setFilteredData(res);
+      })
       .catch((err) => {
         console.error(err);
         setError("Không thể tải dữ liệu hồ sơ bệnh.");
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // Lọc khi nhập tên
+  useEffect(() => {
+    const lowerSearch = searchName.toLowerCase();
+    const filtered = data.filter((item) =>
+      item.customerName?.toLowerCase().includes(lowerSearch)
+    );
+    setFilteredData(filtered);
+  }, [searchName, data]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -40,6 +55,14 @@ export default function MedicalHistoryTable() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-blue-700">Hồ sơ bệnh án</h1>
+
+      <input
+        type="text"
+        placeholder="Tìm theo tên bệnh nhân..."
+        value={searchName}
+        onChange={(e) => setSearchName(e.target.value)}
+        className="w-full max-w-sm px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
 
       {loading ? (
         <div className="text-gray-600">Đang tải dữ liệu...</div>
@@ -63,14 +86,14 @@ export default function MedicalHistoryTable() {
               </tr>
             </thead>
             <tbody>
-              {data.length === 0 ? (
+              {filteredData.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="text-center py-6 text-gray-500 border">
                     Không có dữ liệu.
                   </td>
                 </tr>
               ) : (
-                data.map((item, index) => (
+                filteredData.map((item, index) => (
                   <tr
                     key={item.medicalHistoryId}
                     className={
@@ -80,7 +103,7 @@ export default function MedicalHistoryTable() {
                     }
                   >
                     <td className="border border-gray-300 px-4 py-2">{item.medicalHistoryId}</td>
-                    <td className="border border-gray-300 px-4 py-2">{item.customerID ?? "N/A"}</td>
+                    <td className="border border-gray-300 px-4 py-2">{item.customerName ?? "N/A"}</td>
                     <td className="border border-gray-300 px-4 py-2 text-blue-700 font-medium">
                       {item.doctorName}
                     </td>

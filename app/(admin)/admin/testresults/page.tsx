@@ -205,16 +205,16 @@ export default function TestResultPage() {
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="mt-8 flex justify-end gap-3">
             <button
               onClick={handleCreateOrUpdate}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow-sm transition duration-200 ease-in-out"
             >
               {editingId ? "Cập nhật" : "Thêm mới"}
             </button>
             <button
               onClick={resetForm}
-              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-5 py-2 rounded-md shadow-sm transition duration-200 ease-in-out"
             >
               Hủy
             </button>

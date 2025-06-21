@@ -466,7 +466,7 @@ export default function ARVRegimenPage() {
               onClick={handleSubmit}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow-sm transition duration-200 ease-in-out"
             >
-              {editingId ? "Cập nhật" : "Thêm"}
+              {editingId ? "Cập nhật" : "Thêm mới"}
             </button>
             <button
               onClick={resetForm} // NEW: Nút "Hủy" sẽ ẩn form
