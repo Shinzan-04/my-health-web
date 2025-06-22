@@ -383,8 +383,7 @@ static async deleteBlog(id: number): Promise<any> {
   static async getRegistrationById(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
   }
-<<<<<<< HEAD
-=======
+
   static async getAllActiveRegistrations(): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/active`)).data;
   }
@@ -398,7 +397,7 @@ static async updateRegistrationStatus(id: number, status: boolean): Promise<any>
     })
   ).data;
 }
->>>>>>> origin/shinz
+
 
 
   /** ---------------- ARV REGIMEN ---------------- */
@@ -465,7 +464,6 @@ static async getCustomerByEmail(email: string): Promise<any> {
   return response.data;
 }
 
-<<<<<<< HEAD
 
 
 // Lấy danh sách phác đồ ARV theo customerId
@@ -484,37 +482,10 @@ static async getAllCustomers(): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/customers`, {
       headers: this.getHeader(),
-=======
-  /** ---------------- Customer---------------- */
-static async getAllCustomers(): Promise<any[]> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers`, { headers });
-  return response.data;
-}
-static async getCustomerById(id: number): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/${id}`, { headers });
-  return response.data;
-}
-static async getMyCustomerProfile(): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/me`, { headers });
-  return response.data;
-}
-static async updateCustomerProfile(id: number, formData: FormData, token: string): Promise<any> {
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
-  return (
-    await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
-      headers,
->>>>>>> origin/shinz
     })
   ).data;
 }
 
-<<<<<<< HEAD
 static async getCustomerById(id: number): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/customers/${id}`, {
@@ -597,49 +568,10 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
       headers,
     })
   ).data;
-=======
-//RATING API
-
-static async submitRating(star: number, doctorId: number, comment: string) {
-  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-  const token = authData?.token;
-
-  if (!token) {
-    throw new Error("Không tìm thấy token trong localStorage");
-  }
-
-  const payload = { star, doctorId, comment };
-
-  return axios.post(
-    `${this.BASE_URL}/api/rating`,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-}
-static async countRatingsByDoctorId(doctorId: number): Promise<number> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/rating/count/${doctorId}`, {
-    headers,
-  });
-  return response.data;
->>>>>>> origin/shinz
 }
 
 
 
 
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
->>>>>>> origin/shinz
 }
