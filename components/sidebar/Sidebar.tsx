@@ -24,7 +24,7 @@ import {
 const menus = {
   USER: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit", icon: <FaUserEdit /> },
-    { label: "Kết quả xét nghiệm", href: "/lab-results", icon: <FaVial /> },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaVial /> },
     { label: "Lịch sử khám bệnh", href: "/medical-history", icon: <FaHistory /> },
     { label: "ARV", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Nhắc nhở", href: "/userPanel", icon: <FaBell /> },
@@ -32,7 +32,7 @@ const menus = {
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
     { label: "Bệnh nhân điều trị", href: "/admin", icon: <FaUsers /> },
-    { label: "Hồ sơ bệnh nhân", href: "/doctor/records", icon: <FaNotesMedical /> },
+    { label: "Hồ sơ bệnh nhân", href: "/profilecustomer", icon: <FaNotesMedical /> },
     { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
     { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },
@@ -42,9 +42,9 @@ const menus = {
     dashboard: [
       { label: "Dashboard", href: "/admin/dashboard", icon: <FaChartLine /> },
     ],
-    profile: [
+   /* profile: [
       { label: "Chỉnh sửa hồ sơ", href: "/admin/edit", icon: <FaUserEdit /> },
-    ],
+    ],*/
     management: [
       { label: "Quản lý bác sĩ", href: "/admin/doctors", icon: <FaUserShield  /> },
       { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> }, 
@@ -53,8 +53,8 @@ const menus = {
     ],
     data: [
       { label: "Lịch sử khám", href: "/admin/medical-history", icon: <FaHistory /> },
-      { label: "Nhập kết quả xét nghiệm", href: "/admin/lab-results", icon: <FaFlask /> },
-      { label: "Tiến trình điều trị", href: "/admin/reminder-system", icon: <FaNotesMedical /> },
+      { label: "Nhập kết quả xét nghiệm", href: "/admin/testresults", icon: <FaFlask /> },
+      //{ label: "Tiến trình điều trị", href: "/admin/reminder-system", icon: <FaNotesMedical /> },
     ],
   },
 };
@@ -124,7 +124,7 @@ export default function Sidebar() {
       {isAdmin ? (
         <nav className="space-y-4 px-2 text-sm">
           <Section title="📊 Tổng quan" items={menus.ADMIN.dashboard} pathname={pathname} />
-          <Section title="👤 Hồ sơ" items={menus.ADMIN.profile} pathname={pathname} />
+          
           <Section title="🛠️ Quản lý" items={menus.ADMIN.management} pathname={pathname} />
           <Section title="💉 Dữ liệu & điều trị" items={menus.ADMIN.data} pathname={pathname} />
         </nav>
