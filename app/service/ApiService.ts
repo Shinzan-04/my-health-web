@@ -23,6 +23,12 @@ static getHeader() {
 }
 
 
+static async forgotPassword(email: string): Promise<any> {
+  return (
+    await axios.post(`${this.BASE_URL}/api/auth/forgot-password`, { email })
+  ).data;
+}
+
   /** ---------------- AUTHENTICATION ---------------- */
   static async registerUser(data: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/register`, data)).data;
@@ -65,6 +71,14 @@ static async getTestResults(): Promise<any> {
 static async getTestResultById(id: number): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/test-results/${id}`, this.getAuthHeader())
+  ).data;
+}
+
+static async getTestResultsByCustomerId(customerId: number, token: string): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/customer/${customerId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
   ).data;
 }
 
@@ -194,6 +208,15 @@ static async createSchedule(schedule: any): Promise<any> {
     return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
   }
 
+      static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any[]> {
+         const headers = this.getHeader();
+         const response = await axios.get(
+             `${this.BASE_URL}/api/medical-histories/customer/${customerId}`,
+             { headers }
+         );
+         return response.data;
+     }
+     
 /** ---------------- DOCTOR ---------------- */
 static async getAllDoctors(): Promise<any> {
   return (
@@ -360,6 +383,8 @@ static async deleteBlog(id: number): Promise<any> {
   static async getRegistrationById(id: number): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/${id}`)).data;
   }
+<<<<<<< HEAD
+=======
   static async getAllActiveRegistrations(): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/registrations/active`)).data;
   }
@@ -373,6 +398,7 @@ static async updateRegistrationStatus(id: number, status: boolean): Promise<any>
     })
   ).data;
 }
+>>>>>>> origin/shinz
 
 
   /** ---------------- ARV REGIMEN ---------------- */
@@ -439,6 +465,26 @@ static async getCustomerByEmail(email: string): Promise<any> {
   return response.data;
 }
 
+<<<<<<< HEAD
+
+
+// Lấy danh sách phác đồ ARV theo customerId
+static async getARVRegimensByCustomerId(customerId: number): Promise<any[]> {
+  const headers = this.getHeader();
+  const response = await axios.get(
+    `${this.BASE_URL}/api/arv-regimens/customer/${customerId}`,
+    { headers }
+  );
+  return response.data;
+}
+
+
+  /** ---------------- Customer---------------- */
+static async getAllCustomers(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers`, {
+      headers: this.getHeader(),
+=======
   /** ---------------- Customer---------------- */
 static async getAllCustomers(): Promise<any[]> {
   const headers = this.getHeader();
@@ -463,10 +509,95 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
   return (
     await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
       headers,
+>>>>>>> origin/shinz
     })
   ).data;
 }
 
+<<<<<<< HEAD
+static async getCustomerById(id: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/${id}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async getMyCustomerProfile(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async createCustomer(data: any): Promise<any> {
+  return (
+    await axios.post(`${this.BASE_URL}/api/customers`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async updateCustomer(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/${id}`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async deleteCustomer(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/customers/${id}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async updateCustomerWithAvatar(id: number, formData: FormData): Promise<any> {
+  const headers = this.getHeader();
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
+      headers: {
+        Authorization: headers.Authorization,
+        // Không set Content-Type, axios sẽ tự động thêm cho multipart
+      },
+    })
+  ).data;
+}
+
+static async updateCustomerNoAvatar(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/update-no-avatar/${id}`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async getAllCustomersWithAvatar(): Promise<any[]> {
+  const headers = this.getHeader();
+  return (
+    await axios.get(`${this.BASE_URL}/api/customers/with-avatar`, {
+      headers: {
+        Authorization: headers.Authorization,
+      },
+    })
+  ).data;
+}
+
+
+static async updateCustomerProfile(id: number, formData: FormData, token: string): Promise<any> {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
+      headers,
+    })
+  ).data;
+=======
 //RATING API
 
 static async submitRating(star: number, doctorId: number, comment: string) {
@@ -496,15 +627,19 @@ static async countRatingsByDoctorId(doctorId: number): Promise<number> {
     headers,
   });
   return response.data;
+>>>>>>> origin/shinz
 }
 
 
 
 
 
+<<<<<<< HEAD
+=======
 
 
 
 
 
+>>>>>>> origin/shinz
 }
