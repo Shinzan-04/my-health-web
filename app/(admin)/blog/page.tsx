@@ -10,7 +10,7 @@ type BlogPost = {
   tag: string;
   createdAt: string;
   doctorId?: number;
-  doctorName?: string;
+  doctor?: { name: string };
 };
 
 export default function BlogAdminFullPage() {
@@ -197,7 +197,7 @@ export default function BlogAdminFullPage() {
                   </span>
                   <span className="flex items-center text-gray-500">
                     <span className="mr-1">👨‍⚕️</span>
-                    {blog.doctorName || "Bác sĩ ẩn danh"}
+                    {blog.doctor?.name || doctorName || "Bác sĩ ẩn danh"}
                   </span>
                 </div>
               </div>
