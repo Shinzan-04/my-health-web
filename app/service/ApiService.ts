@@ -164,13 +164,18 @@ static async createSchedule(schedule: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/reminders`, data)).data;
   }
 
-  static async updateReminderStatus(id: number, data: any): Promise<any> {
-    return (await axios.put(`${this.BASE_URL}/api/reminders/${id}/status`, data)).data;
+  static async updateReminderStatus(reminderId: number, data: any): Promise<any> {
+    return (await axios.put(`${this.BASE_URL}/api/reminders/${reminderId}/status`, data)).data;
   }
 
-  static async markReminderDone(id: number): Promise<any> {
-    return (await axios.patch(`${this.BASE_URL}/api/reminders/${id}/done`)).data;
-  }
+static async markReminderDone(reminderId: number): Promise<any> {
+  return (
+    await axios.patch(`${this.BASE_URL}/api/reminders/${reminderId}/done`, null, {
+      headers: this.getHeader(), 
+    })
+  ).data;
+}
+
 
   static async getTodayReminders(): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/reminders/today/me`, {
@@ -188,7 +193,7 @@ static async createSchedule(schedule: any): Promise<any> {
     })).data;
   }
 
- /** ---------------- MEDICAL HISTORY ---------------- */
+   /** ---------------- MEDICAL HISTORY ---------------- */
  static async getMedicalHistories(): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/medical-histories`, {
@@ -328,7 +333,7 @@ static async getAvailableDatesByDoctor(doctorId: number, date: string): Promise<
 
 
 
-  /** ---------------- BLOG ---------------- */
+   /** ---------------- BLOG ---------------- */
 static async getAllBlogs(): Promise<any> {
   return (await axios.get(`${this.BASE_URL}/api/blogposts`, {
     headers: this.getHeader(),
@@ -364,6 +369,7 @@ static async deleteBlog(id: number): Promise<any> {
     headers: this.getHeader(),
   })).data;
 }
+
 
 
   /** ---------------- APPOINTMENT ---------------- */
@@ -410,6 +416,7 @@ static async updateRegistrationStatus(id: number, status: boolean): Promise<any>
     })
   ).data;
 }
+
 
  /** ---------------- ARVRegimens ---------------- */
 static async getARVRegimens(): Promise<any[]> {
@@ -498,7 +505,8 @@ static async getARVRegimensByCustomerId(customerId: number): Promise<any[]> {
   );
   return response.data;
 }
-  /** ---------------- Customer---------------- */
+
+/** ---------------- Customer---------------- */
 static async getAllCustomers(): Promise<any[]> {
   const headers = this.getHeader();
   const response = await axios.get(`${this.BASE_URL}/api/customers`, { headers });
@@ -525,14 +533,6 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
     })
   ).data;
 }
-static async getCustomerByEmail(email: string): Promise<any> {
-  const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
-    headers,
-    params: { email },
-  });
-  return response.data;
-}
 /** ---------------- CUSTOMER PROFILE ---------------- */
 static async getCurrentCustomer(): Promise<any> {
   const headers = this.getHeader();
@@ -552,7 +552,6 @@ static async getMyARVRegimens(): Promise<any[]> {
   const response = await axios.get(`${this.BASE_URL}/api/arv-regimens/my-regimens`, { headers });
   return response.data;
 }
-
 
 //RATING API
 
@@ -585,13 +584,22 @@ static async countRatingsByDoctorId(doctorId: number): Promise<number> {
   return response.data;
 }
 
+  /** ---------------- PASSWORD RESET ---------------- */
+  static async forgotPassword(data: any): Promise<any> {
+    return (
+      await axios.post(`${this.BASE_URL}/api/forgot-pasword`, data, {
+        headers: this.getHeader(),
+      })
+    ).data;
+  }
 
-
-
-
-
-
-
+  static async resetPassword(data: any): Promise<any> {
+    return (
+      await axios.post(`${this.BASE_URL}/api/reset-password`, data, {
+        headers: this.getHeader(),
+      })
+    ).data;
+  }
 
 
 }

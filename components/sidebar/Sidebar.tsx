@@ -42,9 +42,9 @@ const menus = {
     dashboard: [
       { label: "Dashboard", href: "/admin/dashboard", icon: <FaChartLine /> },
     ],
-    profile: [
+   /* profile: [
       { label: "Chỉnh sửa hồ sơ", href: "/admin/edit", icon: <FaUserEdit /> },
-    ],
+    ],*/
     management: [
       { label: "Quản lý bác sĩ", href: "/admin/doctors", icon: <FaUserShield  /> },
       { label: "Quản lý người dùng", href: "/admin/users", icon: <FaUsers /> }, 
@@ -124,7 +124,7 @@ export default function Sidebar() {
       {isAdmin ? (
         <nav className="space-y-4 px-2 text-sm">
           <Section title="📊 Tổng quan" items={menus.ADMIN.dashboard} pathname={pathname} />
-          <Section title="👤 Hồ sơ" items={menus.ADMIN.profile} pathname={pathname} />
+          
           <Section title="🛠️ Quản lý" items={menus.ADMIN.management} pathname={pathname} />
           <Section title="💉 Dữ liệu & điều trị" items={menus.ADMIN.data} pathname={pathname} />
         </nav>
