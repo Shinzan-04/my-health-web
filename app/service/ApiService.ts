@@ -525,6 +525,14 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
     })
   ).data;
 }
+static async getCustomerByEmail(email: string): Promise<any> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
+    headers,
+    params: { email },
+  });
+  return response.data;
+}
 /** ---------------- CUSTOMER PROFILE ---------------- */
 static async getCurrentCustomer(): Promise<any> {
   const headers = this.getHeader();
