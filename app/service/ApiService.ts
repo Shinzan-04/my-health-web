@@ -85,6 +85,21 @@ static async deleteTestResult(id: number): Promise<any> {
     await axios.delete(`${this.BASE_URL}/api/test-results/${id}`, this.getAuthHeader())
   ).data;
 }
+static async getTestResultsByDoctorId(doctorId: number): Promise<any> {
+  return (
+    await axios.get(
+      `${this.BASE_URL}/api/test-results/doctor/${doctorId}`,
+      this.getAuthHeader()
+    )
+  ).data;
+}
+static async getMyTestResults(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
 
   /** ---------------- SCHEDULE ---------------- */
   static async getSchedules(): Promise<any> {
@@ -173,14 +188,21 @@ static async createSchedule(schedule: any): Promise<any> {
     })).data;
   }
 
-  /** ---------------- MEDICAL HISTORY ---------------- */
-  static async getMedicalHistories(): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/medical-histories`)).data;
-  }
-
-  static async getMedicalHistoryById(id: number): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
-  }
+ /** ---------------- MEDICAL HISTORY ---------------- */
+ static async getMedicalHistories(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+ static async getMedicalHistoryById(id: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories/${id}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
 
   static async createMedicalHistory(data: any): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/medical-histories`, data)).data;
@@ -193,6 +215,21 @@ static async createSchedule(schedule: any): Promise<any> {
   static async deleteMedicalHistory(id: number): Promise<any> {
     return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
   }
+
+  static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories/customer/${customerId}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+  static async markRegistrationCompleted(id: number): Promise<void> {
+  const headers = this.getHeader();
+  await axios.patch(`${this.BASE_URL}/api/registrations/${id}/complete`, null, {
+    headers,
+  });
+}
+
 
 /** ---------------- DOCTOR ---------------- */
 static async getAllDoctors(): Promise<any> {
@@ -374,10 +411,8 @@ static async updateRegistrationStatus(id: number, status: boolean): Promise<any>
   ).data;
 }
 
-
-  /** ---------------- ARV REGIMEN ---------------- */
-
-static async getARVRegimens(): Promise<any> {
+ /** ---------------- ARVRegimens ---------------- */
+static async getARVRegimens(): Promise<any[]> {
   const token = JSON.parse(localStorage.getItem("authData") || "{}")?.token;
   if (!token) throw new Error("Token not found");
 
@@ -385,10 +420,16 @@ static async getARVRegimens(): Promise<any> {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  return response.data;
+ const data = response.data;
+
+if (!Array.isArray(data)) {
+  console.error("❌ Dữ liệu không phải là mảng:", data);
+  throw new Error("❌ Dữ liệu không phải là mảng");
 }
 
+return data;
 
+}
 
 static async createARVRegimen(data: any): Promise<any> {
   const headers = this.getHeader();
@@ -429,16 +470,34 @@ static async deleteARVRegimen(id: number): Promise<any> {
     })
   ).data;
 }
-
-static async getCustomerByEmail(email: string): Promise<any> {
+static async createARVWithHistory(data: any): Promise<any> {
   const headers = this.getHeader();
-  const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
-    headers,
-    params: { email },
-  });
-  return response.data;
+
+  return (
+    await axios.post(`${this.BASE_URL}/api/arv-regimens/with-history`, data, {
+      headers,
+    })
+  ).data;
 }
 
+static async updateARVWithHistory(data: any): Promise<any> {
+  const headers = this.getHeader();
+  return (
+    await axios.put(`${this.BASE_URL}/api/arv-regimens/update-with-history`, data, {
+      headers,
+    })
+  ).data;
+}
+
+// Lấy danh sách phác đồ ARV theo customerId
+static async getARVRegimensByCustomerId(customerId: number): Promise<any[]> {
+  const headers = this.getHeader();
+  const response = await axios.get(
+    `${this.BASE_URL}/api/arv-regimens/customer/${customerId}`,
+    { headers }
+  );
+  return response.data;
+}
   /** ---------------- Customer---------------- */
 static async getAllCustomers(): Promise<any[]> {
   const headers = this.getHeader();
@@ -466,6 +525,26 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
     })
   ).data;
 }
+/** ---------------- CUSTOMER PROFILE ---------------- */
+static async getCurrentCustomer(): Promise<any> {
+  const headers = this.getHeader();
+  return (await axios.get(`${this.BASE_URL}/api/customers/me`, { headers })).data;
+}
+
+
+static async getTestResultsByCustomerId(customerId: number): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/test-results/customer/${customerId}`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+static async getMyARVRegimens(): Promise<any[]> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/arv-regimens/my-regimens`, { headers });
+  return response.data;
+}
+
 
 //RATING API
 

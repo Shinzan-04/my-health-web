@@ -1,94 +1,83 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
 
-export default function ARVRegimen() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+import { useEffect, useState } from "react";
+import ApiService from "@/app/service/ApiService";
+import { format } from "date-fns";
 
-  // Dữ liệu mẫu phát đồ ARV
-  const arvRegimens = [
-    {
-      id: 1,
-      startDate: "2022-01-10",
-      regimen: "TDF + 3TC + EFV",
-      status: "Đang sử dụng",
-      note: "Không tác dụng phụ"
-    },
-    {
-      id: 2,
-      startDate: "2021-05-01",
-      regimen: "AZT + 3TC + NVP",
-      status: "Đã thay đổi",
-      note: "Đổi do tác dụng phụ nhẹ"
-    }
-  ];
+type ARVRegimen = {
+  arvRegimenId: number;
+  doctorName: string;
+  customerName: string;
+  createDate: string;
+  endDate: string;
+  regimenCode: string;
+  regimenName: string;
+  medicationSchedule: string;
+  description: string;
+};
 
-  const navLinks = [
-    { label: "Trang Chủ", href: "/home" },
-    { label: "Bác Sĩ", href: "/doctor" },
-    { label: "Đặt Lịch", href: "/booking" },
-    { label: "Liên Hệ", href: "/contact" },
-  ];
-  const profileMenuItems = [
-    { id: "edit-profile", label: "Chỉnh sửa hồ sơ" },
-    { id: "lab-results", label: "Kết quả xét nghiệm" },
-    { id: "medical-history", label: "Lịch sử khám bệnh" },
-    { id: "arv", label: "ARV" },
-    { id: "reminder-system", label: "Hệ thống nhắc nhở" },
-  ];
-  function handleProfileMenuClick(id: string) {
-    switch (id) {
-      case "edit-profile":
-        window.location.href = "/userPanel/edit";
-        break;
-      case "lab-results":
-        window.location.href = "/userPanel/lab-results";
-        break;
-      case "medical-history":
-        window.location.href = "/userPanel/medical-history";
-        break;
-      case "arv":
-        window.location.href = "/userPanel/arv";
-        break;
-      case "reminder-system":
-        window.location.href = "/profile/reminders";
-        break;
-      default:
-        break;
-    }
-    setShowProfileMenu(false);
-  }
+export default function ARVPage() {
+  const [arvRegimens, setArvRegimens] = useState<ARVRegimen[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMyARV = async () => {
+      try {
+        const data = await ApiService.getMyARVRegimens();
+        setArvRegimens(data);
+      } catch (err) {
+        console.error("Lỗi khi lấy ARV:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyARV();
+  }, []);
 
   return (
-    <div className="min-h-0 bg-gray-100 flex items-start justify-center pt-10 px-2">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-5xl">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-          Phác đồ ARV
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border-separate border-spacing-0 text-base rounded-xl overflow-hidden shadow">
-            <thead>
-              <tr className="bg-blue-100 text-blue-800">
-                <th className="py-3 px-6 border-b text-lg font-semibold text-center">Ngày bắt đầu</th>
-                <th className="py-3 px-6 border-b text-lg font-semibold text-center">Phác đồ</th>
-                <th className="py-3 px-6 border-b text-lg font-semibold text-center">Trạng thái</th>
-                <th className="py-3 px-6 border-b text-lg font-semibold text-center">Ghi chú</th>
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Phác đồ ARV của bạn</h2>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300 rounded-md">
+          <thead className="bg-blue-100 text-sm text-blue-900">
+            <tr>
+              <th className="px-3 py-2 border">Bệnh nhân</th>
+              <th className="px-3 py-2 border">Bác sĩ</th>
+              <th className="px-3 py-2 border">Bắt đầu</th>
+              <th className="px-3 py-2 border">Kết thúc</th>
+              <th className="px-3 py-2 border">Mã</th>
+              <th className="px-3 py-2 border">Tên phác đồ</th>
+              <th className="px-3 py-2 border">Lịch uống</th>
+              <th className="px-3 py-2 border">Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="text-center p-4">Đang tải...</td>
               </tr>
-            </thead>
-            <tbody>
-              {arvRegimens.map((item, idx) => (
-                <tr key={item.id} className={idx % 2 === 0 ? "bg-white" : "bg-blue-50"}>
-                  <td className="py-3 px-6 border-b text-center align-middle">{item.startDate}</td>
-                  <td className="py-3 px-6 border-b text-center align-middle">{item.regimen}</td>
-                  <td className="py-3 px-6 border-b text-center align-middle">{item.status}</td>
-                  <td className="py-3 px-6 border-b text-center align-middle">{item.note}</td>
+            ) : arvRegimens.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center p-4">Không có phác đồ ARV nào.</td>
+              </tr>
+            ) : (
+              arvRegimens.map((regimen) => (
+                <tr key={regimen.arvRegimenId} className="text-sm text-gray-700">
+                  <td className="border px-3 py-2">{regimen.customerName}</td>
+                  <td className="border px-3 py-2">{regimen.doctorName}</td>
+                  <td className="border px-3 py-2">{format(new Date(regimen.createDate), "dd/MM/yyyy")}</td>
+                  <td className="border px-3 py-2">{format(new Date(regimen.endDate), "dd/MM/yyyy")}</td>
+                  <td className="border px-3 py-2">{regimen.regimenCode}</td>
+                  <td className="border px-3 py-2">{regimen.regimenName}</td>
+                  <td className="border px-3 py-2">{regimen.medicationSchedule || "-"}</td>
+                  <td className="border px-3 py-2">{regimen.description || "-"}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

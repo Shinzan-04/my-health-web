@@ -1,126 +1,153 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import ApiService from "@/app/service/ApiService";
 
-export default function MedicalHistoryDetail() {
-  const searchParams = useSearchParams();
-  const id = Number(searchParams.get("id"));
+type MedicalHistory = {
+  medicalHistoryId: number;
+  customerID: number | null;
+  customerName?: string;
+  doctorId: number;
+  doctorName: string;
+  diseaseName: string;
+  visitDate: string;
+  reason: string;
+  diagnosis: string;
+  treatment: string;
+  prescription: string;
+  notes: string;
+};
 
-  const [history, setHistory] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
+export default function MedicalHistoryTable() {
+  const [data, setData] = useState<MedicalHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<number | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("authData");
-    if (!raw) {
-      setError("Vui lòng đăng nhập lại.");
-      setLoading(false);
-      return;
-    }
-    try {
-      const authData = JSON.parse(raw);
-      const token = authData.token || authData.accessToken;
-      if (!token) throw new Error("Token không hợp lệ.");
-      // Lấy customerId bằng cách fetch /api/customers/me giống trang edit
-      fetch("http://localhost:8080/api/customers/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Không thể tải hồ sơ người dùng.");
-          return res.json();
-        })
-        .then((data) => {
-          const customerId = data.customerID;
-          // Lấy medical history theo customerId
-          return fetch(
-            `http://localhost:8080/api/medical-histories/customer/${customerId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-        })
-        .then((res) => {
-          if (!res.ok) throw new Error("Lỗi khi lấy dữ liệu lịch sử khám bệnh");
-          return res.json();
-        })
-        .then((data) => {
-          console.log("API response:", data);
-          if (Array.isArray(data)) setHistory(data);
-          else if (data && Array.isArray(data.content)) setHistory(data.content);
-          else setHistory([]);
-        })
-        .catch((err) => {
-          console.error("Error fetching medical history:", err);
-          setError(err.message || "Lỗi không xác định");
-        })
-        .finally(() => setLoading(false));
-    } catch (err) {
-      setError("Lỗi khi đọc token từ localStorage");
-      setLoading(false);
+    // Retrieve and validate authData from localStorage
+    const stored = localStorage.getItem("authData");
+    if (stored && stored.trim() !== "") {
+      try {
+        const authData = JSON.parse(stored);
+        console.log("AuthData from localStorage:", authData); // Debug log
+
+        // Try multiple paths for customerID
+        const userCustomerId =
+          authData?.customer?.customerID ||
+          authData?.account?.customerID ||
+          authData?.customerID ||
+          null;
+
+        if (!userCustomerId) {
+          // Fallback to API call if customerID not found in authData
+          ApiService.getCurrentCustomer()
+            .then((customer) => {
+              const id = customer?.customerID || null;
+              if (!id) {
+                throw new Error("Không tìm thấy customerID từ API.");
+              }
+              setCustomerId(id);
+              console.log("CustomerID from API:", id);
+            })
+            .catch((err) => {
+              console.error("Lỗi khi lấy thông tin khách hàng:", err);
+              setError("Không thể xác định khách hàng. Vui lòng đăng nhập lại.");
+            });
+        } else {
+          setCustomerId(userCustomerId);
+          console.log("CustomerID from authData:", userCustomerId);
+        }
+      } catch (err) {
+        console.warn("Lỗi phân tích authData:", err);
+        setError("Lỗi khi đọc dữ liệu đăng nhập. Vui lòng đăng nhập lại.");
+      }
+    } else {
+      console.warn("authData không tồn tại hoặc rỗng trong localStorage");
+      setError("Vui lòng đăng nhập để xem hồ sơ bệnh án.");
     }
   }, []);
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  useEffect(() => {
+    if (customerId !== null) {
+      ApiService.getMedicalHistoriesByCustomerId(customerId)
+        .then((res) => {
+          setData(res);
+          console.log("Fetched medical histories:", res);
+        })
+        .catch((err) => {
+          console.error("Lỗi khi lấy dữ liệu lịch sử khám:", err);
+          setError("Không thể tải dữ liệu hồ sơ bệnh. Vui lòng thử lại.");
+        })
+        .finally(() => setLoading(false));
+    } else if (!error) {
+      setLoading(false); // Ensure loading stops if no customerId and no error set yet
+    }
+  }, [customerId]);
 
-return (
-  <div className="min-h-0 bg-gray-100 flex items-start justify-center pt-10 px-2">
-    <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-5xl">
-      <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-        Lịch sử khám bệnh
-      </h2>
-      <div className="overflow-x-auto">
-        <table className="w-full border text-base text-gray-700">
-          <thead>
-            <tr className="bg-gray-100 text-gray-900">
-              <th className="py-3 px-6 border text-lg">Ngày khám</th>
-              <th className="py-3 px-6 border text-lg">Lý do khám</th>
-              <th className="py-3 px-6 border text-lg">Chẩn đoán</th>
-              <th className="py-3 px-6 border text-lg">Điều trị</th>
-              <th className="py-3 px-6 border text-lg">Đơn thuốc</th>
-              <th className="py-3 px-6 border text-lg">Ghi chú</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.length === 0 ? (
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat("vi-VN").format(date);
+  };
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-blue-700">Hồ sơ bệnh án</h1>
+
+      {loading ? (
+        <div className="text-gray-600">Đang tải dữ liệu...</div>
+      ) : error ? (
+        <div className="text-red-600">{error}</div>
+      ) : (
+        <div className="overflow-x-auto border rounded-xl shadow-sm bg-white">
+          <table className="min-w-[1200px] w-full text-sm text-gray-700 border border-gray-300">
+            <thead className="bg-blue-100 text-blue-800 text-sm font-semibold uppercase tracking-wide border-b border-gray-300">
               <tr>
-                <td
-                  className="py-3 px-6 border text-center text-gray-500"
-                  colSpan={6}
-                >
-                  Không có dữ liệu lịch sử khám bệnh.
-                </td>
+                <th className="border border-gray-300 px-4 py-3">ID</th>
+                <th className="border border-gray-300 px-4 py-3">Bệnh nhân</th>
+                <th className="border border-gray-300 px-4 py-3">Bác sĩ</th>
+                <th className="border border-gray-300 px-4 py-3">Tên bệnh</th>
+                <th className="border border-gray-300 px-4 py-3">Ngày khám</th>         
+                <th className="border border-gray-300 px-4 py-3">Chẩn đoán</th>
+                <th className="border border-gray-300 px-4 py-3">Đơn thuốc</th>
+                <th className="border border-gray-300 px-4 py-3">Ghi chú</th>
               </tr>
-            ) : (
-              history.map((item, idx) => (
-                <tr key={item.medicalHistoryId || idx} className="bg-white hover:bg-gray-50">
-                  <td className="py-3 px-6 border whitespace-nowrap">
-                    <span className="text-gray-700">{item.visitDate}</span>
-                  </td>
-                  <td className="py-3 px-6 border">
-                    <span className="text-gray-700">{item.reason}</span>
-                  </td>
-                  <td className="py-3 px-6 border">
-                    <span className="text-gray-700">{item.diagnosis}</span>
-                  </td>
-                  <td className="py-3 px-6 border">
-                    <span className="text-gray-700">{item.treatment}</span>
-                  </td>
-                  <td className="py-3 px-6 border">
-                    <span className="text-gray-700">{item.prescription}</span>
-                  </td>
-                  <td className="py-3 px-6 border">
-                    <span className="text-gray-700">{item.notes}</span>
+            </thead>
+            <tbody>
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="text-center py-6 text-gray-500 border">
+                    Không có dữ liệu.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                data.map((item, index) => (
+                  <tr
+                    key={item.medicalHistoryId}
+                    className={
+                      index % 2 === 0
+                        ? "bg-white hover:bg-blue-50"
+                        : "bg-gray-50 hover:bg-blue-50"
+                    }
+                  >
+                    <td className="border border-gray-300 px-4 py-2">{item.medicalHistoryId}</td>
+                    <td className="border border-gray-300 px-4 py-2">{item.customerName ?? "N/A"}</td>
+                    <td className="border border-gray-300 px-4 py-2 text-blue-700 font-medium">
+                      {item.doctorName}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">{item.diseaseName}</td>
+                    <td className="border border-gray-300 px-4 py-2">{formatDate(item.visitDate)}</td>
+                    <td className="border border-gray-300 px-4 py-2">{item.diagnosis}</td>
+                    <td className="border border-gray-300 px-4 py-2">{item.prescription}</td>
+                    <td className="border border-gray-300 px-4 py-2">{item.notes}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
-  </div>
-);
-
+  );
 }

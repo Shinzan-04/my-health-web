@@ -24,7 +24,7 @@ import {
 const menus = {
   USER: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit", icon: <FaUserEdit /> },
-    { label: "Kết quả xét nghiệm", href: "/lab-results", icon: <FaVial /> },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaVial /> },
     { label: "Lịch sử khám bệnh", href: "/medical-history", icon: <FaHistory /> },
     { label: "ARV", href: "/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Nhắc nhở", href: "/userPanel", icon: <FaBell /> },
@@ -32,7 +32,7 @@ const menus = {
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
     { label: "Bệnh nhân điều trị", href: "/admin", icon: <FaUsers /> },
-    { label: "Hồ sơ bệnh nhân", href: "/doctor/records", icon: <FaNotesMedical /> },
+    { label: "Hồ sơ bệnh nhân", href: "/profilecustomer", icon: <FaNotesMedical /> },
     { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
     { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },
@@ -53,8 +53,8 @@ const menus = {
     ],
     data: [
       { label: "Lịch sử khám", href: "/admin/medical-history", icon: <FaHistory /> },
-      { label: "Nhập kết quả xét nghiệm", href: "/admin/lab-results", icon: <FaFlask /> },
-      { label: "Tiến trình điều trị", href: "/admin/reminder-system", icon: <FaNotesMedical /> },
+      { label: "Nhập kết quả xét nghiệm", href: "/admin/testresults", icon: <FaFlask /> },
+      //{ label: "Tiến trình điều trị", href: "/admin/reminder-system", icon: <FaNotesMedical /> },
     ],
   },
 };
