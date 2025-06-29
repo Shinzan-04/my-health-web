@@ -4,7 +4,6 @@ import "../../styles/globals.css";
 
 import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
-import Sidebar from "@/components/sidebar/Sidebar";
 import { FC, ReactNode } from "react";
 
 const geistSans = Geist({
@@ -33,15 +32,9 @@ const BlogLayout: FC<BlogLayoutProps> = ({ children }) => {
       <body className="min-h-screen flex flex-col">
         <Header />
 
-        {/* Main layout container (Sidebar + Content) */}
+        {/* Main content container không có sidebar */}
         <div className="flex flex-1 pt-[64px]">
-          {/* Fixed Sidebar */}
-          <aside className="w-64 fixed top-[64px] left-0 h-[calc(100vh-64px)] bg-white border-r z-40 pt-4">
-            <Sidebar />
-          </aside>
-
-          {/* Main content */}
-          <div className="ml-64 flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col w-full">
             <main className="flex-1 p-4 pt-[64px] bg-gray-50 overflow-auto">
               {children}
             </main>
@@ -52,5 +45,6 @@ const BlogLayout: FC<BlogLayoutProps> = ({ children }) => {
     </html>
   );
 };
+
 
 export default BlogLayout;

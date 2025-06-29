@@ -17,34 +17,53 @@ export default function Header() {
   const [email, setEmail] = useState<string>("");
 
 
-  const navLinks = [
-    { label: "Trang Chủ", href: "/" },
-    { label: "Bác Sĩ", href: "/list-doctor" },
-    { label: "Liên Hệ", href: "/contact" },
-    { label: "Blog", href: "/blog" },
-  ];
+const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+
+const homeLabel =
+  userRole === "ADMIN"
+    ? "Trang Quản Trị"
+    : userRole === "DOCTOR"
+    ? "Trang Bác Sĩ"
+    : "Trang Người Dùng";
+
+const homeHref =
+  userRole === "ADMIN"
+    ? "/admin"
+    : userRole === "DOCTOR"
+    ? "/doctorPanel"
+    : "/userPanel";
+
+const navLinks = [
+  { label: "Trang Chủ", href: "/" },
+  { label: "Bác Sĩ", href: "/list-doctor" },
+  { label: "Liên Hệ", href: "/contact" },
+  { label: "Blog", href: "/blog" },
+  ...(userRole === "USER" || !isLoggedIn
+    ? [{ label: "Đặt lịch", href: "/registrations" }]
+    : []),
+  { label: homeLabel, href: homeHref },
+];
+
 
   const userMenuItems = [
-    { label: "Chỉnh sửa hồ sơ", href: "/userPanel/edit" },
-    { label: "Kết quả xét nghiệm", href: "/user-panel/lab-results" },
-    { label: "Lịch sử khám bệnh", href: "/user-panel/medical-history" },
-    { label: "ARV", href: "/user-panel/arv" },
-    { label: "Nhắc nhở", href: "/profile/reminders" },
+    { label: "Chỉnh sửa hồ sơ", href: "/edit" },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults" },
+    { label: "Lịch sử khám bệnh", href: "/medical-history" },
+    { label: "ARV", href: "/arv" },
+    { label: "Nhắc nhở", href: "/userPanel" },
   ];
 
   const adminMenuItems = [
-    { label: "Chỉnh sửa hồ sơ", href: "/admin/edit" },
-    { label: "Lịch sử khám/tư vấn", href: "/admin/medical-history" },
-    { label: "Nhập kết quả xét nghiệm", href: "/admin/lab-results" },
-    { label: "Tiến trình điều trị", href: "/admin/reminder-system" },
+    { label: "Lịch sử khám/tư vấn", href: "/admin/list-registration" },
+    { label: "Nhập kết quả xét nghiệm", href: "/admin/testresults" },
   ];
 
   const doctorMenuItems = [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile" },
-    { label: "Bệnh nhân điều trị", href: "/doctor/patients" },
-    { label: "Hồ sơ bệnh nhân", href: "/doctor/records" },
+    { label: "Bệnh nhân điều trị", href: "/admin/list-registration" },
+    { label: "Hồ sơ bệnh nhân", href: "/profilecustomer" },
     { label: "Nhắc thuốc", href: "/doctor/reminders" },
-    { label: "Phác đồ điều trị", href: "/doctor/treatment-plan" },
+    { label: "Phác đồ điều trị", href: "/admin/arv" },
     { label: "Lịch làm việc", href: "/schedule" },
   ];
 

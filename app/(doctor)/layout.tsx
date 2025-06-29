@@ -5,6 +5,8 @@ import Header from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { FC, ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +34,12 @@ const HomeLayout: FC<RootLayoutProps> = ({ children }) => {
   <body className="min-h-screen flex flex-col">
     <Header />
 
+
+
     {/* Main layout container (Sidebar + Content) */}
     <div className="flex flex-1 pt-[64px]">
+              {/* ✅ THÊM TOASTER ĐỂ HIỂN THỊ THÔNG BÁO */}
+        <Toaster position="top-center" reverseOrder={false} />
   {/* Fixed Sidebar */}
   <aside className="w-64 fixed top-[64px] left-0 h-[calc(100vh-64px)] bg-white border-r z-40 pt-4">
     <Sidebar />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ApiService from "@/app/service/ApiService";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function EditCustomerProfile() {
   const [customer, setCustomer] = useState<any>(null);
@@ -16,7 +17,7 @@ export default function EditCustomerProfile() {
   useEffect(() => {
     const raw = localStorage.getItem("authData");
     if (!raw) {
-      alert("Vui lòng đăng nhập lại.");
+      toast.error("Vui lòng đăng nhập lại.");
       router.push("/login");
       return;
     }
@@ -36,7 +37,7 @@ export default function EditCustomerProfile() {
         })
         .catch((err) => {
           console.error(err);
-          alert("Không thể tải hồ sơ khách hàng.");
+          toast.error("Không thể tải hồ sơ khách hàng.");
           router.push("/login");
         });
     } catch (err) {
@@ -54,24 +55,20 @@ export default function EditCustomerProfile() {
   const validateCustomerForm = (customer: any) => {
     const errors: any = {};
 
-    // Họ tên: bắt buộc, tối thiểu 2 ký tự
     if (!customer.fullName || customer.fullName.trim().length < 2) {
       errors.fullName = "Vui lòng nhập họ tên hợp lệ";
     }
 
-    // Số điện thoại: bắt buộc, chỉ gồm 9-11 chữ số
     if (!customer.phone) {
       errors.phone = "Vui lòng nhập số điện thoại";
     } else if (!/^[0-9]{9,11}$/.test(customer.phone)) {
       errors.phone = "Số điện thoại không hợp lệ. Chỉ gồm 9-11 chữ số.";
     }
 
-    // Địa chỉ: bắt buộc
     if (!customer.address || customer.address.trim().length < 2) {
       errors.address = "Vui lòng nhập địa chỉ";
     }
 
-    // Ngày sinh: bắt buộc, phải đủ 16 tuổi trở lên
     const dob = customer.dob || customer.dateOfBirth;
     if (!dob) {
       errors.dob = "Vui lòng nhập ngày sinh";
@@ -88,12 +85,10 @@ export default function EditCustomerProfile() {
       }
     }
 
-    // Giới tính: bắt buộc
     if (!customer.gender) {
       errors.gender = "Vui lòng chọn giới tính";
     }
 
-    // Email: không bắt buộc, nhưng nếu nhập thì phải đúng định dạng
     if (customer.email && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(customer.email)) {
       errors.email = "Email không hợp lệ";
     }
@@ -108,7 +103,7 @@ export default function EditCustomerProfile() {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
-      alert("Vui lòng sửa các lỗi trong biểu mẫu trước khi tiếp tục.");
+      toast.error("Vui lòng sửa các lỗi trong biểu mẫu trước khi tiếp tục.");
       return;
     }
 
@@ -125,113 +120,117 @@ export default function EditCustomerProfile() {
 
       await ApiService.updateCustomerProfile(customerId, formData, token);
 
-      alert("Cập nhật thành công!");
+      toast.success("Cập nhật thành công!");
       router.push("/edit");
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi cập nhật.");
+      toast.error("Lỗi khi cập nhật.");
     }
   };
 
   if (loading || !customer) return <div className="mt-32 text-center text-gray-700">Đang tải hồ sơ...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">Chỉnh sửa hồ sơ cá nhân</h2>
-        {customer.avatarUrl && (
-          <div className="flex justify-center mb-6">
-            <img
-              src={`http://localhost:8080${customer.avatarUrl}`}
-              alt="Avatar bác sĩ"
-              className="w-32 h-32 rounded-full object-cover border border-gray-300"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/avatar-default.png";
-              }}
-            />
-          </div>
-        )}
+    <>
+      <Toaster position="top-right" />
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+        <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+          <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">Chỉnh sửa hồ sơ cá nhân</h2>
+          {customer.avatarUrl && (
+            <div className="flex justify-center mb-6">
+              <img
+                src={`http://localhost:8080${customer.avatarUrl}`}
+                alt="Avatar bác sĩ"
+                className="w-32 h-32 rounded-full object-cover border border-gray-300"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/avatar-default.png";
+                }}
+              />
+            </div>
+          )}
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Họ tên:</label>
-            <input
-              name="fullName"
-              value={customer.fullName ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
-          </div>
+          <div className="space-y-4">
+            {/* Fullname */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Họ tên:</label>
+              <input
+                name="fullName"
+                value={customer.fullName ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Địa chỉ:</label>
-            <input
-              name="address"
-              value={customer.address ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-          </div>
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Địa chỉ:</label>
+              <input
+                name="address"
+                value={customer.address ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Số điện thoại:</label>
-            <input
-              name="phone"
-              value={customer.phone ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-          </div>
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Số điện thoại:</label>
+              <input
+                name="phone"
+                value={customer.phone ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+            </div>
 
+            {/* Date of birth */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Ngày sinh:</label>
+              <input
+                name="dateOfBirth"
+                type="date"
+                value={customer.dateOfBirth ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob}</p>}
+            </div>
 
+            {/* Gender */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Giới tính:</label>
+              <select
+                name="gender"
+                value={customer.gender ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Chọn giới tính</option>
+                <option value="MALE">Nam</option>
+                <option value="FEMALE">Nữ</option>
+              </select>
+              {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
+            </div>
 
-          
+            {/* Avatar upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Tải ảnh đại diện:</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setAvatarFile(file);
+                }}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Ngày sinh:</label>
-            <input
-              name="dateOfBirth"
-              type="date"
-              value={customer.dateOfBirth ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Giới tính:</label>
-            <select
-              name="gender"
-              value={customer.gender ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Chọn giới tính</option>
-              <option value="MALE">Nam</option>
-              <option value="FEMALE">Nữ</option>
-          
-            </select>
-            {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Tải ảnh đại diện:</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setAvatarFile(file);
-              }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
-            />
-          </div>
-
+            {/* Email (readonly) */}
             <div>
               <label className="block text-sm font-medium text-gray-800 mb-1">Email</label>
               <input
@@ -244,15 +243,16 @@ export default function EditCustomerProfile() {
                 placeholder="Email"
               />
             </div>
-        </div>
+          </div>
 
-        <button
-          onClick={handleSubmit}
-          className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          Lưu thay đổi
-        </button>
+          <button
+            onClick={handleSubmit}
+            className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Lưu thay đổi
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

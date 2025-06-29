@@ -5,7 +5,6 @@ export default function MedicalHistory() {
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  // Dữ liệu xét nghiệm mới
   const labTests = [
     {
       testType: "Huyết đồ",
@@ -36,52 +35,16 @@ export default function MedicalHistory() {
     }
   ];
 
-  const navLinks = [
-    { label: "Trang Chủ", href: "/home" },
-    { label: "Bác Sĩ", href: "/doctor" },
-    { label: "Đặt Lịch", href: "/booking" },
-    { label: "Liên Hệ", href: "/contact" },
-  ];
-  const profileMenuItems = [
-    { id: "edit-profile", label: "Chỉnh sửa hồ sơ" },
-    { id: "lab-results", label: "Kết quả xét nghiệm" },
-    { id: "medical-history", label: "Lịch sử khám bệnh" },
-    { id: "arv", label: "ARV" },
-    { id: "reminder-system", label: "Hệ thống nhắc nhở" },
-  ];
-  function handleProfileMenuClick(id: string) {
-    switch (id) {
-      case "edit-profile":
-        window.location.href = "/userPanel/edit";
-        break;
-      case "lab-results":
-        window.location.href = "/userPanel/lab-results";
-        break;
-      case "medical-history":
-        window.location.href = "/userPanel/medical-history";
-        break;
-      case "arv":
-        window.location.href = "/userPanel/arv";
-        break;
-      case "reminder-system":
-        window.location.href = "/profile/reminders";
-        break;
-      default:
-        break;
-    }
-    setShowProfileMenu(false);
-  }
-
   return (
     <div className="min-h-0 bg-gray-100 flex items-start justify-center pt-10 px-2">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-5xl">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-5xl ">
         <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
           Kết quả xét nghiệm
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full border text-base">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-gray-200 text-gray-700">
                 <th className="py-3 px-6 border text-lg">Loại xét nghiệm</th>
                 <th className="py-3 px-6 border text-lg">Ngày xét nghiệm</th>
                 <th className="py-3 px-6 border text-lg">Kết quả</th>
@@ -93,12 +56,21 @@ export default function MedicalHistory() {
             </thead>
             <tbody>
               {labTests.map((item, idx) => (
-                <tr key={idx} className={item.status === 'abnormal' ? 'bg-red-50' : 'bg-white'}>
+                <tr
+                  key={idx}
+                  className={item.status === "abnormal" ? "bg-red-50" : "bg-white"}
+                >
                   <td className="py-3 px-6 border text-base">{item.testType}</td>
                   <td className="py-3 px-6 border text-base">{item.testDate}</td>
                   <td className="py-3 px-6 border text-base">{item.result}</td>
                   <td className="py-3 px-6 border text-base">{item.referenceRange}</td>
-                  <td className={`py-3 px-6 border text-base font-semibold ${item.status === 'abnormal' ? 'text-red-600' : 'text-green-600'}`}>{item.status === 'abnormal' ? 'Bất thường' : 'Bình thường'}</td>
+                  <td
+                    className={`py-3 px-6 border text-base font-semibold ${
+                      item.status === "abnormal" ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
+                    {item.status === "abnormal" ? "Bất thường" : "Bình thường"}
+                  </td>
                   <td className="py-3 px-6 border text-base">{item.technician}</td>
                   <td className="py-3 px-6 border text-base">{item.notes}</td>
                 </tr>

@@ -304,7 +304,7 @@ export default function TestResultPage() {
 
       <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200 mt-4">
         <table className="min-w-full text-sm text-gray-800 table-fixed border-collapse">
-          <thead className="bg-blue-100 text-blue-800 uppercase text-sm font-semibold border-b border-gray-300">
+          <thead className="bg-gray-200 text-gray-700 uppercase text-sm font-semibold border-b border-gray-300">
             <tr>
               <th className="border px-4 py-2">Email bệnh nhân</th>
               <th className="border px-4 py-2">Tên bệnh nhân</th>

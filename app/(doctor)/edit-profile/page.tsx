@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ApiService from "@/app/service/ApiService";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function EditDoctorProfile() {
   const [doctor, setDoctor] = useState<any>(null);
@@ -10,12 +11,13 @@ export default function EditDoctorProfile() {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [doctorId, setDoctorId] = useState<number | null>(null);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
 
   useEffect(() => {
     const raw = localStorage.getItem("authData");
     if (!raw) {
-      alert("Vui lòng đăng nhập lại.");
+      toast.error("Vui lòng đăng nhập lại.");
       router.push("/login");
       return;
     }
@@ -35,7 +37,7 @@ export default function EditDoctorProfile() {
         })
         .catch((err) => {
           console.error(err);
-          alert("Không thể tải hồ sơ bác sĩ.");
+          toast.error("Không thể tải hồ sơ bác sĩ.");
           router.push("/login");
         });
     } catch (err) {
@@ -49,11 +51,43 @@ export default function EditDoctorProfile() {
   ) => {
     if (doctor) {
       setDoctor({ ...doctor, [e.target.name]: e.target.value });
+      setErrors((prev) => ({ ...prev, [e.target.name]: "" })); // Xoá lỗi khi người dùng sửa
     }
+  };
+
+  // Validation form
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!doctor.fullName || doctor.fullName.trim().length < 2) {
+      newErrors.fullName = "Họ tên phải có ít nhất 2 ký tự";
+    }
+
+    if (doctor.phone && !/^\d{9,11}$/.test(doctor.phone)) {
+      newErrors.phone = "Số điện thoại phải gồm 9-11 chữ số";
+    }
+
+    if (doctor.workExperienceYears !== undefined) {
+      const years = Number(doctor.workExperienceYears);
+      if (isNaN(years) || years < 0) {
+        newErrors.workExperienceYears = "Số năm kinh nghiệm phải là số dương";
+      }
+    }
+
+    // Có thể thêm validate các trường khác nếu cần
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!doctor || !doctorId || !token) return;
+
+    if (!validate()) {
+      toast.error("Vui lòng sửa lỗi trong biểu mẫu trước khi lưu");
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -68,12 +102,13 @@ export default function EditDoctorProfile() {
 
       await ApiService.updateDoctorWithAvatar(doctorId, formData, token);
 
-      alert("Cập nhật thành công!");
+      toast.success("Cập nhật thành công!");
       router.push("/doctorPanel");
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi cập nhật.");
+      toast.error("Lỗi khi cập nhật.");
     }
+    window.location.reload();
   };
 
   if (loading || !doctor)
@@ -82,110 +117,141 @@ export default function EditDoctorProfile() {
     );
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-          Chỉnh sửa hồ sơ bác sĩ
-        </h2>
-        {doctor.avatarUrl && (
-          <div className="flex justify-center mb-6">
-            <img
-              src={`http://localhost:8080${doctor.avatarUrl}`}
-              alt="Avatar bác sĩ"
-              className="w-32 h-32 rounded-full object-cover border border-gray-300"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/avatar-default.png";
-              }}
-            />
-          </div>
-        )}
+    <>
+      <Toaster position="top-right" />
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+        <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+          <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
+            Chỉnh sửa hồ sơ bác sĩ
+          </h2>
+          {doctor.avatarUrl && (
+            <div className="flex justify-center mb-6">
+              <img
+                src={`http://localhost:8080${doctor.avatarUrl}`}
+                alt="Avatar bác sĩ"
+                className="w-32 h-32 rounded-full object-cover border border-gray-300"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/avatar-default.png";
+                }}
+              />
+            </div>
+          )}
 
-        <div className="space-y-4">
-          <div>
+          <div className="mb-6">
             <label className="block text-sm font-medium text-gray-800 mb-1">
-              Họ tên:
+              Email:
             </label>
             <input
-              name="fullName"
-              value={doctor.fullName ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="email"
+              value={doctor.email ?? ""}
+              readOnly
+              disabled
+              className="w-full border border-gray-400 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Chuyên khoa:
-            </label>
-            <input
-              name="specialization"
-              value={doctor.specialization ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Họ tên:
+              </label>
+              <input
+                name="fullName"
+                value={doctor.fullName ?? ""}
+                onChange={handleChange}
+                className={`w-full border px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.fullName ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.fullName && (
+                <p className="text-red-600 text-sm mt-1">{errors.fullName}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Chuyên khoa:
+              </label>
+              <input
+                name="specialization"
+                value={doctor.specialization ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Số điện thoại:
+              </label>
+              <input
+                name="phone"
+                value={doctor.phone ?? ""}
+                onChange={handleChange}
+                className={`w-full border px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.phone && (
+                <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Mô tả:
+              </label>
+              <textarea
+                name="description"
+                value={doctor.description ?? ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Số năm kinh nghiệm:
+              </label>
+              <input
+                name="workExperienceYears"
+                type="number"
+                value={doctor.workExperienceYears ?? 0}
+                onChange={handleChange}
+                className={`w-full border px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.workExperienceYears ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.workExperienceYears && (
+                <p className="text-red-600 text-sm mt-1">{errors.workExperienceYears}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Tải ảnh đại diện:
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setAvatarFile(file);
+                }}
+                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Số điện thoại:
-            </label>
-            <input
-              name="phone"
-              value={doctor.phone ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Mô tả:
-            </label>
-            <textarea
-              name="description"
-              value={doctor.description ?? ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Số năm kinh nghiệm:
-            </label>
-            <input
-              name="workExperienceYears"
-              type="number"
-              value={doctor.workExperienceYears ?? 0}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-800 mb-1">
-              Tải ảnh đại diện:
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setAvatarFile(file);
-              }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
-            />
-          </div>
+          <button
+            onClick={handleSubmit}
+            className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Lưu thay đổi
+          </button>
         </div>
-
-        <button
-          onClick={handleSubmit}
-          className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          Lưu thay đổi
-        </button>
       </div>
-    </div>
+    </>
   );
 }

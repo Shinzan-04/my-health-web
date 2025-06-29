@@ -288,7 +288,7 @@ export default function ARVRegimenPage() {
         Quản lý phác đồ ARV
       </h1>
 
-      {role === "DOCTOR" && (
+      {(role === "DOCTOR" || role == "ADMIN") && (
         <div className="mb-6 text-right">
           <button
             onClick={handleAddNew}
@@ -607,7 +607,7 @@ export default function ARVRegimenPage() {
   {arv.description}
 </td>
 
-                  {role === "DOCTOR" && (
+                  {(role === "DOCTOR"|| role === "ADMIN") && (
                     <td className="border border-gray-300 px-4 py-2 text-center space-x-2">
                       <button
                         className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-sm font-medium shadow-sm transition"
