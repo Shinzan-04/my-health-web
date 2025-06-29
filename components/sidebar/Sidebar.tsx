@@ -19,6 +19,7 @@ import {
   FaVial,
   FaChartLine,
   FaClipboardList ,
+  
 } from "react-icons/fa";
 
 const menus = {
@@ -31,12 +32,12 @@ const menus = {
   ],
   DOCTOR: [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
-    { label: "Bệnh nhân điều trị", href: "/admin", icon: <FaUsers /> },
+    { label: "Bệnh nhân điều trị", href: "/admin/list-registration", icon: <FaUsers /> },
     { label: "Hồ sơ bệnh nhân", href: "/profilecustomer", icon: <FaNotesMedical /> },
-    { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
+    //{ label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
     { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },
-    { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaCalendar /> },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaVial /> },
   ],
   ADMIN: {
     dashboard: [
@@ -52,7 +53,7 @@ const menus = {
       { label: "Lịch đăng ký khám", href: "/admin/list-registration", icon: <FaClipboardList /> },
     ],
     data: [
-      { label: "Lịch sử khám", href: "/admin/medical-history", icon: <FaHistory /> },
+      { label: "Lịch sử khám", href: "/admin/medicalhistory", icon: <FaHistory /> },
       { label: "Nhập kết quả xét nghiệm", href: "/admin/testresults", icon: <FaFlask /> },
       //{ label: "Tiến trình điều trị", href: "/admin/reminder-system", icon: <FaNotesMedical /> },
     ],

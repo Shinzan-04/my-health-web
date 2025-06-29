@@ -214,12 +214,20 @@ static async markReminderDone(reminderId: number): Promise<any> {
   }
 
   static async updateMedicalHistory(id: number, data: any): Promise<any> {
-    return (await axios.put(`${this.BASE_URL}/api/medical-histories/${id}`, data)).data;
-  }
+  return axios.put(`${this.BASE_URL}/api/medical-histories/${id}`, data, {
+    headers: this.getHeader(),
+  }).then(res => res.data);
+}
 
-  static async deleteMedicalHistory(id: number): Promise<any> {
-    return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
-  }
+
+ static async deleteMedicalHistory(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`, {
+      headers: this.getHeader(), // 👈 thêm dòng này để đính kèm token
+    })
+  ).data;
+}
+
 
   static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any> {
   return (
@@ -530,6 +538,30 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
   return (
     await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
       headers,
+    })
+  ).data;
+}
+static async getCustomerByEmail(email: string): Promise<any> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
+    headers,
+    params: { email },
+  });
+  return response.data;
+}
+
+static async updateCustomerNoAvatar(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/update-no-avatar/${id}`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async deleteCustomer(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/customers/${id}`, {
+      headers: this.getHeader(),
     })
   ).data;
 }

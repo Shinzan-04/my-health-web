@@ -5,6 +5,7 @@ import ApiService from "@/app/service/ApiService";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import toast from "react-hot-toast";
 
 type TestResult = {
   testResultId?: number;
@@ -102,27 +103,46 @@ export default function TestResultPage() {
   };
 
   const handleCreateOrUpdate = async () => {
-    try {
-      const authData = JSON.parse(localStorage.getItem("authData") || "{}");
-      const doctorId = authData?.doctor?.doctorId;
+  try {
+    const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+    const doctorId = authData?.doctor?.doctorId;
 
-      const dto: TestResult = {
-        ...formData,
-        doctorId: editingId ? formData.doctorId : (role === "DOCTOR" ? doctorId : undefined),
-      };
+    const dto: TestResult = {
+      ...formData,
+      doctorId: editingId ? formData.doctorId : (role === "DOCTOR" ? doctorId : undefined),
+    };
 
-      if (editingId) {
-        await ApiService.updateTestResult(editingId, dto);
-      } else {
-        await ApiService.createTestResult(dto);
-      }
-
-      await fetchTestResults();
-      resetForm();
-    } catch (error) {
-      console.error("Lỗi khi lưu kết quả xét nghiệm:", error);
+    if (editingId) {
+      await ApiService.updateTestResult(editingId, dto);
+    } else {
+      await ApiService.createTestResult(dto);
     }
-  };
+
+    await fetchTestResults();
+    resetForm();
+
+    toast.success(editingId ? "✅ Cập nhật kết quả thành công!" : "🎉 Thêm mới kết quả thành công!", {
+      icon: editingId ? "✅" : "🎉",
+      style: {
+        borderRadius: "8px",
+        background: editingId ? "#f0fdf4" : "#e0f2fe",
+        color: editingId ? "#065f46" : "#1e3a8a",
+      },
+    });
+
+  } catch (error) {
+    console.error("Lỗi khi lưu kết quả xét nghiệm:", error);
+    toast.error("❌ Lỗi khi lưu kết quả xét nghiệm!", {
+      icon: "❌",
+      style: {
+        borderRadius: "8px",
+        background: "#fee2e2",
+        color: "#991b1b",
+      },
+    });
+  }
+};
+
 
   const handleEdit = (testResult: TestResult) => {
     setFormData({ ...testResult });
@@ -131,16 +151,35 @@ export default function TestResultPage() {
   };
 
   const handleDelete = async (id?: number) => {
-    if (!id) return;
-    if (!confirm("Bạn có chắc muốn xóa kết quả này không?")) return;
+  if (!id) return;
+  if (!confirm("Bạn có chắc muốn xóa kết quả này không?")) return;
 
-    try {
-      await ApiService.deleteTestResult(id);
-      await fetchTestResults();
-    } catch (error) {
-      console.error("Lỗi khi xóa kết quả xét nghiệm:", error);
-    }
-  };
+  try {
+    await ApiService.deleteTestResult(id);
+    await fetchTestResults();
+
+    toast.success("🗑️ Xóa kết quả thành công!", {
+      icon: "🗑️",
+      style: {
+        borderRadius: "8px",
+        background: "#fef9c3",
+        color: "#92400e",
+      },
+    });
+
+  } catch (error) {
+    console.error("Lỗi khi xóa kết quả xét nghiệm:", error);
+    toast.error("❌ Không thể xóa kết quả!", {
+      icon: "❌",
+      style: {
+        borderRadius: "8px",
+        background: "#fee2e2",
+        color: "#991b1b",
+      },
+    });
+  }
+};
+
 
   const exportSingleToExcel = (tr: TestResult) => {
     const row = [{
@@ -167,20 +206,28 @@ export default function TestResultPage() {
     <div className="p-4 relative">
       <h1 className="text-2xl font-bold mb-6 text-gray-900">Kết quả xét nghiệm</h1>
 
-      {(role === "DOCTOR" || role === "ADMIN") && !showForm && (
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Thêm
-          </button>
-        </div>
-      )}
+      {(role === "DOCTOR" || role === "ADMIN") && (
+  <div className="flex justify-end mb-4">
+    <button
+      onClick={() => setShowForm(true)}
+      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 z-50 relative"
+    >
+      Thêm
+    </button>
+  </div>
+)}
+
 
       {showForm && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center">
-    <div className="bg-white w-full max-w-3xl p-8 rounded-lg shadow-2xl border border-gray-300 relative">
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+    onClick={resetForm} // 👉 click ngoài sẽ đóng form
+  >
+    <div
+      className="bg-white w-full max-w-3xl p-8 rounded-lg shadow-2xl border border-gray-300 relative"
+      onClick={(e) => e.stopPropagation()} // 👉 ngăn click trong form bị lan ra ngoài
+    >
+
       {/* Nút đóng */}
       <button
         onClick={resetForm}
@@ -290,7 +337,10 @@ export default function TestResultPage() {
                     {format(new Date(tr.date), "dd/MM/yyyy")}
                   </td>
                   <td className="border px-4 py-2">{tr.typeOfTest}</td>
-                  <td className="border px-4 py-2">{tr.resultDescription}</td>
+               <td className="border px-4 py-2 max-w-[200px] break-words whitespace-normal overflow-hidden">
+  {tr.resultDescription}
+</td>
+
                   {(role === "DOCTOR" || role === "ADMIN") && (
                     <td className="border px-4 py-2 text-center space-x-1">
                       <button
