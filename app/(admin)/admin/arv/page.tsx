@@ -288,7 +288,7 @@ export default function ARVRegimenPage() {
         Quản lý phác đồ ARV
       </h1>
 
-      {role === "DOCTOR" && (
+      {(role === "DOCTOR" || role == "ADMIN") && (
         <div className="mb-6 text-right">
           <button
             onClick={handleAddNew}
@@ -300,8 +300,15 @@ export default function ARVRegimenPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+    onClick={resetForm}
+  >
+    <div
+      className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full overflow-visible"
+      onClick={(e) => e.stopPropagation()} // Ngăn click trong form đóng modal
+    >
+
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
                 {editingId ? "Cập nhật Phác đồ ARV" : "Thêm Phác đồ ARV Mới"}
@@ -596,8 +603,11 @@ export default function ARVRegimenPage() {
                   <td className="border border-gray-300 px-4 py-2 text-center">{arv.regimenCode}</td>
                   <td className="border border-gray-300 px-4 py-2">{arv.regimenName}</td>
                   <td className="border border-gray-300 px-4 py-2">{arv.medicationSchedule}</td>
-                  <td className="border border-gray-300 px-4 py-2">{arv.description}</td>
-                  {role === "DOCTOR" && (
+                  <td className="border border-gray-300 px-4 py-2 max-w-[200px] break-all whitespace-normal overflow-hidden text-ellipsis">
+  {arv.description}
+</td>
+
+                  {(role === "DOCTOR"|| role === "ADMIN") && (
                     <td className="border border-gray-300 px-4 py-2 text-center space-x-2">
                       <button
                         className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-sm font-medium shadow-sm transition"
@@ -615,7 +625,7 @@ export default function ARVRegimenPage() {
                         onClick={() => exportSingleToExcel(arv)}
                         className="bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded text-sm font-medium shadow-sm transition"
                       >
-                        Xuất
+                        Excel
                       </button>
                     </td>
                   )}

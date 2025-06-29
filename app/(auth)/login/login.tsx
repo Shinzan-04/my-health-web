@@ -60,9 +60,6 @@ export default function LoginPage() {
         case "DOCTOR":
           window.location.href = "/doctorPanel";
           break;
-        case "STAFF":
-          window.location.href = "/staff/dashboard";
-          break;
         case "ADMIN":
           window.location.href = "/admin";
           break;

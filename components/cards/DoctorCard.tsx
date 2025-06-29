@@ -24,9 +24,10 @@ interface Doctor {
 }
 
 const DoctorCard = ({ doctor }: { doctor: Doctor }) => {
-  const avatarSrc = doctor.avatarUrl
-    ? `http://localhost:8080${doctor.avatarUrl}`
-    : "/images/doctor-placeholder.jpg";
+const avatarSrc = doctor.avatarUrl && doctor.avatarUrl !== "null"
+  ? `http://localhost:8080${doctor.avatarUrl}`
+  : "/images/doctor-placeholder.jpg";
+
 
   return (
 <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[520px]">

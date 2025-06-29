@@ -98,7 +98,11 @@ export default function CustomerManagementPage() {
                 <td className="border border-gray-400 px-4 py-2">{customer.email}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.phone}</td>
                 <td className="border border-gray-400 px-4 py-2">
-                  {customer.gender === "MALE" || customer.gender === "Nam" ? "Nam" : "Nữ"}
+                {customer.gender === "MALE"
+                ? "Nam"
+                : customer.gender === "FEMALE"
+                ? "Nữ"
+                : "Khác"}
                 </td>
                 <td className="border border-gray-400 px-4 py-2">{customer.dateOfBirth}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.address}</td>

@@ -100,20 +100,20 @@ export default function MedicalHistoryTable() {
       ) : error ? (
         <div className="text-red-600">{error}</div>
       ) : (
-        <div className="overflow-x-auto border rounded-xl shadow-sm bg-white">
-          <table className="min-w-[1200px] w-full text-sm text-gray-700 border border-gray-300">
-            <thead className="bg-blue-100 text-blue-800 text-sm font-semibold uppercase tracking-wide border-b border-gray-300">
-              <tr>
-                <th className="border border-gray-300 px-4 py-3">ID</th>
-                <th className="border border-gray-300 px-4 py-3">Bệnh nhân</th>
-                <th className="border border-gray-300 px-4 py-3">Bác sĩ</th>
-                <th className="border border-gray-300 px-4 py-3">Tên bệnh</th>
-                <th className="border border-gray-300 px-4 py-3">Ngày khám</th>         
-                <th className="border border-gray-300 px-4 py-3">Chẩn đoán</th>
-                <th className="border border-gray-300 px-4 py-3">Đơn thuốc</th>
-                <th className="border border-gray-300 px-4 py-3">Ghi chú</th>
-              </tr>
-            </thead>
+        <div className="overflow-x-auto rounded border border-gray-400 shadow-sm bg-white">
+    <table className="min-w-full text-sm text-gray-900">
+      <thead className="bg-gray-200 text-gray-700">
+        <tr>
+          <th className="border border-gray-400 px-4 py-2 text-left">ID</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Bệnh nhân</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Bác sĩ</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Tên bệnh</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Ngày khám</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Chẩn đoán</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Đơn thuốc</th>
+          <th className="border border-gray-400 px-4 py-2 text-left">Ghi chú</th>
+        </tr>
+      </thead>
             <tbody>
               {data.length === 0 ? (
                 <tr>

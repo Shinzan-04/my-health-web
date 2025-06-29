@@ -106,8 +106,8 @@ static async getMyTestResults(): Promise<any> {
     return (await axios.get(`${this.BASE_URL}/api/schedules`)).data;
   }
 
-  static async getScheduleById(id: number): Promise<any> {
-    return (await axios.get(`${this.BASE_URL}/api/schedules/${id}`)).data;
+  static async getScheduleById(scheduleId: number): Promise<any> {
+    return (await axios.get(`${this.BASE_URL}/api/schedules/${scheduleId}`)).data;
   }
 
   static async getSchedulesByDoctor(doctorId: number): Promise<any> {
@@ -144,13 +144,41 @@ static async createSchedule(schedule: any): Promise<any> {
 
 
 
-  static async updateSchedule(id: number, data: any): Promise<any> {
-    return (await axios.put(`${this.BASE_URL}/api/schedules/${id}`, data)).data;
+static async updateSchedule(scheduleId: number, data: any): Promise<any> {
+  const authData = localStorage.getItem("authData");
+  const token = authData ? JSON.parse(authData).token : null;
+
+  if (!token) {
+    throw new Error("Missing token");
   }
 
-  static async deleteSchedule(id: number): Promise<any> {
-    return (await axios.delete(`${this.BASE_URL}/api/schedules/${id}`)).data;
+  return (
+    await axios.put(`${this.BASE_URL}/api/schedules/${scheduleId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  ).data;
+}
+
+
+static async deleteSchedule(scheduleId: number): Promise<any> {
+  const authData = localStorage.getItem("authData");
+  const token = authData ? JSON.parse(authData).token : null;
+
+  if (!token) {
+    throw new Error("Missing token");
   }
+
+  return (
+    await axios.delete(`${this.BASE_URL}/api/schedules/${scheduleId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  ).data;
+}
+
 
   static async getScheduleByDoctorId(doctorId: number): Promise<any> {
     const res = await axios.get(`${this.BASE_URL}/api/schedules/doctor/${doctorId}`, {
@@ -213,13 +241,21 @@ static async markReminderDone(reminderId: number): Promise<any> {
     return (await axios.post(`${this.BASE_URL}/api/medical-histories`, data)).data;
   }
 
-  static async updateMedicalHistory(id: number, data: any): Promise<any> {
-    return (await axios.put(`${this.BASE_URL}/api/medical-histories/${id}`, data)).data;
-  }
+static async updateMedicalHistory(id: number, data: any): Promise<any> {
+  return axios.put(`${this.BASE_URL}/api/medical-histories/${id}`, data, {
+    headers: this.getHeader(),
+  }).then(res => res.data);
+}
 
-  static async deleteMedicalHistory(id: number): Promise<any> {
-    return (await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`)).data;
-  }
+
+ static async deleteMedicalHistory(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/medical-histories/${id}`, {
+      headers: this.getHeader(), // 👈 thêm dòng này để đính kèm token
+    })
+  ).data;
+}
+  
 
   static async getMedicalHistoriesByCustomerId(customerId: number): Promise<any> {
   return (
@@ -305,16 +341,33 @@ static async updateDoctorNoAvatar(id: number, data: any): Promise<any> {
   ).data;
 }
 static async getAllDoctorsWithAvatar(): Promise<Doctor[]> {
-  const headers = this.getHeader(); // <== phải có Authorization
-  
-  return (
-    await axios.get(`${this.BASE_URL}/api/doctors/with-avatar`, {
-      headers: {
-        Authorization: headers.Authorization, // Bearer token
-      },
-    })
-  ).data;
+  const headers = this.getHeader();
+
+  try {
+    const response = await axios.get(`${this.BASE_URL}/api/doctors/with-avatar`, {
+      headers: headers.Authorization
+        ? { Authorization: headers.Authorization }
+        : {}, // Cho phép không truyền header nếu không có token
+    });
+
+    const data = response.data;
+
+    // Đảm bảo trả về mảng
+    if (Array.isArray(data)) return data;
+
+    console.warn("Dữ liệu không phải mảng:", data);
+    return [];
+
+  } catch (err) {
+    console.error("Lỗi API:", err);
+    return [];
+  }
 }
+
+
+
+
+
 static async getSlotsByDoctorAndDate(doctorId: number, date: string): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/slots/available-slots`, {
@@ -530,6 +583,30 @@ static async updateCustomerProfile(id: number, formData: FormData, token: string
   return (
     await axios.put(`${this.BASE_URL}/api/customers/${id}`, formData, {
       headers,
+    })
+  ).data;
+}
+static async getCustomerByEmail(email: string): Promise<any> {
+  const headers = this.getHeader();
+  const response = await axios.get(`${this.BASE_URL}/api/customers/by-email`, {
+    headers,
+    params: { email },
+  });
+  return response.data;
+}
+
+static async updateCustomerNoAvatar(id: number, data: any): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/customers/update-no-avatar/${id}`, data, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+static async deleteCustomer(id: number): Promise<any> {
+  return (
+    await axios.delete(`${this.BASE_URL}/api/customers/${id}`, {
+      headers: this.getHeader(),
     })
   ).data;
 }
