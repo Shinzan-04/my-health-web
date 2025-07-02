@@ -1,10 +1,14 @@
-// components/cards/DoctorCardList.tsx
 "use client";
 
-import { FC, useEffect, useState } from "react";
 import Link from "next/link";
-import ApiService from "@/app/service/ApiService";
-import StarRating from "./StarRating"; // Import the StarRating component
+import StarRating from "./StarRating";
+
+interface Rating {
+  ratingId: number;
+  rating: number;
+  comment: string;
+  createAt: string;
+}
 
 interface Doctor {
   doctorId: number;
@@ -15,81 +19,50 @@ interface Doctor {
   description: string | null;
   workExperienceYears: number;
   avatarUrl?: string;
-  rating: number; // Add rating property
+  averageRating: number;
+  ratings: Rating[]; // Thêm dòng này
 }
 
-const DoctorCardList: FC = () => {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+const DoctorCard = ({ doctor }: { doctor: Doctor }) => {
+const avatarSrc = doctor.avatarUrl && doctor.avatarUrl !== "null"
+  ? `http://localhost:8080${doctor.avatarUrl}`
+  : "/images/doctor-placeholder.jpg";
 
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const data = await ApiService.getAllDoctorsWithAvatar();
-        setDoctors(data);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách bác sĩ:", error);
-      }
-    };
-
-    fetchDoctors();
-  }, []);
-
-  const handleRatingSubmit = (doctorId: number, rating: number, comment: string) => {
-    // Handle the rating submission logic here
-    console.log(`Doctor ID: ${doctorId}, Rating: ${rating}, Comment: ${comment}`);
-    // You can send this data to your backend API to save the rating
-  };
-
-  if (!doctors || doctors.length === 0) {
-    return (
-      <div className="bg-white border border-gray-300 p-6 rounded-lg shadow text-center text-gray-600">
-        Không có bác sĩ nào
-      </div>
-    );
-  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-      {doctors.map((doctor) => (
-        <div
-          key={doctor.doctorId}
-          className="bg-white border border-gray-300 p-6 rounded-lg shadow-md flex flex-col items-center hover:scale-105 transition-transform duration-300"
-        >
-          <img
-            src={
-              doctor.avatarUrl
-                ? `http://localhost:8080${doctor.avatarUrl}`
-                : "/images/doctor-placeholder.jpg"
-            }
-            alt={`Ảnh bác sĩ ${doctor.fullName}`}
-            width={150}
-            height={150}
-            className="w-32 h-32 object-cover rounded-full mb-4"
-          />
+<div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[520px]">
+  <img
+    src={avatarSrc}
+    alt={`Ảnh bác sĩ ${doctor.fullName}`}
+    className="w-full h-95 object-cover rounded-t-lg"
+  />
+  <div className="p-4 flex flex-col justify-between flex-grow text-center">
+    <h3 className="text-lg font-semibold text-gray-800">Dr. {doctor.fullName}</h3>
+    <p className="text-blue-600 text-sm">{doctor.specialization || "Chưa rõ chuyên môn"}</p>
+    <p className="text-gray-600 text-sm">{doctor.email} - {doctor.phone}</p>
+    <p className="text-gray-600 text-sm mt-1">
+      {doctor.description || "Không có mô tả"}</p>
+      <p className="text-gray-600 text-sm mt-1">
+      {doctor.workExperienceYears} năm kinh nghiệm
+    </p>
+<StarRating
+  rating={doctor.averageRating}
+  doctorId={doctor.doctorId}
+  ratingCount={doctor.ratings.length}
+/>
 
-          <h3 className="text-xl font-semibold text-gray-900 text-center">{doctor.fullName}</h3>
-          <p className="text-blue-700 font-medium">{doctor.specialization}</p>
-          <p className="text-gray-700 text-sm">{doctor.email} - {doctor.phone}</p>
-          <p className="text-gray-700 text-sm mt-1">
-            {doctor.description || "Không có mô tả"}, {doctor.workExperienceYears} năm kinh nghiệm
-          </p>
-          
-          {/* Add the StarRating component here */}
-          <StarRating
-            rating={doctor.rating}
-            onRate={(rating, comment) => handleRatingSubmit(doctor.doctorId, rating, comment)}
-          />
 
-          <Link
-            href={`/booking?doctorId=${doctor.doctorId}`}
-            className="mt-4 text-blue-600 hover:underline"
-          >
-            Đặt lịch với bác sĩ
-          </Link>
-        </div>
-      ))}
-    </div>
+
+    <Link
+      href={`/registrations?doctorId=${doctor.doctorId}`}
+      className="mt-3 inline-block text-sm text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-full"
+    >
+      Đặt lịch với bác sĩ
+    </Link>
+  </div>
+</div>
+
   );
 };
 
-export default DoctorCardList;
+export default DoctorCard;

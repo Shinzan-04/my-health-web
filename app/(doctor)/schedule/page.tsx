@@ -4,14 +4,16 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ApiService from "@/app/service/ApiService";
+import toast from "react-hot-toast";
 import "./fullcalendar-custom.css";
 
 export default function DoctorSchedulePro() {
   const [events, setEvents] = useState([]);
   const [role, setRole] = useState("");
   const [doctorId, setDoctorId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -21,6 +23,8 @@ export default function DoctorSchedulePro() {
     room: "",
     manualDoctorId: "",
   });
+
+  const eventToastRef = useRef<string | null>(null);
 
   const fetchSchedule = async (id: number) => {
     try {
@@ -32,10 +36,17 @@ export default function DoctorSchedulePro() {
         title: s.title,
         start: `${s.date}T${s.startTime}`,
         end: `${s.date}T${s.endTime}`,
+        extendedProps: {
+          room: s.room,
+          patientName: s.patientName,
+          doctorId: s.doctorId,
+        },
       }));
       setEvents(transformed);
     } catch (error) {
-      console.error("Lỗi khi tải lịch khám:", error);
+      toast.error("Lỗi khi tải lịch.", {
+        style: { background: "#fff1f2", color: "#dc2626" },
+      });
     }
   };
 
@@ -61,23 +72,42 @@ export default function DoctorSchedulePro() {
     }
   }, [form.manualDoctorId]);
 
-  const handleCreateSchedule = async () => {
+  const handleCreateOrUpdate = async () => {
     const id = role === "DOCTOR" ? doctorId : Number(form.manualDoctorId);
     if (!id || !form.date || !form.startTime || !form.endTime || !form.title) {
-      alert("Vui lòng điền đầy đủ thông tin.");
+      toast.error("Vui lòng điền đầy đủ thông tin.", {
+        style: { background: "#fff1f2", color: "#dc2626" },
+      });
       return;
     }
 
+    const scheduleData = {
+      title: form.title,
+      date: form.date,
+      startTime: form.startTime,
+      endTime: form.endTime,
+      room: form.room,
+      doctorId: id,
+    };
+
+    const toastId = toast.loading("Đang xử lý...");
+
     try {
-      await ApiService.createSchedule({
-        title: form.title,
-        date: form.date,
-        startTime: form.startTime,
-        endTime: form.endTime,
-        room: form.room,
-        doctorId: id,
-      });
-      alert("Tạo lịch thành công!");
+      if (editingId) {
+        await ApiService.updateSchedule(editingId, scheduleData);
+        toast.success("🎉 Cập nhật lịch thành công!", {
+          id: toastId,
+          style: { background: "#f0fdf4", color: "#16a34a" },
+        });
+        setEditingId(null);
+      } else {
+        await ApiService.createSchedule(scheduleData);
+        toast.success("🎉 Tạo lịch thành công!", {
+          id: toastId,
+          style: { background: "#f0fdf4", color: "#16a34a" },
+        });
+      }
+
       setForm({
         title: "",
         date: "",
@@ -88,10 +118,87 @@ export default function DoctorSchedulePro() {
       });
       fetchSchedule(id);
     } catch (err) {
-      console.error(err);
-      alert("Tạo lịch thất bại.");
+      toast.error("Thao tác thất bại.", {
+        id: toastId,
+        style: { background: "#fff1f2", color: "#dc2626" },
+      });
     }
   };
+
+const handleDeleteEvent = (event: any) => {
+  if (eventToastRef.current) {
+    toast.dismiss(eventToastRef.current);
+  }
+
+  const toastId = toast.custom(
+    (t) => (
+      <div className="bg-white border shadow-lg rounded p-4 w-72">
+        <p className="text-gray-800 font-semibold mb-2">Bạn có chắc muốn xóa lịch này không?</p>
+        <div className="flex justify-between">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              eventToastRef.current = null;
+
+              try {
+                await ApiService.deleteSchedule(event.id);
+                toast.success("✅ Xóa thành công!", {
+                  style: { background: "#f0fdf4", color: "#16a34a" },
+                });
+                const id = role === "DOCTOR" ? doctorId : Number(form.manualDoctorId);
+                fetchSchedule(id!);
+              } catch (err: any) {
+                if (err.response?.status === 409) {
+                  toast.error("❌ Không thể xóa vì đã có bệnh nhân đăng ký.", {
+                    style: { background: "#fff1f2", color: "#dc2626" },
+                  });
+                } else {
+                  toast.error("❌ Xóa thất bại. Vui lòng thử lại.", {
+                    style: { background: "#fff1f2", color: "#dc2626" },
+                  });
+                }
+              }
+            }}
+            className="bg-red-600 text-white px-3 py-1 rounded"
+          >
+            Xác nhận
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              eventToastRef.current = null;
+            }}
+            className="bg-gray-400 text-white px-3 py-1 rounded"
+          >
+            Hủy
+          </button>
+        </div>
+      </div>
+    ),
+    { duration: Infinity }
+  );
+
+  eventToastRef.current = toastId;
+};
+
+  const handleEditEvent = (event: any) => {
+    const start = new Date(event.start);
+    const end = new Date(event.end);
+    setForm({
+      title: event.title,
+      date: start.toISOString().split("T")[0],
+      startTime: start.toTimeString().slice(0, 5),
+      endTime: end.toTimeString().slice(0, 5),
+      room: event.extendedProps.room || "",
+      manualDoctorId: event.extendedProps.doctorId?.toString() || "",
+    });
+    setEditingId(event.id);
+  };
+
+  const hourOptions = Array.from({ length: 11 }, (_, i) => {
+    const hour = i + 7; // Bắt đầu từ 7h
+    return `${hour.toString().padStart(2, "0")}:00`;
+  });
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -106,8 +213,7 @@ export default function DoctorSchedulePro() {
                 type="number"
                 value={form.manualDoctorId}
                 onChange={(e) => setForm({ ...form, manualDoctorId: e.target.value })}
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Nhập ID bác sĩ"
+                className="mt-1 p-2 w-full border rounded-md text-gray-800"
               />
             </div>
           )}
@@ -117,8 +223,7 @@ export default function DoctorSchedulePro() {
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Tiêu đề lịch"
+              className="mt-1 p-2 w-full border rounded-md text-gray-800"
             />
           </div>
           <div>
@@ -127,26 +232,34 @@ export default function DoctorSchedulePro() {
               type="date"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="mt-1 p-2 w-full border rounded-md"
+              className="mt-1 p-2 w-full border rounded-md text-gray-800"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-800">Bắt đầu</label>
-            <input
-              type="time"
+            <select
               value={form.startTime}
               onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-              className="mt-1 p-2 w-full border rounded-md"
-            />
+              className="mt-1 p-2 w-full border rounded-md text-gray-800"
+            >
+              <option value="">-- Giờ bắt đầu --</option>
+              {hourOptions.map((hour) => (
+                <option key={hour} value={hour}>{hour}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-800">Kết thúc</label>
-            <input
-              type="time"
+            <select
               value={form.endTime}
               onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-              className="mt-1 p-2 w-full border rounded-md"
-            />
+              className="mt-1 p-2 w-full border rounded-md text-gray-800"
+            >
+              <option value="">-- Giờ kết thúc --</option>
+              {hourOptions.map((hour) => (
+                <option key={hour} value={hour}>{hour}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-800">Phòng khám</label>
@@ -154,17 +267,16 @@ export default function DoctorSchedulePro() {
               type="text"
               value={form.room}
               onChange={(e) => setForm({ ...form, room: e.target.value })}
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="Phòng khám"
+              className="mt-1 p-2 w-full border rounded-md text-gray-800"
             />
           </div>
         </div>
         <div className="mt-4">
           <button
-            onClick={handleCreateSchedule}
+            onClick={handleCreateOrUpdate}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            Tạo lịch
+            {editingId ? "Cập nhật lịch" : "Tạo lịch"}
           </button>
         </div>
       </div>
@@ -187,12 +299,55 @@ export default function DoctorSchedulePro() {
           slotLabelFormat={{
             hour: "2-digit",
             minute: "2-digit",
-            hour12: false, // dùng giờ 24h
+            hour12: false,
           }}
           eventTimeFormat={{
             hour: "2-digit",
             minute: "2-digit",
-            hour12: false, // dùng giờ 24h
+            hour12: false,
+          }}
+          eventContent={({ event }) => (
+            <div>
+              <div className="">{event.title}</div>
+              <div className="text-xs">
+                Phòng: {event.extendedProps.room || "Không rõ"}
+              </div>
+            </div>
+          )}
+          eventClick={({ event }) => {
+            if (eventToastRef.current) {
+              toast.dismiss(eventToastRef.current);
+            }
+
+            const id = toast.custom((t) => (
+              <div className="bg-white border shadow-lg rounded p-4 w-72">
+                <p className="text-gray-800 font-semibold mb-2">Chọn hành động</p>
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => {
+                      handleEditEvent(event);
+                      toast.dismiss(t.id);
+                      eventToastRef.current = null;
+                    }}
+                    className="bg-blue-600 text-white px-3 py-1 rounded"
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDeleteEvent(event);
+                      toast.dismiss(t.id);
+                      eventToastRef.current = null;
+                    }}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Xóa
+                  </button>
+                </div>
+              </div>
+            ));
+
+            eventToastRef.current = id;
           }}
           dayHeaderClassNames={() =>
             "bg-green-100 text-green-900 text-sm font-semibold"

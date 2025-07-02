@@ -20,6 +20,7 @@ export default function DoctorManagementPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [editingDoctorId, setEditingDoctorId] = useState<number | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<Doctor>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDoctors();
@@ -30,7 +31,11 @@ export default function DoctorManagementPage() {
       const data = await ApiService.getAllDoctors();
       setDoctors(data);
     } catch (err) {
-      console.error("Lỗi khi lấy danh sách bác sĩ:", err);
+      toast.error("Không thể lấy danh sách bác sĩ", {
+        style: { background: "#fef2f2", color: "#b91c1c" },
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,10 +48,14 @@ export default function DoctorManagementPage() {
     if (!confirm("Bạn có chắc chắn muốn xóa bác sĩ này?")) return;
     try {
       await ApiService.deleteDoctor(doctorId);
-      toast.success("Xóa bác sĩ thành công");
+      toast.success("Xóa bác sĩ thành công", {
+        style: { background: "#f0fdf4", color: "#166534" },
+      });
       fetchDoctors();
     } catch (err) {
-      toast.error("Lỗi khi xóa bác sĩ");
+      toast.error("Lỗi khi xóa bác sĩ", {
+        style: { background: "#fef2f2", color: "#b91c1c" },
+      });
     }
   };
 
@@ -55,18 +64,15 @@ export default function DoctorManagementPage() {
     try {
       await ApiService.updateDoctorNoAvatar(editingDoctorId, data);
       toast.success("Cập nhật thành công!", {
-  icon: "🎉",
-  style: {
-    borderRadius: "8px",
-    background: "#f0fdf4",
-    color: "#16a34a",
-  },
-});
-
+        icon: "🎉",
+        style: { borderRadius: "8px", background: "#f0fdf4", color: "#16a34a" },
+      });
       setEditingDoctorId(null);
       fetchDoctors();
     } catch (err) {
-      toast.error("Lỗi khi cập nhật bác sĩ");
+      toast.error("Lỗi khi cập nhật bác sĩ", {
+        style: { background: "#fef2f2", color: "#b91c1c" },
+      });
     }
   };
 
@@ -75,51 +81,55 @@ export default function DoctorManagementPage() {
       <h1 className="text-2xl font-bold mb-4 text-gray-900">Quản lý bác sĩ</h1>
 
       <div className="overflow-x-auto rounded border border-gray-400 shadow-sm bg-white">
-        <table className="min-w-full text-sm text-gray-900">
-          <thead className="bg-gray-200 text-gray-700">
-            <tr>
-              <th className="border border-gray-400 px-4 py-2 text-left">ID</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">Họ tên</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">Email</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">SĐT</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">Chuyên môn</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">Số năm kinh nghiệm</th>
-              <th className="border border-gray-400 px-4 py-2 text-left">Mô tả</th>
-              <th className="border border-gray-400 px-4 py-2 text-center">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {doctors.map((doctor) => (
-              <tr key={doctor.doctorId} className="hover:bg-gray-100">
-                <td className="border border-gray-400 px-4 py-2">{doctor.doctorId}</td>
-                <td className="border border-gray-400 px-4 py-2">{doctor.fullName}</td>
-                <td className="border border-gray-400 px-4 py-2">{doctor.email}</td>
-                <td className="border border-gray-400 px-4 py-2">{doctor.phone}</td>
-                <td className="border border-gray-400 px-4 py-2">{doctor.specialization}</td>
-                <td className="border border-gray-400 px-4 py-2">{doctor.workExperienceYears}</td>
-                <td className="border border-gray-400 px-4 py-2">{doctor.description}</td>
-                <td className="border border-gray-400 px-4 py-2 text-center">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transform transition-transform hover:scale-105"
-                      onClick={() => handleEdit(doctor)}
-                    >
-                      <FilePen size={16} />
-                      Sửa
-                    </button>
-                    <button
-                      className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transform transition-transform hover:scale-105"
-                      onClick={() => handleDelete(doctor.doctorId)}
-                    >
-                      <Trash size={16} />
-                      Xóa
-                    </button>
-                  </div>
-                </td>
+        {loading ? (
+          <div className="text-center py-6 text-gray-500">Đang tải dữ liệu bác sĩ...</div>
+        ) : (
+          <table className="w-full text-sm text-gray-900">
+            <thead className="bg-gray-300 text-gray-900 text-sm font-semibold">
+              <tr>
+                <th className="border px-4 py-2 text-left">Họ tên</th>
+                <th className="border px-4 py-2 text-left">Email</th>
+                <th className="border px-4 py-2 text-left">SĐT</th>
+                <th className="border px-4 py-2 text-left">Chuyên môn</th>
+                <th className="border px-4 py-2 text-left">Số năm kinh nghiệm</th>
+                <th className="border px-4 py-2 text-left">Mô tả</th>
+                <th className="border px-4 py-2 text-center">Hành động</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {doctors.map((doctor) => (
+                <tr key={doctor.doctorId} className="hover:bg-gray-50 transition">
+                  <td className="border px-4 py-2">{doctor.fullName}</td>
+                  <td className="border px-4 py-2">{doctor.email}</td>
+                  <td className="border px-4 py-2">{doctor.phone}</td>
+                  <td className="border px-4 py-2">{doctor.specialization}</td>
+                  <td className="border px-4 py-2">{doctor.workExperienceYears}</td>
+                  <td className="border px-4 py-2 break-words whitespace-pre-line max-w-[300px]">
+                    {doctor.description}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transform transition-transform hover:scale-105"
+                        onClick={() => handleEdit(doctor)}
+                      >
+                        <FilePen className="text-white" size={16} />
+                        Sửa
+                      </button>
+                      <button
+                        className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transform transition-transform hover:scale-105"
+                        onClick={() => handleDelete(doctor.doctorId)}
+                      >
+                        <Trash className="text-white" size={16} />
+                        Xóa
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <EditDoctorModal

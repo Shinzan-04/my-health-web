@@ -2,41 +2,32 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ApiService from "@/app/service/ApiService";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setMessage("");
+  setError("");
 
-    if (!email) {
-      setError("Vui lòng nhập email của bạn.");
-      return;
-    }
+  if (!email) {
+    setError("Vui lòng nhập email của bạn.");
+    return;
+  }
 
-    try {
-      const res = await fetch("http://localhost:8080/api/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+  try {
+    await ApiService.forgotPassword({ email });
+    setMessage("Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email.");
+  } catch (err: any) {
+    console.error("Lỗi gửi yêu cầu:", err);
+    setError(err?.response?.data?.message || "Đã xảy ra lỗi.");
+  }
+};
 
-      if (!res.ok) {
-        const errData = await res.json();
-        setError(errData.message || "Đã xảy ra lỗi.");
-        return;
-      }
-
-      setMessage("Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email.");
-    } catch (err) {
-      console.error("Lỗi gửi yêu cầu:", err);
-      setError("Không thể kết nối đến máy chủ.");
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 px-4 py-8">

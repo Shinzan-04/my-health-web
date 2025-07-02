@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
+import toast from "react-hot-toast";
 
 type Props = {
   isOpen: boolean;
@@ -32,11 +33,23 @@ export default function EditDoctorModal({
     setFormData(doctor);
   }, [doctor]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === "workExperienceYears" ? Number(value) : value,
+    });
   };
 
   const handleSubmit = () => {
+    if (!formData.fullName || !formData.email || !formData.phone) {
+      toast.error("Vui lòng nhập đầy đủ thông tin bắt buộc.", {
+        style: { background: "#fef2f2", color: "#b91c1c" },
+      });
+      return;
+    }
     onSave(formData);
   };
 
@@ -48,66 +61,77 @@ export default function EditDoctorModal({
       onClose={onClose}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-all"
     >
-      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0 animate-[fadeIn_0.2s_ease-out_forwards]">
-        {/* Nội dung modal */}
-      </div>
-
-      {/* Modal content */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-white p-6 rounded shadow w-full max-w-md">
+        <Dialog.Panel className="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg">
           <Dialog.Title className="text-xl font-bold mb-4 text-gray-900">
-            Chỉnh sửa thông tin
+            Chỉnh sửa thông tin bác sĩ
           </Dialog.Title>
-          <label className="block mb-1 font-medium">Họ tên</label>
-          <div className="space-y-3 text-gray-900">
+
+          <div className="space-y-4 text-gray-900">
+            <div>
+              <label className="block text-sm font-medium mb-1">Họ tên *</label>
+              <input
+                name="fullName"
+                value={formData.fullName || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
+
             <input
-              name="fullName"
-              value={formData.fullName || ""}
-              onChange={handleChange}
-              placeholder="Họ tên"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
+              name="email"
+              value={formData.email || ""}
+              readOnly
+              className="w-full border border-gray-400 px-3 py-2 rounded bg-gray-100 cursor-not-allowed"
             />
 
-            <label className="block mb-1 font-medium">Số điện thoại</label>
-            <input
-              name="phone"
-              value={formData.phone ?? ""}
-              onChange={e => {
-                // Chỉ cho phép số, tối đa 10 ký tự
-                const onlyNums = e.target.value.replace(/\D/g, "").slice(0, 10);
-                setFormData(prev => ({ ...prev, phone: onlyNums }));
-              }}
-              placeholder="Số điện thoại"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-              maxLength={10}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Số điện thoại *
+              </label>
+              <input
+                name="phone"
+                value={formData.phone || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
 
-            <label className="block mb-1 font-medium">Chuyên môn</label>
-            <input
-              name="specialization"
-              value={formData.specialization || ""}
-              onChange={handleChange}
-              placeholder="Chuyên môn"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
-            <label className="block mb-1 font-medium">Kinh nghiệm làm việc</label>
-            <input
-              name="workExperienceYears"
-              type="number"
-              value={formData.workExperienceYears || ""}
-              onChange={handleChange}
-              placeholder="Số năm kinh nghiệm"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
-            <label className="block mb-1 font-medium">Mô tả</label>
-            <textarea
-              name="description"
-              value={formData.description || ""}
-              onChange={handleChange}
-              placeholder="Mô tả"
-              className="w-full border border-gray-400 px-3 py-2 rounded"
-            />
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Chuyên môn
+              </label>
+              <input
+                name="specialization"
+                value={formData.specialization || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Số năm kinh nghiệm
+              </label>
+              <input
+                name="workExperienceYears"
+                type="number"
+                min={0}
+                value={formData.workExperienceYears || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Mô tả</label>
+              <textarea
+                name="description"
+                value={formData.description || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded resize-none min-h-[100px]"
+              />
+            </div>
           </div>
 
           <div className="mt-4 flex justify-end space-x-2">
