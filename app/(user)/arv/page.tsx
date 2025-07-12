@@ -40,56 +40,88 @@ export default function ARVPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="p-4">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900">Phác đồ ARV của bạn</h2>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 flex justify-center">
+        <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-6xl border border-blue-100">
+          <h2 className="text-3xl font-bold text-blue-800 tracking-wide">
+            Phác đồ điều trị ARV
+          </h2>
 
-<div className="overflow-x-auto rounded border border-gray-400 shadow-sm bg-white">
-  <table className="min-w-full text-sm text-gray-900">
-    <thead className="bg-gray-200 text-gray-700">
-      <tr>
-        <th className="border border-gray-400 px-4 py-2 text-left">Bệnh nhân</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Bác sĩ</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Bắt đầu</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Kết thúc</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Mã</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Tên phác đồ</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Lịch uống</th>
-        <th className="border border-gray-400 px-4 py-2 text-left">Ghi chú</th>
-      </tr>
-    </thead>
-            <tbody>
-              {loading ? (
+          <div className="overflow-x-auto rounded-xl shadow-md border border-gray-200 mt-6">
+            <table className="min-w-full text-sm text-gray-700">
+              <thead className="bg-blue-100 text-gray-900 text-md uppercase tracking-wider">
                 <tr>
-                  <td colSpan={8} className="text-center p-4 text-gray-400">
-                    Đang tải...
-                  </td>
+                  <th className="px-4 py-3 border">Bắt đầu</th>
+                  <th className="px-4 py-3 border">Kết thúc</th>
+                  <th className="px-4 py-3 border">Tên phác đồ</th>
+                  <th className="px-4 py-3 border">Mã</th>
+                  <th className="px-4 py-3 border">Bác sĩ</th>
+                  <th className="px-4 py-3 border">Lịch uống</th>
+                  <th className="px-4 py-3 border">Ghi chú</th>
                 </tr>
-              ) : arvRegimens.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="text-center p-4 text-gray-400">
-                    Không có phác đồ ARV nào.
-                  </td>
-                </tr>
-              ) : (
-                arvRegimens.map((regimen) => (
-                  <tr key={regimen.arvRegimenId} className="text-sm text-gray-800">
-                    <td className="border px-3 py-2">{regimen.customerName}</td>
-                    <td className="border px-3 py-2">{regimen.doctorName}</td>
-                    <td className="border px-3 py-2">
-                      {format(new Date(regimen.createDate), "dd/MM/yyyy")}
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-10 text-gray-500">
+                      Đang tải...
                     </td>
-                    <td className="border px-3 py-2">
-                      {format(new Date(regimen.endDate), "dd/MM/yyyy")}
-                    </td>
-                    <td className="border px-3 py-2">{regimen.regimenCode}</td>
-                    <td className="border px-3 py-2">{regimen.regimenName}</td>
-                    <td className="border px-3 py-2">{regimen.medicationSchedule || "-"}</td>
-                    <td className="border px-3 py-2">{regimen.description || "-"}</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : arvRegimens.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-10 text-gray-500">
+                      <div className="flex flex-col items-center space-y-2">
+                        <svg
+                          className="w-10 h-10 text-blue-300"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9.75 9.75L14.25 14.25M14.25 9.75L9.75 14.25M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                          />
+                        </svg>
+                        <span>Không có dữ liệu phác đồ ARV.</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  arvRegimens.map((arv, index) => (
+                    <tr
+                      key={arv.arvRegimenId || index}
+                      className={`${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      } hover:bg-blue-50 transition`}
+                    >
+                      <td className="px-4 py-3 border whitespace-nowrap">
+                        {arv.createDate
+                          ? format(new Date(arv.createDate), "dd/MM/yyyy")
+                          : ""}
+                      </td>
+                      <td className="px-4 py-3 border whitespace-nowrap">
+                        {arv.endDate
+                          ? format(new Date(arv.endDate), "dd/MM/yyyy")
+                          : ""}
+                      </td>
+                      <td className="px-4 py-3 border">{arv.regimenName}</td>
+                      <td className="px-4 py-3 border">{arv.regimenCode}</td>
+                      <td className="px-4 py-3 border">
+                        {arv.doctorName || "N/A"}
+                      </td>
+                      <td className="px-4 py-3 border">
+                        {arv.medicationSchedule || "-"}
+                      </td>
+                      <td className="px-4 py-3 border">
+                        {arv.description || "-"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </>

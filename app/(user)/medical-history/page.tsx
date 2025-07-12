@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -92,62 +91,69 @@ export default function MedicalHistoryTable() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-blue-700">Hồ sơ bệnh án</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 flex justify-center">
+      <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-6xl border border-blue-100">
+        <h2 className="text-3xl font-bold text-blue-800 tracking-wide">
+          Lịch sử khám bệnh
+        </h2>
 
-      {loading ? (
-        <div className="text-gray-600">Đang tải dữ liệu...</div>
-      ) : error ? (
-        <div className="text-red-600">{error}</div>
-      ) : (
-        <div className="overflow-x-auto rounded border border-gray-400 shadow-sm bg-white">
-    <table className="min-w-full text-sm text-gray-900">
-      <thead className="bg-gray-200 text-gray-700">
-        <tr>
-          <th className="border border-gray-400 px-4 py-2 text-left">ID</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Bệnh nhân</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Bác sĩ</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Tên bệnh</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Ngày khám</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Chẩn đoán</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Đơn thuốc</th>
-          <th className="border border-gray-400 px-4 py-2 text-left">Ghi chú</th>
-        </tr>
-      </thead>
+        <div className="overflow-x-auto rounded-xl shadow-md border border-gray-200 mt-6">
+          <table className="min-w-full text-sm text-gray-700">
+            <thead className="bg-blue-100 text-gray-900 text-md uppercase tracking-wider">
+              <tr>
+                <th className="px-4 py-3 border">Ngày khám</th>
+                <th className="px-4 py-3 border">Lý do khám</th>
+                <th className="px-4 py-3 border">Chẩn đoán</th>
+                <th className="px-4 py-3 border">Điều trị</th>
+                <th className="px-4 py-3 border">Đơn thuốc</th>
+                <th className="px-4 py-3 border">Ghi chú</th>
+              </tr>
+            </thead>
             <tbody>
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-6 text-gray-500 border">
-                    Không có dữ liệu.
+                  <td colSpan={6} className="text-center py-10 text-gray-500">
+                    <div className="flex flex-col items-center space-y-2">
+                      <svg
+                        className="w-10 h-10 text-blue-300"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9.75 9.75L14.25 14.25M14.25 9.75L9.75 14.25M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                        />
+                      </svg>
+                      <span>Không có dữ liệu lịch sử khám bệnh.</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                data.map((item, index) => (
+                data.map((history, index) => (
                   <tr
-                    key={item.medicalHistoryId}
-                    className={
-                      index % 2 === 0
-                        ? "bg-white hover:bg-blue-50"
-                        : "bg-gray-50 hover:bg-blue-50"
-                    }
+                    key={history.medicalHistoryId || index}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50 transition`}
                   >
-                    <td className="border border-gray-300 px-4 py-2">{item.medicalHistoryId}</td>
-                    <td className="border border-gray-300 px-4 py-2">{item.customerName ?? "N/A"}</td>
-                    <td className="border border-gray-300 px-4 py-2 text-blue-700 font-medium">
-                      {item.doctorName}
+                    <td className="whitespace-nowrap px-4 py-3 border">
+                      {formatDate(history.visitDate)}
                     </td>
-                    <td className="border border-gray-300 px-4 py-2">{item.diseaseName}</td>
-                    <td className="border border-gray-300 px-4 py-2">{formatDate(item.visitDate)}</td>
-                    <td className="border border-gray-300 px-4 py-2">{item.diagnosis}</td>
-                    <td className="border border-gray-300 px-4 py-2">{item.prescription}</td>
-                    <td className="border border-gray-300 px-4 py-2">{item.notes}</td>
+                    <td className="px-4 py-3 border">{history.reason}</td>
+                    <td className="px-4 py-3 border">{history.diagnosis}</td>
+                    <td className="px-4 py-3 border">{history.treatment}</td>
+                    <td className="px-4 py-3 border">{history.prescription}</td>
+                    <td className="px-4 py-3 border">{history.notes}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-      )}
+      </div>
     </div>
   );
 }

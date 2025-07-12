@@ -119,23 +119,55 @@ export default function EditDoctorProfile() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-        <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-2xl">
-          <h2 className="text-2xl font-bold text-blue-700 mb-6 text-center">
-            Chỉnh sửa hồ sơ bác sĩ
-          </h2>
-          {doctor.avatarUrl && (
-            <div className="flex justify-center mb-6">
+      <div className="min-h-screen bg-blue-100 py-16 px-6 sm:px-8 flex justify-center items-center">
+        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl p-8 sm:p-10 space-y-8 border border-blue-100">
+          <div className="text-center space-y-2">
+            <div className="relative inline-block group">
               <img
-                src={`http://localhost:8080${doctor.avatarUrl}`}
-                alt="Avatar bác sĩ"
-                className="w-32 h-32 rounded-full object-cover border border-gray-300"
+                src={
+                  avatarFile
+                    ? URL.createObjectURL(avatarFile)
+                    : doctor.avatarUrl
+                    ? `http://localhost:8080${doctor.avatarUrl}`
+                    : "/avatar-default.png"
+                }
+                alt="Avatar"
+                className="w-32 h-32 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-blue-200 shadow-md transition-transform duration-300 group-hover:scale-105 bg-white"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/avatar-default.png";
+                  const img = e.target as HTMLImageElement;
+                  if (img.src !== window.location.origin + "/avatar-default.png") {
+                    img.onerror = null;
+                    img.src = "/avatar-default.png";
+                  }
                 }}
               />
+              <label className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 cursor-pointer shadow-md hover:bg-blue-700 transition">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                  <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path
+                    d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setAvatarFile(file);
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+              </label>
             </div>
-          )}
+            <h2 className="text-3xl font-bold text-blue-800 tracking-wide">
+              Chỉnh sửa hồ sơ bác sĩ
+            </h2>
+            <p className="text-gray-500 text-sm">
+              Cập nhật thông tin để cung cấp dịch vụ tốt hơn
+            </p>
+          </div>
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-800 mb-1">
@@ -146,7 +178,7 @@ export default function EditDoctorProfile() {
               value={doctor.email ?? ""}
               readOnly
               disabled
-              className="w-full border border-gray-400 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
+              className="w-full border border-gray-200 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
             />
           </div>
 
@@ -227,26 +259,11 @@ export default function EditDoctorProfile() {
                 <p className="text-red-600 text-sm mt-1">{errors.workExperienceYears}</p>
               )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-800 mb-1">
-                Tải ảnh đại diện:
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setAvatarFile(file);
-                }}
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg text-gray-800"
-              />
-            </div>
           </div>
 
           <button
             onClick={handleSubmit}
-            className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+            className="mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold py-3 rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg flex items-center justify-center"
           >
             Lưu thay đổi
           </button>
