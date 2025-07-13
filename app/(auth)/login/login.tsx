@@ -9,24 +9,37 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const validateEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Vui lòng nhập đầy đủ thông tin.");
+    // Kiểm tra input
+    if (!email.trim()) {
+      setError("Vui lòng nhập email.");
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError("Định dạng email không hợp lệ.");
+      return;
+    }
+    if (!password.trim()) {
+      setError("Vui lòng nhập mật khẩu.");
       return;
     }
 
+    // Gửi request
     try {
       const res = await fetch("http://localhost:8080/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         setError(errData.message || "Đăng nhập thất bại.");
         return;
       }
@@ -35,23 +48,25 @@ export default function LoginPage() {
       const { token, doctor, customer, account } = result;
 
       if (!token) {
-        setError("Thiếu token từ server.");
+        setError("Không nhận được token từ máy chủ.");
         return;
       }
 
-      // Giải mã token để lấy role
-      const decoded = jwtDecode<{ role: string }>(token);
-      const role = decoded.role || account?.role || customer?.role || doctor?.role || "UNKNOWN";
-      // Lưu token và thông tin bác sĩ vào localStorage
-      // Lưu token và các thông tin liên quan vào localStorage
+      const decoded = jwtDecode<{ role?: string }>(token);
+      const role =
+        decoded.role ||
+        account?.role ||
+        customer?.role ||
+        doctor?.role ||
+        "UNKNOWN";
+
+      // Lưu thông tin
       localStorage.setItem(
         "authData",
         JSON.stringify({ token, doctor, customer, account, role })
       );
 
-
-
-      // Chuyển hướng theo role
+      // Chuyển trang theo role
       switch (role) {
         case "CUSTOMER":
         case "USER":
@@ -64,7 +79,7 @@ export default function LoginPage() {
           window.location.href = "/admin";
           break;
         default:
-          window.location.href = "/";
+          setError("Không xác định được vai trò người dùng.");
       }
     } catch (err) {
       console.error("Lỗi khi đăng nhập:", err);
@@ -81,14 +96,14 @@ export default function LoginPage() {
           </div>
           <h2 className="text-2xl font-bold text-blue-700 mt-3">Đăng nhập</h2>
           <p className="text-gray-500 text-sm mt-1">
-            Thông tin đăng nhập của bạn được bảo mật
+            Thông tin đăng nhập của bạn được bảo mật.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            placeholder="Email hoặc số điện thoại"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -109,7 +124,9 @@ export default function LoginPage() {
           </button>
 
           {error && (
-            <div className="text-center text-sm text-red-600">{error}</div>
+            <div className="text-center text-sm text-red-600 font-medium mt-2">
+              {error}
+            </div>
           )}
         </form>
 

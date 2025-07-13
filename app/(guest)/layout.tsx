@@ -6,6 +6,7 @@ import Footer from "@/components/footer/Footer";
 import PosterCarousel from "@/components/sliders/Poster";
 import { FC, ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
+import DoctorCardList from "@/components/cards/DoctorCardList";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -31,7 +32,7 @@ const HomeLayout: FC<RootLayoutProps> = ({ children }) => {
         <html lang="vi" className={`${geistSans.variable} ${geistMono.variable}`}>
         <body className="min-h-screen flex flex-col bg-gray-50 pt-[130px]">
         <Header />
-                      {/* ✅ THÊM TOASTER ĐỂ HIỂN THỊ THÔNG BÁO */}
+        {/* ✅ THÊM TOASTER ĐỂ HIỂN THỊ THÔNG BÁO */}
         <Toaster position="top-center" reverseOrder={false} />
         <PosterCarousel />
         <main className="flex-grow">{children}</main>

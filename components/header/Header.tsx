@@ -62,7 +62,6 @@ const navLinks = [
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile" },
     { label: "Bệnh nhân điều trị", href: "/admin/list-registration" },
     { label: "Hồ sơ bệnh nhân", href: "/profilecustomer" },
-    { label: "Nhắc thuốc", href: "/doctor/reminders" },
     { label: "Phác đồ điều trị", href: "/admin/arv" },
     { label: "Lịch làm việc", href: "/schedule" },
   ];

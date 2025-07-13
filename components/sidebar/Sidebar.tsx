@@ -33,7 +33,6 @@ const menus = {
     { label: "Chỉnh sửa hồ sơ", href: "/edit-profile", icon: <FaUserEdit /> },
     { label: "Bệnh nhân điều trị", href: "/admin/list-registration", icon: <FaUsers /> },
     { label: "Hồ sơ bệnh nhân", href: "/profilecustomer", icon: <FaNotesMedical /> },
-    { label: "Nhắc thuốc", href: "/doctor/reminders", icon: <FaBell /> },
     { label: "Phác đồ điều trị", href: "/admin/arv", icon: <FaPrescriptionBottleAlt /> },
     { label: "Lịch làm việc", href: "/schedule", icon: <FaCalendar /> },
     { label: "Kết quả xét nghiệm", href: "/admin/testresults", icon: <FaVial /> },

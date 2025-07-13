@@ -1,0 +1,91 @@
+
+Running tests... 
+----------------------------------------------------------------------
+ test_login_success (__main__.LoginTest.test_login_success) ... OK (2.893265)s
+ test_missing_both_fields (__main__.LoginTest.test_missing_both_fields) ... ERROR (6.248693)s
+ test_missing_email (__main__.LoginTest.test_missing_email) ... OK (2.258777)s
+ test_missing_password (__main__.LoginTest.test_missing_password) ... OK (2.258895)s
+ test_nonexistent_email (__main__.LoginTest.test_nonexistent_email) ... Traceback (most recent call last):
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 58, in testPartExecutor
+    yield
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 651, in run
+    self._callTestMethod(testMethod)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 606, in _callTestMethod
+    if method() is not None:
+       ~~~~~~^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 63, in test_nonexistent_email
+    self._assert_error("\u0110\u0103ng nh\u1eadp th\u1ea5t b\u1ea1i")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 74, in _assert_error
+    self.assertIn(expected_substring, err)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 1174, in assertIn
+    self.fail(self._formatMessage(msg, standardMsg))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 732, in fail
+    raise self.failureException(msg)
+AssertionError: '\u0110\u0103ng nh\u1eadp th\u1ea5t b\u1ea1i' not found in '\u0110\u0103ng nh\u1eadp'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 88, in <module>
+    unittest.main(
+    ~~~~~~~~~~~~~^
+        testRunner=HtmlTestRunner.HTMLTestRunner(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\main.py", line 104, in __init__
+    self.runTests()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\main.py", line 270, in runTests
+    self.result = testRunner.run(self.test)
+                  ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\HtmlTestRunner\runner.py", line 72, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 707, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 650, in run
+    with outcome.testPartExecutor(self):
+         ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 75, in testPartExecutor
+    _addError(self.result, test_case, exc_info)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\case.py", line 98, in _addError
+    result.addFailure(test, exc_info)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\unittest\result.py", line 17, in inner
+    return method(self, *args, **kw)
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\HtmlTestRunner\result.py", line 205, in addFailure
+    testinfo = self.infoclass(self, test, self.infoclass.FAILURE, err)
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\HtmlTestRunner\result.py", line 90, in __init__
+    else self.test_result._exc_info_to_string(
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.err, test_method))
+        ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\HtmlTestRunner\result.py", line 426, in _exc_info_to_string
+    length = self._count_relevant_tb_levels(tb)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'HtmlTestResult' object has no attribute '_count_relevant_tb_levels'. Did you mean: '_is_relevant_tb_level'?

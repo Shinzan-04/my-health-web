@@ -660,6 +660,11 @@ static async countRatingsByDoctorId(doctorId: number): Promise<number> {
   });
   return response.data;
 }
+static async getAllRating(): Promise<any> {
+  const headers = this.getHeader();
+  return (await axios.get(`${this.BASE_URL}/api/rating/all`, { headers })).data;
+}
+
 
   /** ---------------- PASSWORD RESET ---------------- */
   static async forgotPassword(data: any): Promise<any> {

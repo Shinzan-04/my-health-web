@@ -565,7 +565,9 @@ const RegistrationPage: FC = () => {
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className="w-full py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors font-semibold"
+                className="w-full py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 hover:scale-105 
+    transform 
+    transition duration-300 ease-in-out  bg-blue-700 transition-colors font-semibold"
                 disabled={isLoading || doctorsLoading} // Disable button if form is submitting or doctors are loading
               >
                 {isLoading ? "Đang gửi..." : "Gửi"}

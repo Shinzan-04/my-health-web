@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unittest Results</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2 class="text-capitalize">Unittest Results</h2>
+                <p class='attribute'><strong>Start Time: </strong>2025-07-04 18:10:49</p>
+                <p class='attribute'><strong>Duration: </strong>24.46 s</p>
+                <p class='attribute'><strong>Summary: </strong>Total: 7, Pass: 0, Error: 7</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-10 col-md-10">
+                <table class='table table-hover table-responsive'>
+                    <thead>
+                        <tr>
+                            <th>__main__.LoginTest</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_invalid_email_format</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 67, in test_invalid_email_format
+    self._fill_email("abc")
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 21, in _fill_email
+    email_input = self.driver.find_element(By.CSS_SELECTOR, 'input[type="email"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_login_success</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 43, in test_login_success
+    self._fill_email("doc@gmail.com")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 21, in _fill_email
+    email_input = self.driver.find_element(By.CSS_SELECTOR, 'input[type="email"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_missing_both_fields</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"button[type="submit"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 63, in test_missing_both_fields
+    self._submit()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 31, in _submit
+    btn = self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"button[type="submit"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_missing_email</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="password"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 53, in test_missing_email
+    self._fill_pwd("123123")
+    ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 26, in _fill_pwd
+    pwd_input = self.driver.find_element(By.CSS_SELECTOR, 'input[type="password"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="password"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_missing_password</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 58, in test_missing_password
+    self._fill_email("doc@gmail.com")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 21, in _fill_email
+    email_input = self.driver.find_element(By.CSS_SELECTOR, 'input[type="email"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_nonexistent_email</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 73, in test_nonexistent_email
+    self._fill_email("noexist@gmail.com")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 21, in _fill_email
+    email_input = self.driver.find_element(By.CSS_SELECTOR, 'input[type="email"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr class='warning'>
+                            <td class="col-xs-10">test_wrong_password</td>
+                            <td class="col-xs-1">
+                                <span class="label label-warning" style="display:block;width:40px;">Error</span>
+                            </td>
+                            <td class="col-xs-1">
+                                <button class="btn btn-default btn-xs">View</button>
+                            </td>
+                        </tr>
+                        <tr style="display:none;">
+                            <td class="col-xs-9" colspan="3"><p style="color:maroon;">NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+</p><p style="color:maroon;">Traceback (most recent call last):
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 79, in test_wrong_password
+    self._fill_email("doc@gmail.com")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\Pictures\demoSWP\my-health-web\test_login_unittest.py", line 21, in _fill_email
+    email_input = self.driver.find_element(By.CSS_SELECTOR, 'input[type="email"]')
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 922, in find_element
+    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 454, in execute
+    self.error_handler.check_response(response)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\NgocTan\AppData\Local\Programs\Python\Python313\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"css selector","selector":"input[type="email"]"}
+  (Session info: chrome=138.0.7204.51); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+Stacktrace:
+	GetHandleVerifier [0x0x7ff69b8c6f55+76917]
+	GetHandleVerifier [0x0x7ff69b8c6fb0+77008]
+	(No symbol) [0x0x7ff69b679dea]
+	(No symbol) [0x0x7ff69b6d0256]
+	(No symbol) [0x0x7ff69b6d050c]
+	(No symbol) [0x0x7ff69b723887]
+	(No symbol) [0x0x7ff69b6f84af]
+	(No symbol) [0x0x7ff69b72065c]
+	(No symbol) [0x0x7ff69b6f8243]
+	(No symbol) [0x0x7ff69b6c1431]
+	(No symbol) [0x0x7ff69b6c21c3]
+	GetHandleVerifier [0x0x7ff69bb9d27d+3051421]
+	GetHandleVerifier [0x0x7ff69bb978d3+3028467]
+	GetHandleVerifier [0x0x7ff69bbb586d+3151245]
+	GetHandleVerifier [0x0x7ff69b8e181e+185662]
+	GetHandleVerifier [0x0x7ff69b8e96df+218111]
+	GetHandleVerifier [0x0x7ff69b8cfad4+112628]
+	GetHandleVerifier [0x0x7ff69b8cfc89+113065]
+	GetHandleVerifier [0x0x7ff69b8b6c58+10616]
+	BaseThreadInitThunk [0x0x7ff87651e8d7+23]
+	RtlUserThreadStart [0x0x7ff876c1c34c+44]
+
+</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                Total: 7, Pass: 0, Error: 7 -- Duration: 24.46 s
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('td').on('click', '.btn', function(e){
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                var $this = $(this);
+                var $nextRow = $this.closest('tr').next('tr');
+                $nextRow.slideToggle("fast");
+                $this.text(function(i, text){
+                    if (text === 'View') {
+                        return 'Hide';
+                    } else {
+                        return 'View';
+                    };
+                });
+            });
+        });
+    </script>
+</body>
+</html
