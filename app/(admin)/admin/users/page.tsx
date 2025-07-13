@@ -104,6 +104,7 @@ export default function CustomerManagementPage() {
                 ? "Nữ"
                 : "Khác"}
                 </td>
+
                 <td className="border border-gray-400 px-4 py-2">{customer.dateOfBirth}</td>
                 <td className="border border-gray-400 px-4 py-2">{customer.address}</td>
                
