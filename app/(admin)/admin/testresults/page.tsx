@@ -6,9 +6,10 @@ import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import toast from "react-hot-toast";
+import { MoreVertical } from "lucide-react";
 
 type TestResult = {
-  testResultId?: number;
+  testResultId: number | undefined;   // ← cho phép undefined ở trạng thái form
   doctorId?: number;
   doctorName?: string;
   customerId: number;
@@ -19,9 +20,11 @@ type TestResult = {
   resultDescription: string;
 };
 
+
 export default function TestResultPage() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [formData, setFormData] = useState<TestResult>({
+    testResultId: undefined,  
     doctorId: undefined,
     customerId: 0,
     customerName: "",
@@ -33,6 +36,39 @@ export default function TestResultPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [role, setRole] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const toggleSelect = (id?: number) => {
+  if (id == null) return;
+  setSelectedIds((prev) =>
+    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+  );
+};
+
+
+  const filteredResults = testResults
+  .filter((tr) => {
+    return (
+      tr.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tr.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tr.doctorName?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  })
+  .sort((a, b) => {
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
+const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
+const paginatedResults = filteredResults.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+);
+
 
   const fetchTestResults = async () => {
     try {
@@ -55,6 +91,23 @@ export default function TestResultPage() {
       console.error("Lỗi khi tải kết quả xét nghiệm:", error);
     }
   };
+useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (
+      target.closest(".action-menu") ||
+      target.closest(".action-toggle-button")
+    ) {
+      return;
+    }
+    setOpenMenuId(null);
+  };
+
+  document.addEventListener("click", handleClickOutside);
+  return () => {
+    document.removeEventListener("click", handleClickOutside);
+  };
+}, []);
 
   useEffect(() => {
     fetchTestResults();
@@ -90,6 +143,7 @@ export default function TestResultPage() {
 
   const resetForm = () => {
     setFormData({
+      testResultId: undefined,  
       doctorId: undefined,
       customerId: 0,
       customerName: "",
@@ -180,6 +234,18 @@ export default function TestResultPage() {
   }
 };
 
+  const handleDeleteMultiple = async () => {
+  if (!confirm(`Bạn có chắc muốn xóa ${selectedIds.length} kết quả này không?`)) return;
+  try {
+    await Promise.all(selectedIds.map((id) => ApiService.deleteTestResult(id)));
+    await fetchTestResults();
+    setSelectedIds([]);
+    toast.success("🗑️ Đã xóa các mục đã chọn!");
+  } catch (error) {
+    console.error("Lỗi khi xóa nhiều:", error);
+    toast.error("❌ Xóa nhiều thất bại!");
+  }
+};
 
   const exportSingleToExcel = (tr: TestResult) => {
     const row = [{
@@ -204,20 +270,6 @@ export default function TestResultPage() {
 
   return (
     <div className="p-4 relative">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900">Kết quả xét nghiệm</h1>
-
-      {(role === "DOCTOR" || role === "ADMIN") && (
-  <div className="flex justify-end mb-4">
-    <button
-      onClick={() => setShowForm(true)}
-      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 z-50 relative"
-    >
-      Thêm
-    </button>
-  </div>
-)}
-
-
       {showForm && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
@@ -300,75 +352,205 @@ export default function TestResultPage() {
     </div>
   </div>
 )}
+      {/* ---------- PAGE HEADER ---------- */}
+<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+  {/* Tiêu đề trang */}
+  <h1 className="text-2xl font-bold text-gray-900">
+    Quản lý kết quả xét nghiệm
+  </h1>
+
+  {/* Ô tìm kiếm + các nút thao tác */}
+  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-center">
+    <input
+      type="text"
+      placeholder="🔍 Tìm theo tên bệnh nhân, bác sĩ..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="border px-3 py-2 rounded w-full sm:w-80"
+    />
+
+    {(role === "DOCTOR" || role === "ADMIN") && (
+      <>
+        <button
+          onClick={() => setShowForm(true)}
+          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-md shadow-sm"
+        >
+          Thêm
+        </button>
+
+        {selectedIds.length > 0 && (
+          <button
+            onClick={handleDeleteMultiple}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-md shadow-sm"
+          >
+            Xóa {selectedIds.length} mục
+          </button>
+        )}
+      </>
+    )}
+  </div>
+</div>
 
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200 mt-4">
-        <table className="min-w-full text-sm text-gray-800 table-fixed border-collapse">
-          <thead className="bg-gray-200 text-gray-700 uppercase text-sm font-semibold border-b border-gray-300">
-            <tr>
-              <th className="border px-4 py-2">Email bệnh nhân</th>
-              <th className="border px-4 py-2">Tên bệnh nhân</th>
-              <th className="border px-4 py-2">Tên bác sĩ</th>
-              <th className="border px-4 py-2">Ngày</th>
-              <th className="border px-4 py-2">Loại xét nghiệm</th>
-              <th className="border px-4 py-2">Kết quả mô tả</th>
-              {(role === "DOCTOR" || role === "ADMIN") && (
-                <th className="border px-4 py-2">Hành động</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {testResults.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={role === "DOCTOR" || role === "ADMIN" ? 7 : 6}
-                  className="text-center text-gray-500 py-6 border"
-                >
-                  Không có kết quả xét nghiệm nào.
-                </td>
-              </tr>
-            ) : (
-              testResults.map((tr, index) => (
-                <tr key={tr.testResultId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="border px-4 py-2">{tr.customerEmail}</td>
-                  <td className="border px-4 py-2">{tr.customerName}</td>
-                  <td className="border px-4 py-2">{tr.doctorName}</td>
-                  <td className="border px-4 py-2 text-center">
-                    {format(new Date(tr.date), "dd/MM/yyyy")}
-                  </td>
-                  <td className="border px-4 py-2">{tr.typeOfTest}</td>
-               <td className="border px-4 py-2 max-w-[200px] break-words whitespace-normal overflow-hidden">
-  {tr.resultDescription}
+      
+<div className="relative bg-white rounded-lg shadow">
+<table className="w-full min-w-[1200px] text-sm border-collapse bg-white">
+<thead className="text-gray-800 text-sm font-semibold uppercase tracking-wide bg-white border-b border-gray-300">
+
+  <tr>
+    <th className="px-3 py-2 text-center w-8">
+      <input
+        type="checkbox"
+        className="appearance-none h-4 w-4 rounded bg-gray-200 checked:bg-blue-500 focus:outline-none"
+        checked={
+          paginatedResults.every((tr) => tr.testResultId != null && selectedIds.includes(tr.testResultId))
+          && paginatedResults.length > 0
+        }
+        onChange={(e) => {
+          if (e.target.checked) {
+            const ids = paginatedResults
+              .map((tr) => tr.testResultId)
+              .filter((id): id is number => id != null);
+            setSelectedIds(ids);
+          } else {
+            setSelectedIds([]);
+          }
+        }}
+      />
+    </th>
+    <th className="px-2 py-2 text-center w-16">ID</th>
+    <th className="px-4 py-2 text-left w-48">Tên bệnh nhân</th>
+    <th className="px-4 py-2 text-left w-48">Tên bác sĩ</th>
+    <th
+      className="px-3 py-2 text-center w-32 cursor-pointer hover:text-blue-700"
+      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+    >
+      Ngày {sortOrder === "asc" ? "↑" : "↓"}
+    </th>
+    <th className="px-4 py-2 text-left w-40">Loại xét nghiệm</th>
+    <th className="px-4 py-2 text-left w-[400px]">Kết quả mô tả</th>
+    <th className="px-2 py-2 text-right w-12"></th>
+  </tr>
+</thead>
+
+<tbody>
+  {paginatedResults.length === 0 ? (
+    <tr>
+      <td colSpan={8} className="text-center text-gray-500 py-6">
+        Không có dữ liệu.
+      </td>
+    </tr>
+  ) : (
+    paginatedResults.map((tr, index) => (
+     <tr
+  key={tr.testResultId ?? `row-${index}`}
+  className={`transition ${
+    index % 2 === 0 ? "bg-gray-100" : "bg-white"
+  } hover:bg-gray-200`}
+>
+
+        <td className="px-3 py-2 text-center">
+          <input
+            type="checkbox"
+            className="appearance-none h-4 w-4 rounded bg-gray-200 checked:bg-blue-500 focus:outline-none"
+            checked={selectedIds.includes(tr.testResultId ?? -1)}
+            onChange={() => toggleSelect(tr.testResultId)}
+          />
+        </td>
+        <td className="px-2 py-2 text-center">{tr.testResultId}</td>
+        <td className="px-4 py-2 text-left truncate max-w-[200px]">{tr.customerName}</td>
+        <td className="px-4 py-2 text-left truncate max-w-[200px]">{tr.doctorName}</td>
+        <td className="px-3 py-2 text-center">
+          {format(new Date(tr.date), "dd/MM/yyyy")}
+        </td>
+        <td className="px-4 py-2 text-left">{tr.typeOfTest}</td>
+        <td className="px-4 py-2 text-left">
+  <div className="whitespace-pre-wrap break-words">
+    {tr.resultDescription}
+  </div>
 </td>
+        <td className="text-right px-2 relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const id = tr.testResultId ?? null;
+              setOpenMenuId((prev) => (prev === id ? null : id));
+            }}
+            className="p-2 hover:bg-gray-100 rounded-full action-toggle-button"
+          >
+            <MoreVertical size={18} className="text-gray-500" />
+          </button>
 
-                  {(role === "DOCTOR" || role === "ADMIN") && (
-                    <td className="border px-4 py-2 text-center space-x-1">
-                      <button
-                        onClick={() => handleEdit(tr)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-sm"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(tr.testResultId)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-2 py-0.5 rounded text-sm"
-                      >
-                        Xóa
-                      </button>
-                      <button
-                        onClick={() => exportSingleToExcel(tr)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded text-sm"
-                      >
-                        Excel
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+<div
+  id={`action-menu-${tr.testResultId}`}
+  className={`action-menu absolute right-0 w-36 bg-white border border-gray-200 rounded shadow-lg z-50 ${
+    openMenuId === tr.testResultId ? "" : "hidden"
+  } ${index === paginatedResults.length - 1 ? "bottom-full mb-1" : "mt-1"}`}
+>
+
+            <button
+              onClick={() => {
+                handleEdit(tr);
+                document.getElementById(`action-menu-${tr.testResultId}`)?.classList.add("hidden");
+              }}
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+            >
+               Sửa
+            </button>
+            <button
+              onClick={() => {
+                handleDelete(tr.testResultId);
+                document.getElementById(`action-menu-${tr.testResultId}`)?.classList.add("hidden");
+              }}
+              className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+            >
+               Xóa
+            </button>
+            <button
+              onClick={() => {
+                exportSingleToExcel(tr);
+                document.getElementById(`action-menu-${tr.testResultId}`)?.classList.add("hidden");
+              }}
+              className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+            >
+               Excel
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
+
+  </table>
+</div>
+
+      <div className="flex justify-between items-center text-sm text-gray-600 mt-4">
+  <span>
+    Trang {currentPage} / {totalPages} ({filteredResults.length} kết quả)
+  </span>
+  <div className="flex gap-2">
+    <button
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+      className={`px-3 py-1 rounded border ${
+        currentPage === 1 ? "bg-gray-200 text-gray-500" : "hover:bg-gray-100"
+      }`}
+    >
+      ← Trước
+    </button>
+    <button
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+      className={`px-3 py-1 rounded border ${
+        currentPage === totalPages ? "bg-gray-200 text-gray-500" : "hover:bg-gray-100"
+      }`}
+    >
+      Sau →
+    </button>
+  </div>
+</div>
+
     </div>
   );
 }

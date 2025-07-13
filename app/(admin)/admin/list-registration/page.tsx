@@ -34,6 +34,8 @@ export default function RegistrationManager() {
   const [visitTypeFilter, setVisitTypeFilter] = useState<string>("");
   const [modeFilter, setModeFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("");
+  const [currentDoctorId, setCurrentDoctorId] = useState<number | null>(null);
 
   const exportToExcel = () => {
     const exportData = filtered.map((r) => ({
@@ -66,35 +68,74 @@ export default function RegistrationManager() {
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, "danh_sach_dang_ky.xlsx");
   };
+  useEffect(() => {
+  const authData = localStorage.getItem("authData");
+  if (authData) {
+    try {
+      const parsed = JSON.parse(authData);
+      const role = parsed?.account?.role || parsed?.role || "";
+      const doctorId = parsed?.doctor?.doctorId || parsed?.account?.doctor?.doctorId;
+
+      setUserRole(role);
+      setCurrentDoctorId(doctorId || null);
+    } catch (err) {
+      console.error("Lỗi phân tích authData:", err);
+    }
+  }
+}, []);
 
   useEffect(() => {
-    ApiService.getAllRegistrations().then((data) => {
-      setRegistrations(data);
-      setFiltered(data);
-    });
-  }, []);
+  const fetchRegistrations = async () => {
+    try {
+      const data = await ApiService.getAllRegistrations();
+
+      let visibleData = data;
+
+      if (userRole === "DOCTOR" && currentDoctorId !== null) {
+        visibleData = data.filter((r: Registration) => r.doctorId === currentDoctorId);
+      }
+
+      setRegistrations(visibleData);
+      setFiltered(visibleData);
+    } catch (error) {
+      console.error("Lỗi khi load registrations:", error);
+    }
+  };
+
+  if (userRole) fetchRegistrations();
+}, [userRole, currentDoctorId]);
+
 
   useEffect(() => {
-    let temp = registrations;
-    if (doctorIdFilter) temp = temp.filter((r) => r.doctorId.toString() === doctorIdFilter);
-    if (visitTypeFilter) temp = temp.filter((r) => r.visitType === visitTypeFilter);
-    if (modeFilter) temp = temp.filter((r) => r.mode === modeFilter);
-    if (dateFilter) temp = temp.filter((r) => r.appointmentDate?.startsWith(dateFilter));
-    setFiltered(temp);
-  }, [doctorIdFilter, visitTypeFilter, modeFilter, dateFilter, registrations]);
+  let temp = registrations;
+
+  if (userRole === "ADMIN" && doctorIdFilter) {
+    temp = temp.filter((r) => r.doctorId.toString() === doctorIdFilter);
+  }
+
+  if (visitTypeFilter) temp = temp.filter((r) => r.visitType === visitTypeFilter);
+  if (modeFilter) temp = temp.filter((r) => r.mode === modeFilter);
+  if (dateFilter) temp = temp.filter((r) => r.appointmentDate?.startsWith(dateFilter));
+
+  setFiltered(temp);
+}, [doctorIdFilter, visitTypeFilter, modeFilter, dateFilter, registrations, userRole]);
+
 
   return (
     <div className="p-6 text-gray-900">
       <h1 className="text-xl font-bold mb-4">Quản lý phiếu đăng ký</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-        <input
-          type="text"
-          placeholder="Lọc theo Doctor ID"
-          value={doctorIdFilter}
-          onChange={(e) => setDoctorIdFilter(e.target.value)}
-          className="border p-2 rounded"
-        />
+        {userRole === "ADMIN" && (
+  <input
+    type="text"
+    placeholder="Lọc theo Doctor ID"
+    value={doctorIdFilter}
+    onChange={(e) => setDoctorIdFilter(e.target.value)}
+    className="border p-2 rounded"
+  />
+)}
+
         <select
           value={visitTypeFilter}
           onChange={(e) => setVisitTypeFilter(e.target.value)}

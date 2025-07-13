@@ -222,7 +222,15 @@ static async markReminderDone(reminderId: number): Promise<any> {
   }
 
    /** ---------------- MEDICAL HISTORY ---------------- */
- static async getMedicalHistories(): Promise<any> {
+  static async getMyMedicalHistories(): Promise<any> {
+  return (
+    await axios.get(`${this.BASE_URL}/api/medical-histories/me`, {
+      headers: this.getHeader(),
+    })
+  ).data;
+}
+
+   static async getMedicalHistories(): Promise<any> {
   return (
     await axios.get(`${this.BASE_URL}/api/medical-histories`, {
       headers: this.getHeader(),
@@ -410,7 +418,6 @@ static async createBlog(data: any): Promise<any> {
   ).data;
 }
 
-
 static async updateBlog(id: number, data: any): Promise<any> {
   return (await axios.put(`${this.BASE_URL}/api/blogposts/${id}`, data, {
     headers: this.getHeader(),
@@ -423,6 +430,28 @@ static async deleteBlog(id: number): Promise<any> {
   })).data;
 }
 
+static async createBlogWithImage(formData: FormData): Promise<any> {
+  return (
+    await axios.post(`${this.BASE_URL}/api/blogposts/create-with-image`, formData, {
+      headers: {
+        ...this.getHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  ).data;
+}
+
+/* tuỳ chọn – update */
+static async updateBlogWithImage(id: number, formData: FormData): Promise<any> {
+  return (
+    await axios.put(`${this.BASE_URL}/api/blogposts/${id}`, formData, {
+      headers: {
+        ...this.getHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  ).data;
+}
 
 
   /** ---------------- APPOINTMENT ---------------- */
@@ -664,7 +693,7 @@ static async countRatingsByDoctorId(doctorId: number): Promise<number> {
   /** ---------------- PASSWORD RESET ---------------- */
   static async forgotPassword(data: any): Promise<any> {
     return (
-      await axios.post(`${this.BASE_URL}/api/forgot-pasword`, data, {
+      await axios.post(`${this.BASE_URL}/api/forgot-password`, data, {
         headers: this.getHeader(),
       })
     ).data;

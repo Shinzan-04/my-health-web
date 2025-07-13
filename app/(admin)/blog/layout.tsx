@@ -29,13 +29,21 @@ interface BlogLayoutProps {
 const BlogLayout: FC<BlogLayoutProps> = ({ children }) => {
   return (
     <html lang="vi" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen flex flex-col">
+      <body
+        className="min-h-screen flex flex-col text-gray-800"
+        style={{
+          backgroundImage: "url('/img/bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
         <Header />
 
-        {/* Main content container không có sidebar */}
+        {/* Không có lớp nền - hiển thị trực tiếp trên ảnh */}
         <div className="flex flex-1 pt-[64px]">
           <div className="flex-1 flex flex-col w-full">
-            <main className="flex-1 p-4 pt-[64px] bg-gray-50 overflow-auto">
+            <main className="flex-1 p-4 pt-[64px]">
               {children}
             </main>
             <Footer />
@@ -45,6 +53,5 @@ const BlogLayout: FC<BlogLayoutProps> = ({ children }) => {
     </html>
   );
 };
-
 
 export default BlogLayout;

@@ -66,7 +66,7 @@ export default function Dashboard() {
           { title: "Bác sĩ", value: counts.doctors, href: "/admin/doctors" },
           { title: "Bệnh nhân", value: counts.customers, href: "/admin/users" },
           { title: "ARV", value: counts.arv, href: "/admin/arv" },
-          { title: "Bài viết", value: counts.blogs, href: "/blogs" },
+          { title: "Bài viết", value: counts.blogs, href: "/blog" },
           { title: "Lịch khám", value: counts.registrations, href: "/admin/list-registration" },
           { title: "Xét nghiệm", value: counts.testResults, href: "/admin/testresults" },
         ].map((item) => (
