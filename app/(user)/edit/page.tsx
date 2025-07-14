@@ -181,8 +181,8 @@ export default function EditCustomerProfile() {
                   avatarFile
                     ? URL.createObjectURL(avatarFile)
                     : customer.avatarUrl
-                    ? `http://localhost:8080${customer.avatarUrl}`
-                    : "/avatar-default.png"
+                      ? `http://localhost:8080${customer.avatarUrl}`
+                      : "/avatar-default.png"
                 }
                 alt="Avatar"
                 className="w-32 h-32 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-blue-200 shadow-md transition-transform duration-300 group-hover:scale-105 bg-white"
@@ -228,6 +228,20 @@ export default function EditCustomerProfile() {
           </div>
 
           <div className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                value={customer.email ?? ""}
+                readOnly
+                disabled
+                className="w-full border border-gray-200 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
+              />
+            </div>
             {/* Họ tên */}
             <FormField
               label="Họ tên"
@@ -236,6 +250,7 @@ export default function EditCustomerProfile() {
               onChange={handleChange}
               error={errors.fullName}
             />
+
             {/* Địa chỉ */}
             <FormField
               label="Địa chỉ"
@@ -270,9 +285,8 @@ export default function EditCustomerProfile() {
                 name="gender"
                 value={customer.gender ?? ""}
                 onChange={handleChange}
-                className={`w-full border px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${
-                  errors.gender ? "border-red-400" : "border-gray-300"
-                }`}
+                className={`w-full border px-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition ${errors.gender ? "border-red-400" : "border-gray-300"
+                  }`}
               >
                 <option value="">Chọn giới tính</option>
                 <option value="MALE">Nam</option>
@@ -282,28 +296,14 @@ export default function EditCustomerProfile() {
                 <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
               )}
             </div>
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={customer.email ?? ""}
-                readOnly
-                disabled
-                className="w-full border border-gray-200 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
-              />
-            </div>
+
           </div>
 
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className={`mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold py-3 rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg flex items-center justify-center ${
-              submitting ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+            className={`mt-6 w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold py-3 rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg flex items-center justify-center ${submitting ? "opacity-60 cursor-not-allowed" : ""
+              }`}
           >
             {submitting ? (
               <svg
