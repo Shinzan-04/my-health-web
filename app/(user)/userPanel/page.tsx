@@ -102,7 +102,14 @@ export default function UserPanel() {
                       </span>
                     </p>
                   </div>
-
+                  {reminder.status !== "DONE" && (
+                    <button
+                      onClick={() => handleMarkAsDone(reminder.reminderId)}
+                      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center self-start"
+                    >
+                      <CheckCircle size={18} className="mr-2" /> Đánh dấu đã xong
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

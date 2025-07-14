@@ -67,7 +67,7 @@ export default function MedicalHistoryTable() {
           placeholder="🔍 Tìm theo tên bệnh nhân..."
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
-          className="border px-3 py-2 rounded w-full md:w-80 text-gray-700"
+          className="border px-3 py-2 rounded w-full md:w-80"
         />
       </div>
 
@@ -109,16 +109,16 @@ export default function MedicalHistoryTable() {
                         index % 2 === 0 ? "bg-gray-100" : "bg-white"
                       } hover:bg-gray-200`}
                     >
-                      <td className="px-3 py-2 text-left text-gray-700">{item.medicalHistoryId}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.customerName ?? "N/A"}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.doctorName}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.diseaseName}</td>
-                      <td className="px-3 py-2 text-center text-gray-700">{formatDate(item.visitDate)}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.reason}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.diagnosis}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.treatment}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.prescription}</td>
-                      <td className="px-3 py-2 text-left text-gray-700">{item.notes}</td>
+                      <td className="px-3 py-2 text-left">{item.medicalHistoryId}</td>
+                      <td className="px-3 py-2 text-left">{item.customerName ?? "N/A"}</td>
+                      <td className="px-3 py-2 text-left">{item.doctorName}</td>
+                      <td className="px-3 py-2 text-left">{item.diseaseName}</td>
+                      <td className="px-3 py-2 text-center">{formatDate(item.visitDate)}</td>
+                      <td className="px-3 py-2 text-left">{item.reason}</td>
+                      <td className="px-3 py-2 text-left">{item.diagnosis}</td>
+                      <td className="px-3 py-2 text-left">{item.treatment}</td>
+                      <td className="px-3 py-2 text-left">{item.prescription}</td>
+                      <td className="px-3 py-2 text-left">{item.notes}</td>
                     </tr>
                   ))
                 )}

@@ -74,16 +74,17 @@ export default function EditCustomerModal({
               />
             </div>
 
-            <div>
+              <div>
               <label className="block text-sm font-medium text-gray-800 mb-1">
-                Địa chỉ:
+                Email
               </label>
               <input
-                name="address"
-                value={formData.address ?? ""}
-                onChange={handleChange}
-                placeholder="Địa chỉ"
-                className="w-full border border-gray-400 px-3 py-2 rounded"
+                name="email"
+                type="email"
+                value={formData.email ?? ""}
+                readOnly
+                disabled
+                className="w-full border border-gray-200 px-3 py-2 rounded bg-gray-100 cursor-not-allowed text-gray-500"
               />
             </div>
 
@@ -108,19 +109,6 @@ export default function EditCustomerModal({
 
             <div>
               <label className="block text-sm font-medium text-gray-800 mb-1">
-                Ngày sinh:
-              </label>
-              <input
-                name="dateOfBirth"
-                type="date"
-                value={formData.dateOfBirth || ""}
-                onChange={handleChange}
-                className="w-full border border-gray-400 px-3 py-2 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-800 mb-1">
                 Giới tính:
               </label>
               <select
@@ -134,6 +122,34 @@ export default function EditCustomerModal({
                 <option value="FEMALE">Nữ</option>
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Ngày sinh:
+              </label>
+              <input
+                name="dateOfBirth"
+                type="date"
+                value={formData.dateOfBirth || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
+
+               <div>
+              <label className="block text-sm font-medium text-gray-800 mb-1">
+                Địa chỉ:
+              </label>
+              <input
+                name="address"
+                value={formData.address ?? ""}
+                onChange={handleChange}
+                placeholder="Địa chỉ"
+                className="w-full border border-gray-400 px-3 py-2 rounded"
+              />
+            </div>
+
+          
           </div>
 
           <div className="mt-4 flex justify-end space-x-2">
