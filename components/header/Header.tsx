@@ -24,7 +24,8 @@ const homeLabel =
     ? "Trang Quản Trị"
     : userRole === "DOCTOR"
     ? "Trang Bác Sĩ"
-    : "Trang Người Dùng";
+    : userRole === "USER"
+    ?  "Trang Người Dùng" : "";
 
 const homeHref =
   userRole === "ADMIN"
@@ -64,6 +65,7 @@ const navLinks = [
     { label: "Hồ sơ bệnh nhân", href: "/profilecustomer" },
     { label: "Phác đồ điều trị", href: "/admin/arv" },
     { label: "Lịch làm việc", href: "/schedule" },
+    { label: "Kết quả xét nghiệm", href: "/admin/testresults" },
   ];
 
 useEffect(() => {
