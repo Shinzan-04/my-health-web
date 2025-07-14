@@ -34,7 +34,6 @@ export default function MedicalHistoryTable() {
         setData(histories);
         setFilteredData(histories);
       } catch (err) {
-        console.error(err);
         setError("Không thể tải dữ liệu hồ sơ bệnh.");
       } finally {
         setLoading(false);
@@ -65,96 +64,136 @@ export default function MedicalHistoryTable() {
   );
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Header + Tìm kiếm */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-blue-800">Hồ sơ bệnh án của bạn</h2>
-        <input
-          type="text"
-          placeholder="🔍 Tìm theo tên bệnh nhân..."
-          value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
-          className="border px-3 py-2 rounded w-full md:w-96"
-        />
-      </div>
-
-      {/* Nội dung bảng */}
-      {loading ? (
-        <div className="text-gray-600">Đang tải dữ liệu...</div>
-      ) : error ? (
-        <div className="text-red-600">{error}</div>
-      ) : (
-        <>
-          <div className="overflow-x-auto rounded border border-gray-300 shadow bg-white">
-            <table className="min-w-[1200px] w-full text-sm text-gray-900">
-              <thead className="bg-white border-b border-gray-300">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-200 py-12 px-4 flex justify-center items-center">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl p-8 sm:p-10 space-y-8 border border-blue-100">
+        {/* Header + Tìm kiếm */}
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold italic text-blue-900 font-sans mb-2 tracking-tight drop-shadow-md">
+            Hồ sơ bệnh án của bạn
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Xem lại lịch sử khám và điều trị của bạn
+          </p>
+        </div>
+        {/* Nội dung bảng */}
+        <div className="overflow-x-auto rounded-2xl shadow-xl border border-black bg-white">
+          <table className="min-w-full text-base text-gray-700">
+            <thead className="bg-blue-100 text-blue-900 uppercase tracking-wider text-sm">
+              <tr>
+                <th className="border border-black px-4 py-3 text-left">ID</th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Bệnh nhân
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Bác sĩ
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Tên bệnh
+                </th>
+                <th className="border border-black px-4 py-3 text-center">
+                  Ngày khám
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Lý do
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Chẩn đoán
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Điều trị
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Đơn thuốc
+                </th>
+                <th className="border border-black px-4 py-3 text-left">
+                  Ghi chú
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th className="px-4 py-2 text-left">ID</th>
-                  <th className="px-4 py-2 text-left">Bệnh nhân</th>
-                  <th className="px-4 py-2 text-left">Bác sĩ</th>
-                  <th className="px-4 py-2 text-left">Tên bệnh</th>
-                  <th className="px-4 py-2 text-center">Ngày khám</th>
-                  <th className="px-4 py-2 text-left">Lý do</th>
-                  <th className="px-4 py-2 text-left">Chẩn đoán</th>
-                  <th className="px-4 py-2 text-left">Điều trị</th>
-                  <th className="px-4 py-2 text-left">Đơn thuốc</th>
-                  <th className="px-4 py-2 text-left">Ghi chú</th>
+                  <td colSpan={10} className="text-center py-6 text-gray-500 border border-black">
+                    Đang tải dữ liệu...
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {paginatedData.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="text-center py-4 text-gray-500">
-                      Không có dữ liệu.
+              ) : error ? (
+                <tr>
+                  <td colSpan={10} className="text-center py-6 text-red-600 border border-black">
+                    {error}
+                  </td>
+                </tr>
+              ) : paginatedData.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="text-center py-6 text-gray-500 border border-black">
+                    Không có dữ liệu.
+                  </td>
+                </tr>
+              ) : (
+                paginatedData.map((item, index) => (
+                  <tr
+                    key={item.medicalHistoryId}
+                    className={index % 2 === 0 ? "bg-blue-50" : "bg-white"}
+                  >
+                    <td className="border border-black px-4 py-2">
+                      {item.medicalHistoryId}
+                    </td>
+                    <td className="border border-black px-4 py-2 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">
+                      {item.customerName ?? "N/A"}
+                    </td>
+                    <td className="border border-black px-4 py-2 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">
+                      {item.doctorName}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {item.diseaseName}
+                    </td>
+                    <td className="border border-black px-4 py-2 text-center">
+                      {formatDate(item.visitDate)}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {item.reason}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {item.diagnosis}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {item.treatment}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {item.prescription}
+                    </td>
+                    <td className="border border-black px-4 py-2">
+                      {item.notes}
                     </td>
                   </tr>
-                ) : (
-                  paginatedData.map((item, index) => (
-                    <tr
-                      key={item.medicalHistoryId}
-                      className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                    >
-                      <td className="px-4 py-2">{item.medicalHistoryId}</td>
-                      <td className="px-4 py-2">{item.customerName ?? "N/A"}</td>
-                      <td className="px-4 py-2">{item.doctorName}</td>
-                      <td className="px-4 py-2">{item.diseaseName}</td>
-                      <td className="px-4 py-2 text-center">{formatDate(item.visitDate)}</td>
-                      <td className="px-4 py-2">{item.reason}</td>
-                      <td className="px-4 py-2">{item.diagnosis}</td>
-                      <td className="px-4 py-2">{item.treatment}</td>
-                      <td className="px-4 py-2">{item.prescription}</td>
-                      <td className="px-4 py-2">{item.notes}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        {/* Phân trang */}
+        <div className="flex justify-between items-center text-sm text-gray-600 mt-4">
+          <span>
+            Trang {currentPage} / {totalPages} ({filteredData.length} kết quả)
+          </span>
+          <div className="flex gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="px-3 py-1 rounded border hover:bg-gray-100 disabled:bg-gray-200 disabled:text-gray-500"
+            >
+              ← Trước
+            </button>
+            <button
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="px-3 py-1 rounded border hover:bg-gray-100 disabled:bg-gray-200 disabled:text-gray-500"
+            >
+              Sau →
+            </button>
           </div>
-
-          {/* Phân trang */}
-          <div className="flex justify-between items-center text-sm text-gray-600 mt-4">
-            <span>
-              Trang {currentPage} / {totalPages} ({filteredData.length} kết quả)
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                className={`px-3 py-1 rounded border ${currentPage === 1 ? "bg-gray-200 text-gray-400" : "hover:bg-gray-100"}`}
-              >
-                ← Trước
-              </button>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                className={`px-3 py-1 rounded border ${currentPage === totalPages ? "bg-gray-200 text-gray-400" : "hover:bg-gray-100"}`}
-              >
-                Sau →
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

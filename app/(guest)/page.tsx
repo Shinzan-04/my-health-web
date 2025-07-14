@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div>
-      <h1>
+    <div className="py-8 px-4">
+      <h1 className="text-3xl md:text-4xl font-bold text-black mb-6 text-center tracking-tight drop-shadow">
         Danh sách bác sĩ
       </h1>
       <DoctorCardList />

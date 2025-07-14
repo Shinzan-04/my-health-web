@@ -24,7 +24,8 @@ const homeLabel =
     ? "Trang Quản Trị"
     : userRole === "DOCTOR"
     ? "Trang Bác Sĩ"
-    : "Trang Người Dùng";
+    : userRole === "USER"
+    ?  "Trang Người Dùng" : "";
 
 const homeHref =
   userRole === "ADMIN"
