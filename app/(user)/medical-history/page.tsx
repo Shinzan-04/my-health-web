@@ -74,7 +74,7 @@ export default function MedicalHistoryTable() {
           placeholder="🔍 Tìm theo tên bệnh nhân..."
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
-          className="border px-3 py-2 rounded w-full md:w-96"
+          className="border px-3 py-2 rounded w-full md:w-96 text-gray-700"
         />
       </div>
 

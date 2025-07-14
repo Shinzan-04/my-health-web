@@ -46,7 +46,6 @@ const BlogLayout: FC<BlogLayoutProps> = ({ children }) => {
             <main className="flex-1 p-4 pt-[64px]">
               {children}
             </main>
-            <Footer />
           </div>
         </div>
       </body>

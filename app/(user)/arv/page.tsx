@@ -60,7 +60,7 @@ export default function ARVPage() {
           <input
             type="text"
             placeholder="🔍 Tìm theo tên bệnh nhân, bác sĩ hoặc phác đồ..."
-            className="border px-3 py-2 rounded w-full md:w-96"
+            className="border px-3 py-2 rounded w-full md:w-96 text-gray-700"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

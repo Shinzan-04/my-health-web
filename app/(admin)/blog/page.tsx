@@ -221,12 +221,34 @@ export default function BlogAdminFullPage() {
                   setForm({ ...form, content: e.target.value })
                 }
               />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className="block"
-              />
+{/* File upload */}
+<div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Ảnh minh họa
+  </label>
+  <div className="flex items-center gap-3">
+    {/* Nút chọn file */}
+    <label
+      htmlFor="fileInput"
+      className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition"
+    >
+      Chọn ảnh
+    </label>
+    {/* Tên file */}
+    <span className="text-gray-600 truncate">
+      {imageFile?.name ?? "Chưa chọn file"}
+    </span>
+    {/* Input ẩn */}
+    <input
+      id="fileInput"
+      type="file"
+      accept="image/*"
+      onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+      className="hidden"
+    />
+  </div>
+</div>
+
 
               <div className="flex justify-end gap-4 pt-2">
                 <button
