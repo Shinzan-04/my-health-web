@@ -47,7 +47,7 @@ const HomeLayout: FC<RootLayoutProps> = ({ children }) => {
               {children}
               <Toaster position="top-right" />
             </main>
-            <Footer />
+            
           </div>
         </div>
       </body>

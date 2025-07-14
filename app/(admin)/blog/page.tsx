@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ApiService from "@/app/service/ApiService";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -10,235 +11,357 @@ type BlogPost = {
   content: string;
   tag: string;
   createdAt: string;
+  imageUrl?: string;
   doctorId?: number;
-  doctor?: { name: string };
+  doctorName?: string;
 };
+
+const PAGE_SIZE = 6;
 
 export default function BlogAdminFullPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
-  const [form, setForm] = useState<Partial<BlogPost>>({});
+  const [form, setForm] = useState<Omit<BlogPost, "id" | "createdAt">>({
+    title: "",
+    content: "",
+    tag: "",
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [expandedBlogIds, setExpandedBlogIds] = useState<number[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
   const [userRole, setUserRole] = useState<string>("");
-  const [doctorName, setDoctorName] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [doctorId, setDoctorId] = useState<number | null>(null);
+
+  const isPrivileged = userRole === "DOCTOR" || userRole === "ADMIN";
 
   useEffect(() => {
-    const authData = localStorage.getItem("authData");
-    if (authData) {
-      try {
-        const parsed = JSON.parse(authData);
-        const role = parsed?.account?.role || parsed?.role || "";
-        const doctorId = parsed?.doctor?.doctorId || parsed?.account?.doctor?.doctorId;
-        const name = parsed?.doctor?.fullName || parsed?.account?.doctor?.fullName;
-
-        setUserRole(role);
-        setForm((prev) => ({ ...prev, doctorId: doctorId || undefined }));
-        if (name) setDoctorName(name);
-      } catch (e) {
-        console.error("Lỗi khi phân tích authData:", e);
-      }
+    const raw = localStorage.getItem("authData");
+    if (!raw) return;
+    try {
+      const p = JSON.parse(raw);
+      setUserRole(p?.account?.role || p?.role || "");
+      setDoctorId(p?.doctor?.doctorId || p?.account?.doctor?.doctorId || null);
+    } catch (e) {
+      console.error(e);
     }
   }, []);
 
   const fetchBlogs = async () => {
-    try {
-      const data = await ApiService.getAllBlogs();
-      const sorted = data.sort(
-        (a: BlogPost, b: BlogPost) =>
+  try {
+    const data = await ApiService.getAllBlogs();
+
+    const enriched = await Promise.all(
+      data.map(async (b: BlogPost) => {
+        if (!b.doctorId) {
+          // Nếu không có doctorId → bài do Admin đăng
+          return { ...b, doctorName: "Admin" };
+        }
+
+        if (!b.doctorName) {
+          // Nếu thiếu tên bác sĩ → gọi API để lấy
+          try {
+            const d = await ApiService.getDoctorById(b.doctorId);
+            return { ...b, doctorName: d.fullName };
+          } catch {
+            return { ...b, doctorName: "Không rõ" };
+          }
+        }
+
+        return b; // Đã có doctorName → giữ nguyên
+      })
+    );
+
+    setBlogs(
+      enriched.sort(
+        (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      setBlogs(sorted);
-    } catch (err) {
-      console.error("Lỗi fetch:", err);
-      toast.error("Lỗi khi tải danh sách blog.");
-    }
-  };
+      )
+    );
+    setPage(1);
+  } catch {
+    toast.error("Lỗi tải blog");
+  }
+};
 
   useEffect(() => {
     fetchBlogs();
   }, []);
 
+  useEffect(() => {
+    const close = () => setDropdownOpen(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
+      const fd = new FormData();
+      fd.append(
+        "blog",
+        new Blob(
+          [JSON.stringify(editingId ? { ...form, doctorId } : form)],
+          { type: "application/json" }
+        )
+      );
+      if (imageFile) fd.append("image", imageFile);
+
       if (editingId) {
-        await ApiService.updateBlog(editingId, form);
-        toast.success("Cập nhật bài viết thành công!");
+        await ApiService.updateBlogWithImage(editingId, fd);
+        toast.success("Đã cập nhật");
       } else {
-        await ApiService.createBlog(form);
-        toast.success("Thêm blog thành công!");
+        await ApiService.createBlogWithImage(fd);
+        toast.success("Đã đăng");
       }
-      setForm({ title: "", content: "", tag: "" });
-      setEditingId(null);
-      setShowForm(false);
+      resetForm();
       fetchBlogs();
     } catch (err: any) {
-      console.error("Lỗi submit:", err);
-      toast.error("Không thể gửi blog: " + (err.response?.data || err.message));
+      toast.error(err.response?.data || "Lỗi gửi blog");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (blog: BlogPost) => {
-    setEditingId(blog.id);
+  const resetForm = () => {
+    setForm({ title: "", content: "", tag: "" });
+    setImageFile(null);
+    setEditingId(null);
+    setShowModal(false);
+  };
+
+  const handleEdit = (b: BlogPost) => {
+    setEditingId(b.id);
     setForm({
-      title: blog.title,
-      content: blog.content,
-      tag: blog.tag,
-      doctorId: blog.doctorId,
+      title: b.title ?? "",
+      content: b.content ?? "",
+      tag: b.tag ?? "",
     });
-    setShowForm(true);
+    setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn xoá bài viết này không?")) return;
+    if (!confirm("Xoá bài viết?")) return;
     try {
       await ApiService.deleteBlog(id);
-      toast.success("Xoá bài viết thành công!");
-      setBlogs((prev) => prev.filter((b) => b.id !== id));
+      toast.success("Đã xoá!");
+      setBlogs((p) => p.filter((b) => b.id !== id));
     } catch (err: any) {
-      console.error("Lỗi xoá:", err);
-      toast.error("Không thể xoá: " + (err.response?.data || err.message));
+      toast.error(err.response?.data || "Xoá thất bại");
     }
   };
 
-  const toggleExpanded = (id: number) => {
-    setExpandedBlogIds((prev) =>
-      prev.includes(id) ? prev.filter((blogId) => blogId !== id) : [...prev, id]
-    );
-  };
+  const totalPages = Math.ceil(blogs.length / PAGE_SIZE);
+  const pagedBlogs = blogs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto text-gray-700">
+    <div className="p-6 max-w-7xl mx-auto text-gray-700">
       <Toaster position="top-right" />
+
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-blue-800">📋 Quản lý Blog</h1>
-        {userRole === "DOCTOR" && (
+        {isPrivileged && (
           <button
             onClick={() => {
-              setShowForm((prev) => !prev);
+              setShowModal(true);
               setEditingId(null);
-              setForm((prev) => ({ ...prev }));
+              setForm({ title: "", content: "", tag: "" });
+              setImageFile(null);
             }}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white rounded-full shadow-lg transition"
           >
-            {showForm ? "Ẩn Form" : "➕ Thêm Blog"}
+            Thêm Blog
           </button>
         )}
       </div>
 
-      {showForm && userRole === "DOCTOR" && (
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 mb-10 bg-blue-50 p-6 rounded-lg shadow-md"
+      {/* MODAL */}
+      {showModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={resetForm}
         >
-          <input
-            type="text"
-            placeholder="Tiêu đề"
-            value={form.title || ""}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            required
-            className="w-full border p-2 rounded text-gray-900"
-          />
-          <input
-            type="text"
-            placeholder="Thẻ (tag)"
-            value={form.tag || ""}
-            onChange={(e) => setForm({ ...form, tag: e.target.value })}
-            className="w-full border p-2 rounded text-gray-900"
-          />
-          <textarea
-            placeholder="Nội dung"
-            value={form.content || ""}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            required
-            className="w-full border p-2 rounded h-40 text-gray-900"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className={`px-4 py-2 rounded text-white ${
-              loading ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"
-            }`}
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            {loading
-              ? "Đang xử lý..."
-              : editingId
-              ? "Cập nhật bài viết"
-              : "Đăng Blog"}
-          </button>
-        </form>
+            <h2 className="text-xl font-semibold mb-4">
+              {editingId ? "Cập nhật" : "Thêm Blog"}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Tiêu đề"
+                name="title"
+                required
+                value={form.title ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, title: e.target.value })
+                }
+              />
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Thẻ (tag)"
+                name="tag"
+                value={form.tag ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, tag: e.target.value })
+                }
+              />
+              <textarea
+                className="w-full border p-2 rounded h-40"
+                placeholder="Nội dung"
+                name="content"
+                required
+                value={form.content ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, content: e.target.value })
+                }
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="block"
+              />
+
+              <div className="flex justify-end gap-4 pt-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+                  onClick={resetForm}
+                >
+                  Huỷ
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`px-4 py-2 rounded text-white ${
+                    loading ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {loading
+                    ? "Đang xử lý..."
+                    : editingId
+                    ? "Cập nhật"
+                    : "Đăng Blog"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
-      <div className="space-y-6">
-        {blogs.map((blog) => {
-          const isExpanded = expandedBlogIds.includes(blog.id);
-          const displayContent =
-            isExpanded || blog.content.length <= 300
-              ? blog.content
-              : blog.content.slice(0, 300) + "...";
+      {/* GRID 3 CỘT */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {pagedBlogs.map((b) => (
+          <article
+            key={b.id}
+            className="relative bg-white rounded-2xl shadow-lg border overflow-hidden flex flex-col hover:shadow-2xl transition-all duration-300"
+          >
+            {b.imageUrl && (
+              <img
+                src={`http://localhost:8080${b.imageUrl}`}
+                alt="thumbnail"
+                className="w-full h-48 object-cover rounded-t-2xl"
+              />
+            )}
+            <div className="p-4 flex-1 flex flex-col">
+              <h2 className="text-lg font-semibold mb-2 line-clamp-2">
+                {b.title}
+              </h2>
+              <p className="text-xs text-gray-500 mb-2">
+                {new Date(b.createdAt).toLocaleString("vi-VN")} • {b.tag} • 👨‍⚕️{" "}
+                {b.doctorName || "Ẩn danh"}
+              </p>
+              <p className="text-sm text-gray-700 line-clamp-3 flex-1">
+                {b.content}
+              </p>
+              <Link
+                href={`/blog/${b.id}`}
+                className="mt-4 inline-block self-start text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Xem thêm →
+              </Link>
+            </div>
 
-          return (
-            <article
-              key={blog.id}
-              className="bg-white p-6 rounded-lg shadow-md border border-gray-200 w-full"
-            >
-              <header className="mb-4 border-b pb-2 border-blue-100 flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-semibold text-blue-900">
-                    {blog.title}
-                  </h2>
-                  <div className="flex items-center text-sm text-gray-600 gap-2 flex-wrap mt-1">
-                    <span className="text-blue-700 font-medium">{blog.tag}</span>
-                    <span className="text-gray-500">
-                      {new Date(blog.createdAt).toLocaleString("vi-VN")}
-                    </span>
-                    <span className="flex items-center text-gray-500">
-                      <span className="mr-1">👨‍⚕️</span>
-                      {blog.doctor?.name || doctorName || "Bác sĩ ẩn danh"}
-                    </span>
-                  </div>
-                </div>
-
-                {userRole === "DOCTOR" && (
-                  <div className="flex flex-col gap-2 items-end ml-4">
+            {isPrivileged && (
+              <div
+                className="absolute top-2 right-2 z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(dropdownOpen === b.id ? null : b.id);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 px-2"
+                >
+                  ⋮
+                </button>
+                {dropdownOpen === b.id && (
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute right-0 mt-1 w-24 bg-white border border-gray-200 shadow rounded text-sm"
+                  >
                     <button
-                      onClick={() => handleEdit(blog)}
-                      className="text-sm text-blue-600 hover:underline"
+                      onClick={() => {
+                        handleEdit(b);
+                        setDropdownOpen(null);
+                      }}
+                      className="block w-full text-left px-3 py-1 hover:bg-gray-100"
                     >
-                      ✏️ Sửa
+                      Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(blog.id)}
-                      className="text-sm text-red-600 hover:underline"
+                      onClick={() => {
+                        handleDelete(b.id);
+                        setDropdownOpen(null);
+                      }}
+                      className="block w-full text-left px-3 py-1 text-red-600 hover:bg-gray-100"
                     >
-                      🗑️ Xoá
+                      Xoá
                     </button>
                   </div>
                 )}
-              </header>
-
-              <p className="text-gray-700 text-base leading-relaxed mb-4 whitespace-pre-wrap">
-                {displayContent}
-              </p>
-
-              {blog.content.length > 300 && (
-                <button
-                  onClick={() => toggleExpanded(blog.id)}
-                  className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors duration-200"
-                >
-                  {isExpanded ? "Ẩn bớt ↑" : "Đọc thêm →"}
-                </button>
-              )}
-            </article>
-          );
-        })}
+              </div>
+            )}
+          </article>
+        ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-10">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className={`px-3 py-1 rounded ${
+              page === 1
+                ? "bg-gray-300"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
+          >
+            « Trước
+          </button>
+          <span className="text-sm font-medium">
+            Trang {page}/{totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className={`px-3 py-1 rounded ${
+              page === totalPages
+                ? "bg-gray-300"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
+          >
+            Sau »
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,6 +14,9 @@ export default function DoctorSchedulePro() {
   const [role, setRole] = useState("");
   const [doctorId, setDoctorId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+/* đặt trước return */
+const [popupOpen, setPopupOpen] = useState(false);
+const [activeEvent, setActiveEvent] = useState<any>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -125,13 +128,10 @@ export default function DoctorSchedulePro() {
     }
   };
 
-const handleDeleteEvent = (event: any) => {
-  if (eventToastRef.current) {
-    toast.dismiss(eventToastRef.current);
-  }
+  const handleDeleteEvent = (event: any) => {
+    if (eventToastRef.current) toast.dismiss(eventToastRef.current);
 
-  const toastId = toast.custom(
-    (t) => (
+    const toastId = toast.custom((t) => (
       <div className="bg-white border shadow-lg rounded p-4 w-72">
         <p className="text-gray-800 font-semibold mb-2">Bạn có chắc muốn xóa lịch này không?</p>
         <div className="flex justify-between">
@@ -139,21 +139,20 @@ const handleDeleteEvent = (event: any) => {
             onClick={async () => {
               toast.dismiss(t.id);
               eventToastRef.current = null;
-
               try {
                 await ApiService.deleteSchedule(event.id);
-                toast.success("✅ Xóa thành công!", {
+                toast.success("Xóa thành công!", {
                   style: { background: "#f0fdf4", color: "#16a34a" },
                 });
                 const id = role === "DOCTOR" ? doctorId : Number(form.manualDoctorId);
                 fetchSchedule(id!);
               } catch (err: any) {
                 if (err.response?.status === 409) {
-                  toast.error("❌ Không thể xóa vì đã có bệnh nhân đăng ký.", {
+                  toast.error("Không thể xóa vì đã có bệnh nhân đăng ký.", {
                     style: { background: "#fff1f2", color: "#dc2626" },
                   });
                 } else {
-                  toast.error("❌ Xóa thất bại. Vui lòng thử lại.", {
+                  toast.error("Xóa thất bại. Vui lòng thử lại.", {
                     style: { background: "#fff1f2", color: "#dc2626" },
                   });
                 }
@@ -174,12 +173,10 @@ const handleDeleteEvent = (event: any) => {
           </button>
         </div>
       </div>
-    ),
-    { duration: Infinity }
-  );
+    ), { duration: Infinity });
 
-  eventToastRef.current = toastId;
-};
+    eventToastRef.current = toastId;
+  };
 
   const handleEditEvent = (event: any) => {
     const start = new Date(event.start);
@@ -196,13 +193,13 @@ const handleDeleteEvent = (event: any) => {
   };
 
   const hourOptions = Array.from({ length: 11 }, (_, i) => {
-    const hour = i + 7; // Bắt đầu từ 7h
+    const hour = i + 7;
     return `${hour.toString().padStart(2, "0")}:00`;
   });
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6 italic">SCHEDULE</h2>
+      <h2 className="text-3xl font-semibold text-gray-800 mb-6 italic">Lịch</h2>
 
       <div className="bg-white shadow rounded-lg p-4 border mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -290,35 +287,34 @@ const handleDeleteEvent = (event: any) => {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
+            buttonText={{
+            today: 'Hôm nay',
+            month: 'Tháng',
+            week: 'Tuần',
+            day: 'Ngày',
+          }}
+          allDaySlot={false}
           events={events}
           locale="vi"
           nowIndicator={true}
           slotMinTime="07:00:00"
           slotMaxTime="18:00:00"
           contentHeight="auto"
-          slotLabelFormat={{
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          }}
-          eventTimeFormat={{
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          }}
-          eventContent={({ event }) => (
-            <div>
-              <div className="">{event.title}</div>
-              <div className="text-xs">
-                Phòng: {event.extendedProps.room || "Không rõ"}
-              </div>
-            </div>
-          )}
-          eventClick={({ event }) => {
-            if (eventToastRef.current) {
-              toast.dismiss(eventToastRef.current);
-            }
+          slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+          eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+eventContent={({ event }) => (
+  <div className="leading-tight">
+    <div className="text-[13px] font-semibold text-gray-900">{event.title}</div>
+    <div className="text-[10px] text-slate-600 italic">
+      Phòng: {event.extendedProps.room || "–"}
+    </div>
+  </div>
+)}
 
+          eventClick={({ event }) => {
+              setActiveEvent(event);   // lưu sự kiện được click
+              setPopupOpen(true);      // mở modal
+            if (eventToastRef.current) toast.dismiss(eventToastRef.current);
             const id = toast.custom((t) => (
               <div className="bg-white border shadow-lg rounded p-4 w-72">
                 <p className="text-gray-800 font-semibold mb-2">Chọn hành động</p>
@@ -346,18 +342,28 @@ const handleDeleteEvent = (event: any) => {
                 </div>
               </div>
             ));
-
             eventToastRef.current = id;
           }}
-          dayHeaderClassNames={() =>
-            "bg-green-100 text-green-900 text-sm font-semibold"
-          }
-          slotLabelClassNames={() => "text-gray-700 text-xs"}
-          eventClassNames={() =>
-            "bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded-md shadow"
-          }
+          dayHeaderClassNames={() => "text-gray-800 text-sm font-semibold"}
+          slotLabelClassNames={() => "text-gray-500 text-xs"}
+          eventClassNames={({ event }) => {
+  const start = event.start;
+  const end = event.end;
+
+  if (!start || !end) return "event-extra-long"; // fallback nếu lỗi dữ liệu
+
+  const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+
+  if (duration <= 1) return "event-short";
+  if (duration <= 2) return "event-medium";
+  if (duration <= 3) return "event-long";
+  if (duration <= 4) return "event-very-long";
+  return "event-extra-long";
+}}
         />
+        
       </div>
+      
     </div>
   );
 }

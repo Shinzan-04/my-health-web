@@ -84,21 +84,31 @@ export default function RegistrationManager() {
   }, [doctorIdFilter, visitTypeFilter, modeFilter, dateFilter, registrations]);
 
   return (
-    <div className="p-6 text-gray-900">
-      <h1 className="text-xl font-bold mb-4">Quản lý phiếu đăng ký</h1>
+    <div className="p-6 text-gray-900 space-y-6">
+      {/* Title */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold whitespace-nowrap">📋 Quản lý phiếu đăng ký</h1>
+        <button
+          onClick={exportToExcel}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition"
+        >
+          📥 Xuất Excel
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+      {/* Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <input
           type="text"
           placeholder="Lọc theo Doctor ID"
           value={doctorIdFilter}
           onChange={(e) => setDoctorIdFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded-md w-full"
         />
         <select
           value={visitTypeFilter}
           onChange={(e) => setVisitTypeFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded-md w-full"
         >
           <option value="">Tất cả loại khám</option>
           <option value="REGISTRATION">Khám</option>
@@ -107,7 +117,7 @@ export default function RegistrationManager() {
         <select
           value={modeFilter}
           onChange={(e) => setModeFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded-md w-full"
         >
           <option value="">Tất cả hình thức</option>
           <option value="Online">Online</option>
@@ -117,93 +127,85 @@ export default function RegistrationManager() {
           type="date"
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-2 rounded-md w-full"
         />
-        <button
-          onClick={exportToExcel}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
-        >
-          📥 Xuất Excel
-        </button>
       </div>
 
-      <table className="w-full text-sm border-collapse rounded-lg overflow-hidden shadow-sm ">
-        <thead className="bg-gray-100 sticky top-0 z-10 bg-gray-300 text-gray-900">
-          <tr>
-            {[
-              "ID", "Doctor ID", "Tên bác sĩ", "Họ tên", "Email", "Giới tính", "Ngày sinh", "SĐT",
-              "Địa chỉ", "Chuyên khoa", "Hình thức", "Ngày khám", "Giờ khám", "Triệu chứng", "Ghi chú",
-              "Loại khám", "Trạng thái", "Thao tác"
-            ].map((header) => (
-              <th key={header} className="border px-2 py-1">{header}</th>
+      {/* Table */}
+      <div className="w-full overflow-x-auto rounded-lg shadow-sm">
+        <table className="min-w-[1300px] text-sm text-left border-collapse">
+          <thead className=" text-gray-900 text-[13px] uppercase tracking-wide font-semibold">
+            <tr>
+              {[
+                "STT", "Tên bác sĩ", "Họ tên", "Email", "Giới tính", "Ngày sinh", "SĐT",
+                "Địa chỉ", "Chuyên khoa", "Hình thức", "Ngày khám", "Giờ khám", "Triệu chứng",
+                "Ghi chú", "Loại khám", "Trạng thái", "Thao tác"
+              ].map((header) => (
+                <th key={header} className="px-4 py-3 whitespace-nowrap">{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r, index) => (
+              <tr
+                key={r.registrationId}
+                className="even:bg-blue-100 hover:bg-gray-200 transition"
+              >
+                <td className="px-4 py-2 text-center">{index + 1}</td>
+                <td className="px-4 py-2">{r.doctorName || "Không rõ"}</td>
+                <td className="px-4 py-2">{r.fullName || "-"}</td>
+                <td className="px-4 py-2">{r.email || "-"}</td>
+                <td className="px-4 py-2">{r.gender || "-"}</td>
+                <td className="px-4 py-2">
+                  {r.dateOfBirth ? new Date(r.dateOfBirth).toLocaleDateString("vi-VN") : "-"}
+                </td>
+                <td className="px-4 py-2">{r.phone || "-"}</td>
+                <td className="px-4 py-2 break-words max-w-[160px]">{r.address || "-"}</td>
+                <td className="px-4 py-2">{r.specialization || "-"}</td>
+                <td className="px-4 py-2">{r.mode}</td>
+                <td className="px-4 py-2">
+                  {r.appointmentDate ? new Date(r.appointmentDate).toLocaleDateString("vi-VN") : "-"}
+                </td>
+                <td className="px-4 py-2">{r.startTime} - {r.endTime}</td>
+                <td className="px-4 py-2 break-words max-w-[200px]">{r.symptom || "-"}</td>
+                <td className="px-4 py-2 break-words max-w-[200px]">{r.notes || "-"}</td>
+                <td className="px-4 py-2">
+                  {r.visitType === "REGISTRATION" ? "Khám" : r.visitType === "APPOINTMENT" ? "Tư vấn" : "-"}
+                </td>
+                <td className={`font-medium ${r.status ? "text-green-600" : "text-yellow-600"}`}>
+                  {r.status ? "ĐÃ KHÁM" : "CHƯA KHÁM"}
+                </td>
+                <td className="px-2 py-2">
+                  <button
+                    className={`px-2 py-1 rounded-md text-white text-center font-semibold transition ${
+                      r.status ? "a hover:scale-200" : " hover:scale-200 "
+                    }`}
+                    onClick={async () => {
+                      try {
+                        const updated = await ApiService.updateRegistrationStatus(r.registrationId, !r.status);
+                        const newList = registrations.map((reg) =>
+                          reg.registrationId === r.registrationId ? { ...reg, status: updated.status } : reg
+                        );
+                        setRegistrations(newList);
+                        setFiltered(newList);
+                        toast.success("Cập nhật trạng thái thành công", {
+                          style: { background: "#f0fdf4", color: "#166534" },
+                        });
+                      } catch (err) {
+                        toast.error("Cập nhật trạng thái thất bại", {
+                          style: { background: "#fef2f2", color: "#b91c1c" },
+                        });
+                      }
+                    }}
+                  >
+                    {r.status ? "↩️" : "✔️"}
+                  </button>
+                </td>
+              </tr>
             ))}
-          </tr>
-        </thead>
-<tbody>
-  {filtered.map((r) => (
-    <tr key={r.registrationId} className="hover:bg-gray-100 transition">
-      <td className="border px-2 py-1">{r.registrationId}</td>
-      <td className="border px-2 py-1">{r.doctorId}</td>
-      <td className="border px-2 py-1">{r.doctorName || "Không rõ"}</td>
-      <td className="border px-2 py-1">{r.fullName || "-"}</td>
-      <td className="border px-2 py-1">{r.email || "-"}</td>
-      <td className="border px-2 py-1">{r.gender || "-"}</td>
-      <td className="border px-2 py-1">
-        {r.dateOfBirth ? new Date(r.dateOfBirth).toLocaleDateString("vi-VN") : "-"}
-      </td>
-      <td className="border px-2 py-1">{r.phone || "-"}</td>
-      <td className="border px-2 py-1 break-words whitespace-pre-line max-w-[180px]">
-        {r.address || "-"}
-      </td>
-      <td className="border px-2 py-1">{r.specialization || "-"}</td>
-      <td className="border px-2 py-1">{r.mode}</td>
-      <td className="border px-2 py-1">
-        {r.appointmentDate ? new Date(r.appointmentDate).toLocaleDateString("vi-VN") : "-"}
-      </td>
-      <td className="border px-2 py-1">{r.startTime} - {r.endTime}</td>
-      <td className="border px-2 py-1 break-words whitespace-pre-line max-w-[200px]">
-        {r.symptom || "-"}
-      </td>
-      <td className="border px-2 py-1 break-words whitespace-pre-line max-w-[200px]">
-        {r.notes || "-"}
-      </td>
-      <td className="border px-2 py-1">
-        {r.visitType === "REGISTRATION" ? "Khám" : r.visitType === "APPOINTMENT" ? "Tư vấn" : "-"}
-      </td>
-      <td className={`border px-2 py-1 font-medium ${r.status ? "text-green-600" : "text-yellow-600"}`}>
-        {r.status ? "ĐÃ KHÁM" : "CHƯA KHÁM"}
-      </td>
-      <td className="border px-2 py-1">
-        <button
-          className={`px-3 py-1 rounded font-semibold text-white transition ${
-            r.status ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-          }`}
-          onClick={async () => {
-            try {
-              const updated = await ApiService.updateRegistrationStatus(r.registrationId, !r.status);
-              const newList = registrations.map((reg) =>
-                reg.registrationId === r.registrationId ? { ...reg, status: updated.status } : reg
-              );
-              setRegistrations(newList);
-              setFiltered(newList);
-              toast.success(`✅ Cập nhật trạng thái thành công`, {
-                style: { background: "#f0fdf4", color: "#166534" },
-              });
-            } catch (err) {
-              toast.error("❌ Cập nhật trạng thái thất bại", {
-                style: { background: "#fef2f2", color: "#b91c1c" },
-              });
-            }
-          }}
-        >
-          {r.status ? "↩️ Đặt lại" : "✔️ Đánh dấu"}
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
