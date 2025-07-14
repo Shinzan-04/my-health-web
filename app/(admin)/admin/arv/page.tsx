@@ -353,129 +353,212 @@ export default function ARVRegimenPage() {
             </h2>
 
             {/* Form grid */}
-            <div className="grid grid-cols-2 gap-6 mb-6">
-              {/* Email */}
-              <input
-                name="email"
-                type="email"
-                placeholder="Email bệnh nhân"
-                value={form.email || ""}
-                onChange={handleChange}
-                onBlur={(e) => fetchCustomerByEmail(e.target.value)}
-                className="border p-3 rounded w-full"
-              />
-              {/* Customer name (readonly?) */}
-              <input
-                name="customerName"
-                placeholder="Tên bệnh nhân"
-                value={form.customerName}
-                onChange={handleChange}
-                className="border p-3 rounded w-full bg-gray-100"
-                readOnly
-              />
-              {/* Dates */}
-              <input
-                name="createDate"
-                type="date"
-                value={form.createDate}
-                onChange={handleChange}
-                className="border p-3 rounded w-full"
-              />
-              <input
-                name="endDate"
-                type="date"
-                value={form.endDate}
-                onChange={handleChange}
-                className="border p-3 rounded w-full"
-              />
-              {/* Regimen code & name */}
-              <select
-                name="regimenCode"
-                value={form.regimenCode}
-                onChange={handleChange}
-                className="border p-3 rounded w-full"
-              >
-                <option value="">-- Chọn mã --</option>
-                {ARV_REGIMEN_OPTIONS.map((o) => (
-                  <option value={o.code} key={o.code}>
-                    {o.code}
-                  </option>
-                ))}
-              </select>
-              <input
-                name="regimenName"
-                value={form.regimenName}
-                readOnly
-                className="border p-3 rounded w-full bg-gray-100 text-gray-400"
-              />
-              {/* Description full width */}
-              <input
-                name="description"
-                placeholder="Ghi chú"
-                value={form.description}
-                onChange={handleChange}
-                className="border p-3 rounded w-full col-span-2"
-              />
+<div className="grid grid-cols-2 gap-6 mb-6">
+  {/* Email bệnh nhân */}
+  <div className="">
+    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+      Email bệnh nhân
+    </label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      placeholder="Email bệnh nhân"
+      value={form.email || ""}
+      onChange={handleChange}
+      onBlur={(e) => fetchCustomerByEmail(e.target.value)}
+      className="border p-3 rounded w-full text-gray-700"
+      required
+    />
+  </div>
 
-              {/* Disease info title */}
-              <div className="col-span-2 font-semibold text-gray-900 mt-4">
-                Thông tin bệnh lý
-              </div>
+  {/* Tên bệnh nhân */}
+  <div className="">
+    <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
+      Tên bệnh nhân
+    </label>
+    <input
+      id="customerName"
+      name="customerName"
+      placeholder="Tên bệnh nhân"
+      value={form.customerName}
+      onChange={handleChange}
+      className="border p-3 rounded w-full bg-gray-100 text-gray-700"
+      readOnly
+    />
+  </div>
 
-              <input
-                name="diseaseName"
-                placeholder="Tên bệnh"
-                value={form.diseaseName}
-                onChange={handleChange}
-                className="border p-3 rounded w-full"
-              />
-              <input
-                name="diagnosis"
-                placeholder="Chẩn đoán"
-                value={form.diagnosis}
-                onChange={handleChange}
-                className="border p-3 rounded w-full"
-              />
-              <input
-                name="prescription"
-                placeholder="Đơn thuốc"
-                value={form.prescription}
-                onChange={handleChange}
-                className="border p-3 rounded w-full col-span-2"
-              />
-              <textarea
-                name="notes"
-                placeholder="Ghi chú bệnh lý"
-                rows={3}
-                value={form.notes || ""}
-                onChange={handleChange}
-                className="border p-3 rounded w-full col-span-2"
-              />
-            </div>
+  {/* Ngày tạo */}
+  <div className="">
+    <label htmlFor="createDate" className="block text-sm font-medium text-gray-700 mb-1">
+      Ngày tạo
+    </label>
+    <input
+      id="createDate"
+      name="createDate"
+      type="date"
+      value={form.createDate}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+      required
+    />
+  </div>
 
-            {/* Dosage schedule checkboxes */}
-            <div className="mb-6">
-              <label className="block font-semibold text-gray-900 mb-2">
-                Lịch uống:
-              </label>
-              <div className="flex flex-wrap gap-4">
-                {DOSAGE_OPTIONS.map((t) => (
-                  <label
-                    key={t}
-                    className="flex items-center gap-2 text-gray-700"
-                  >
-                    <input
-                      type="checkbox"
-                      value={t}
-                      checked={form.medicationSchedule.includes(t)}
-                      onChange={handleDosageChange}
-                      className="h-4 w-4 text-blue-600 rounded"
-                    />
-                    {t}
-                  </label>
-                ))}
-              </div>
-            </div>
+  {/* Ngày kết thúc */}
+  <div className="">
+    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
+      Ngày kết thúc
+    </label>
+    <input
+      id="endDate"
+      name="endDate"
+      type="date"
+      value={form.endDate}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+      required
+    />
+  </div>
+
+  {/* Mã ARV */}
+  <div className="">
+    <label htmlFor="regimenCode" className="block text-sm font-medium text-gray-700 mb-1">
+      Mã phác đồ
+    </label>
+    <select
+      id="regimenCode"
+      name="regimenCode"
+      value={form.regimenCode}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+      required
+    >
+      <option value="">-- Chọn mã --</option>
+      {ARV_REGIMEN_OPTIONS.map((o) => (
+        <option value={o.code} key={o.code}>
+          {o.code}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Tên phác đồ */}
+  <div className="">
+    <label htmlFor="regimenName" className="block text-sm font-medium text-gray-700 mb-1">
+      Tên phác đồ
+    </label>
+    <input
+      id="regimenName"
+      name="regimenName"
+      value={form.regimenName}
+      readOnly
+      className="border p-3 rounded w-full bg-gray-100 text-gray-400"
+    />
+  </div>
+
+  {/* Ghi chú */}
+  <div className="col-span-2">
+    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+      Ghi chú
+    </label>
+    <input
+      id="description"
+      name="description"
+      placeholder="Ghi chú"
+      value={form.description}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+    />
+  </div>
+
+  {/* Tiêu đề Thông tin bệnh lý */}
+  <div className="col-span-2 mt-4 font-semibold text-gray-900">
+    Thông tin bệnh lý
+  </div>
+
+  {/* Tên bệnh */}
+  <div className="">
+    <label htmlFor="diseaseName" className="block text-sm font-medium text-gray-700 mb-1">
+      Tên bệnh
+    </label>
+    <input
+      id="diseaseName"
+      name="diseaseName"
+      placeholder="Tên bệnh"
+      value={form.diseaseName}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+    />
+  </div>
+
+  {/* Chẩn đoán */}
+  <div className="">
+    <label htmlFor="diagnosis" className="block text-sm font-medium text-gray-700 mb-1">
+      Chẩn đoán
+    </label>
+    <input
+      id="diagnosis"
+      name="diagnosis"
+      placeholder="Chẩn đoán"
+      value={form.diagnosis}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+    />
+  </div>
+
+  {/* Đơn thuốc */}
+  <div className="col-span-2">
+    <label htmlFor="prescription" className="block text-sm font-medium text-gray-700 mb-1">
+      Đơn thuốc
+    </label>
+    <input
+      id="prescription"
+      name="prescription"
+      placeholder="Đơn thuốc"
+      value={form.prescription}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+    />
+  </div>
+
+  {/* Ghi chú bệnh lý */}
+  <div className="col-span-2">
+    <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+      Ghi chú bệnh lý
+    </label>
+    <textarea
+      id="notes"
+      name="notes"
+      placeholder="Ghi chú bệnh lý"
+      rows={3}
+      value={form.notes || ""}
+      onChange={handleChange}
+      className="border p-3 rounded w-full text-gray-700"
+    />
+  </div>
+</div>
+
+{/* Dosage schedule checkboxes */}
+<div className="mb-6">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Lịch uống
+  </label>
+  <div className="flex flex-wrap gap-4">
+    {DOSAGE_OPTIONS.map((t) => (
+      <label key={t} className="flex items-center gap-2 text-gray-700">
+        <input
+          type="checkbox"
+          value={t}
+          checked={form.medicationSchedule.includes(t)}
+          onChange={handleDosageChange}
+          className="h-4 w-4 text-blue-600 rounded"
+        />
+        {t}
+      </label>
+    ))}
+  </div>
+</div>
+
 
             {/* Actions */}
             <div className="flex justify-end gap-3">

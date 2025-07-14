@@ -69,7 +69,7 @@ export default function EditDoctorModal({
 
           <div className="space-y-4 text-gray-900">
             <div>
-              <label className="block text-sm font-medium mb-1">Họ tên *</label>
+              <label className="block text-sm font-medium mb-1">Họ tên </label>
               <input
                 name="fullName"
                 value={formData.fullName || ""}
@@ -78,16 +78,19 @@ export default function EditDoctorModal({
               />
             </div>
 
+       <div>
+              <label className="block text-sm font-medium mb-1">Email</label>
             <input
               name="email"
               value={formData.email || ""}
               readOnly
               className="w-full border border-gray-400 px-3 py-2 rounded bg-gray-100 cursor-not-allowed"
             />
+            </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                Số điện thoại *
+                Số điện thoại 
               </label>
               <input
                 name="phone"

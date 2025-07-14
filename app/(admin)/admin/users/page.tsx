@@ -143,30 +143,30 @@ export default function CustomerManagementPage() {
             Tổng: {filtered.length} khách hàng
           </span>
         </div>
-        <div className="overflow-x-auto rounded-2xl shadow-xl border border-blue-100">
+        <div className="overflow-x-auto rounded-2xl shadow-xl border border-black">
           <table className="min-w-full text-base text-gray-700">
             <thead className="bg-blue-100 text-blue-900 uppercase tracking-wider text-sm">
               <tr>
-                <th className="border border-blue-200 px-4 py-3 text-left">ID</th>
-                <th className="border border-blue-200 px-4 py-3 text-left">Họ tên</th>
-                <th className="border border-blue-200 px-4 py-3 text-left">Email</th>
-                <th className="border border-blue-200 px-4 py-3 text-left">SĐT</th>
-                <th className="border border-blue-200 px-4 py-3 text-left">Giới tính</th>
-                <th className="border border-blue-200 px-4 py-3 text-left">Ngày sinh</th>
-                <th className="border border-blue-200 px-4 py-3 text-left">Địa chỉ</th>
-                <th className="border border-blue-200 px-4 py-3 text-center">Hành động</th>
+                <th className="border border-black px-4 py-3 text-left">ID</th>
+                <th className="border border-black px-4 py-3 text-left">Họ tên</th>
+                <th className="border border-black px-4 py-3 text-left">Email</th>
+                <th className="border border-black px-4 py-3 text-left">SĐT</th>
+                <th className="border border-black px-4 py-3 text-left">Giới tính</th>
+                <th className="border border-black px-4 py-3 text-left">Ngày sinh</th>
+                <th className="border border-black px-4 py-3 text-left">Địa chỉ</th>
+                <th className="border border-black px-4 py-3 text-center">Hành động</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-6 text-gray-500">
+                  <td colSpan={8} className="text-center py-6 text-gray-500 border border-black">
                     Đang tải dữ liệu...
                   </td>
                 </tr>
               ) : paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-6 text-gray-500">
+                  <td colSpan={8} className="text-center py-6 text-gray-500 border border-black">
                     Không có dữ liệu.
                   </td>
                 </tr>
@@ -176,20 +176,19 @@ export default function CustomerManagementPage() {
                     key={customer.customerID}
                     className={`${idx % 2 === 0 ? "bg-blue-50" : "bg-white"} hover:bg-blue-100 transition`}
                   >
-                    <td className="border border-blue-200 px-4 py-3">{customer.customerID}</td>
-                    <td className="border border-blue-200 px-4 py-3">{customer.fullName}</td>
-                    <td className="border border-blue-200 px-4 py-3">{customer.email}</td>
-                    <td className="border border-blue-200 px-4 py-3">{customer.phone}</td>
-                    <td className="border border-blue-200 px-4 py-3">
-                      {customer.gender === "MALE"
-                        ? "Nam"
-                        : customer.gender === "FEMALE"
-                        ? "Nữ"
-                        : "Khác"}
+                    <td className="border border-black px-4 py-3">{customer.customerID}</td>
+                    <td className="border border-black px-4 py-3 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">{customer.fullName}</td>
+                    <td className="border border-black px-4 py-3 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">{customer.email}</td>
+                    <td className="border border-black px-4 py-3 whitespace-nowrap max-w-[120px] overflow-hidden text-ellipsis">{customer.phone}</td>
+                    <td className="border border-black px-4 py-3">{customer.gender === "MALE"
+                      ? "Nam"
+                      : customer.gender === "FEMALE"
+                      ? "Nữ"
+                      : "Khác"}
                     </td>
-                    <td className="border border-blue-200 px-4 py-3">{customer.dateOfBirth}</td>
-                    <td className="border border-blue-200 px-4 py-3">{customer.address}</td>
-                    <td className="border border-blue-200 px-4 py-3 text-center">
+                    <td className="border border-black px-4 py-3">{customer.dateOfBirth}</td>
+                    <td className="border border-black px-4 py-3">{customer.address}</td>
+                    <td className="border border-black px-4 py-3 text-center">
                       <div className="flex justify-center gap-2">
                         <button
                           className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-xl shadow transition-transform hover:scale-105"
