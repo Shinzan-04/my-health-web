@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import ProfileMenu from "@/components/header/ProfileMenu";
 
 export default function Header() {
@@ -15,6 +15,7 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const pathname = usePathname();
 
 
 const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
@@ -104,10 +105,17 @@ useEffect(() => {
 
   if (!mounted) return null;
 
-  const handleLogout = () => {
-    localStorage.removeItem("authData");
-    router.push("/login");
-  };
+const handleLogout = () => {
+  localStorage.removeItem("authData");
+
+  if (pathname === "/") {
+    window.location.reload(); // Đang ở trang home thì chỉ cần reload lại
+  } else {
+    router.push("/"); // Nếu không phải trang home thì chuyển về home
+  }
+};
+
+
 
   const handleProfileMenuLinkClick = (href: string) => {
     router.push(href);
@@ -161,7 +169,7 @@ useEffect(() => {
 
         <Link href="/" className="flex items-center space-x-3">
           <img src="/logo.jpg" alt="Logo" className="w-[100px] h-auto" />
-          <h1 className="text-lg text-[#879FC5EB] m-0 font-semibold">
+          <h1 className="text-lg text-[#5f7cb3] m-0 font-semibold">
             HIV Treatment and Medical
           </h1>
         </Link>

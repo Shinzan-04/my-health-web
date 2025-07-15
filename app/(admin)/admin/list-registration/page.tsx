@@ -34,6 +34,10 @@ export default function RegistrationManager() {
   const [visitTypeFilter, setVisitTypeFilter] = useState<string>("");
   const [modeFilter, setModeFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<string>("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userDoctorId, setUserDoctorId] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("");  // ""=tất cả, "true"=Đã khám, "false"=Chưa khám
+
 
   const exportToExcel = () => {
     const exportData = filtered.map((r) => ({
@@ -67,69 +71,117 @@ export default function RegistrationManager() {
     saveAs(blob, "danh_sach_dang_ky.xlsx");
   };
 
+    // Decode token manually, fetch and filter by doctor role
   useEffect(() => {
+    const raw = localStorage.getItem("authData");
+    let role: string | null = null;
+    let doctorId: number | null = null;
+    if (raw) {
+      try {
+        const { token } = JSON.parse(raw);
+        const base64Payload = token.split(".")[1];
+        const decoded = JSON.parse(atob(base64Payload));
+        role = decoded.role;
+        doctorId = decoded.doctorId;
+      } catch {
+        // ignore parsing errors
+      }
+    }
+
     ApiService.getAllRegistrations().then((data) => {
-      setRegistrations(data);
-      setFiltered(data);
+      const list =
+        role === "DOCTOR" && doctorId != null
+          ? data.filter((r) => r.doctorId === doctorId)
+          : data;
+      setRegistrations(list);
+      setFiltered(list);
     });
   }, []);
 
+  // Apply filters
   useEffect(() => {
     let temp = registrations;
-    if (doctorIdFilter) temp = temp.filter((r) => r.doctorId.toString() === doctorIdFilter);
-    if (visitTypeFilter) temp = temp.filter((r) => r.visitType === visitTypeFilter);
+    if (doctorIdFilter)
+      temp = temp.filter((r) => r.doctorId.toString() === doctorIdFilter);
+    if (visitTypeFilter)
+      temp = temp.filter((r) => r.visitType === visitTypeFilter);
     if (modeFilter) temp = temp.filter((r) => r.mode === modeFilter);
-    if (dateFilter) temp = temp.filter((r) => r.appointmentDate?.startsWith(dateFilter));
+    if (dateFilter)
+      temp = temp.filter((r) =>
+        r.appointmentDate?.startsWith(dateFilter)
+      );
+    if (statusFilter === "true") {
+    temp = temp.filter(r => r.status);
+  } else if (statusFilter === "false") {
+    temp = temp.filter(r => !r.status);
+  }
     setFiltered(temp);
-  }, [doctorIdFilter, visitTypeFilter, modeFilter, dateFilter, registrations]);
-
+  }, [doctorIdFilter, visitTypeFilter, modeFilter, dateFilter, statusFilter, registrations]);
+  
   return (
-    <div className="p-6 text-gray-900 space-y-6">
-      {/* Title */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-2xl font-bold whitespace-nowrap">📋 Quản lý phiếu đăng ký</h1>
-        <button
-          onClick={exportToExcel}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition"
-        >
-          📥 Xuất Excel
-        </button>
-      </div>
+<div className="p-6 text-gray-900 space-y-6">
+  {/* Title */}
+  <div className="flex items-center">
+    <h1 className="text-2xl font-bold whitespace-nowrap">📋 Quản lý phiếu đăng ký</h1>
+  </div>
+
+  {/* Export Button */}
+  <div>
+    <button
+      onClick={exportToExcel}
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition"
+    >
+      📥 Xuất Excel
+    </button>
+  </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <input
-          type="text"
-          placeholder="Lọc theo Doctor ID"
-          value={doctorIdFilter}
-          onChange={(e) => setDoctorIdFilter(e.target.value)}
-          className="border p-2 rounded-md w-full"
-        />
-        <select
-          value={visitTypeFilter}
-          onChange={(e) => setVisitTypeFilter(e.target.value)}
-          className="border p-2 rounded-md w-full"
-        >
-          <option value="">Tất cả loại khám</option>
-          <option value="REGISTRATION">Khám</option>
-          <option value="APPOINTMENT">Tư vấn</option>
-        </select>
-        <select
-          value={modeFilter}
-          onChange={(e) => setModeFilter(e.target.value)}
-          className="border p-2 rounded-md w-full"
-        >
-          <option value="">Tất cả hình thức</option>
-          <option value="Online">Online</option>
-          <option value="Offline">Offline</option>
-        </select>
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="border p-2 rounded-md w-full"
-        />
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  {userRole === "ADMIN" && (
+    <input
+      type="text"
+      placeholder="Lọc theo Doctor ID"
+      value={doctorIdFilter}
+      onChange={e => setDoctorIdFilter(e.target.value)}
+      className="border p-2 rounded-md w-full"
+    />
+  )}
+  <select
+    value={visitTypeFilter}
+    onChange={e => setVisitTypeFilter(e.target.value)}
+    className="border p-2 rounded-md w-full"
+  >
+    <option value="">Tất cả loại khám</option>
+    <option value="REGISTRATION">Khám</option>
+    <option value="APPOINTMENT">Tư vấn</option>
+  </select>
+  <select
+    value={modeFilter}
+    onChange={e => setModeFilter(e.target.value)}
+    className="border p-2 rounded-md w-full"
+  >
+    <option value="">Tất cả hình thức</option>
+    <option value="Online">Online</option>
+    <option value="Offline">Offline</option>
+  </select>
+  <input
+    type="date"
+    value={dateFilter}
+    onChange={e => setDateFilter(e.target.value)}
+    className="border p-2 rounded-md w-full"
+  />
+  {/* thêm hộp Select cho trạng thái */}
+  <select
+    value={statusFilter}
+    onChange={e => setStatusFilter(e.target.value)}
+    className="border p-2 rounded-md w-full"
+  >
+    <option value="">Tất cả trạng thái</option>
+    <option value="false" className="text-yellow-600">Chưa khám</option>
+    <option value="true" className="text-green-600">Đã khám</option>
+  </select>
+</div>
+
 
       {/* Table */}
       <div className="w-full overflow-x-auto rounded-lg shadow-sm">
